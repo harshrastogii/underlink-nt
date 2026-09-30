@@ -363,15 +363,30 @@
     }, { rootMargin: "-45% 0px -50% 0px" });
     byId.forEach((_, id) => { const s = document.getElementById(id); if (s) io.observe(s); });
   })();
-  // ---- "Show the numbers" switch (as in Pyrantis): plain view first, detail on demand ----
+  // ---- "Show technical detail" switch (as in Pyrantis): plain view first, detail on demand.
+  // Hiding or showing panels changes the page height, so keep whatever is at the top of the
+  // screen in the same place instead of letting the page jump.
   (function detailSwitch() {
     const box = $("detail-toggle");
-    const apply = () => {
+    const header = document.querySelector(".topbar");
+    function anchor() {
+      const top = header.getBoundingClientRect().bottom + 8;
+      const blocks = document.querySelectorAll("main h2, main h3, main p, main .panel, main .stats, main figure, main table");
+      for (const el of blocks) {
+        if (el.closest(".detail")) continue;
+        const r = el.getBoundingClientRect();
+        if (r.bottom > top) return { el, y: r.top };
+      }
+      return null;
+    }
+    const apply = (keepPlace) => {
+      const a = keepPlace ? anchor() : null;
       document.body.classList.toggle("show-numbers", box.checked);
+      if (a) window.scrollBy({ top: a.el.getBoundingClientRect().top - a.y, behavior: "instant" });
       try { localStorage.setItem("underlink-detail", box.checked ? "1" : "0"); } catch (e) {}
     };
     try { box.checked = localStorage.getItem("underlink-detail") === "1"; } catch (e) {}
-    box.addEventListener("change", apply);
-    apply();
+    box.addEventListener("change", () => apply(true));
+    apply(false);
   })();
 })();
