@@ -271,13 +271,16 @@ ol.plain li { margin: 6px 0; }
 
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
 
-/* print: only the community card */
+/* print: only the community card, on one A4 page */
+@page { size: A4; margin: 12mm; }
 @media print {
-  body::before, body::after { display: none; }
-  body * { visibility: hidden; }
-  #card-sheet, #card-sheet * { visibility: visible; }
-  #card-sheet { position: absolute; left: 0; top: 0; max-width: none; width: 100%; box-shadow: none; }
-  .topbar { display: none; }
+  html, body { background: #fff !important; }
+  body::before, body::after, .skip, .topbar, .footer, main > section:not(#card),
+  #card h2, #card .section-lead, #card .plain, .card-actions { display: none !important; }
+  #card { padding: 0; }
+  #card .wrap { padding: 0; max-width: none; }
+  .card-sheet { max-width: none; width: 100%; box-shadow: none; border: 1.5px solid #1b1f24; break-inside: avoid; }
+  .card-grid td.cell { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 
 /* summary widgets: keep text above the decorative circle; dark-mode tints */
@@ -335,3 +338,18 @@ html { overflow-anchor: none; }
 .chain-card { background: linear-gradient(120deg, #0A4FCC 0%, #3D5BD6 45%, #8656A8 75%, #F2652A 115%); }
 .eyebrow { background: rgba(10, 92, 230, 0.1); color: #0A4FCC; }
 .plain { border-left-color: #F2652A; border-color: rgba(242, 101, 42, 0.3); }
+
+.card-grid sup { font-size: 0.65em; margin-left: 2px; }
+.card-notes { margin: -6px 0 8px; padding-left: 18px; font-size: 0.78rem; color: #4a525c; }
+.card-key { font-size: 0.8rem; color: #4a525c; background: #F4F6F8; border-radius: 8px; padding: 8px 10px; margin: 0 0 12px; }
+@media print {
+  .card-sheet { padding: 14px 16px; font-size: 12.5px; }
+  .card-title { font-size: 1.35rem; }
+  .card-grid { margin: 6px 0 8px; border-spacing: 3px; }
+  .card-grid td.cell { padding: 5px 4px; }
+  .card-grid td.svc { padding: 2px 4px; }
+  .card-cols { gap: 14px; }
+  .card-list { margin-bottom: 6px; }
+  .lang-panel { min-height: 70px; }
+  .card-foot { margin-top: 8px; }
+}

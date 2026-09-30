@@ -324,9 +324,14 @@
     const sym = { works: "✓", degraded: "◐", "not available": "✕", "ask locally": "?" };
     const t = $("card-grid");
     t.append(el("thead", {}, el("tr", {}, el("th", {}, ""), ...D.card.scenarios.map((s) => el("th", {}, s.label)))));
+    const notes = [];                          // notes from config/rules.yaml, printed under the grid
     t.append(el("tbody", {}, ...D.card.services.map((s) => el("tr", {}, el("td", { class: "svc" }, s.label),
-      ...s.cells.map((x) => el("td", { class: "cell " + cls[x.status], title: x.note || null },
-        el("span", { class: "sym", "aria-hidden": "true" }, sym[x.status]), x.word.toUpperCase()))))));
+      ...s.cells.map((x) => {
+        const n = x.note ? notes.push(x.note) : 0;
+        return el("td", { class: "cell " + cls[x.status] },
+          el("span", { class: "sym", "aria-hidden": "true" }, sym[x.status]), x.word.toUpperCase(), n ? el("sup", {}, String(n)) : null);
+      })))));
+    $("card-notes").append(...notes.map((n) => el("li", {}, n)));
     $("card-t0").textContent = D.card.triple_zero;
     $("card-print").addEventListener("click", () => window.print());
   })();

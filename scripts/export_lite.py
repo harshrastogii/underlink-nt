@@ -29,9 +29,11 @@ def main() -> None:
     pn.extension(raw_css=[A.CSS], inline=True, design=None, notifications=False)
     pn.config.raw_css = [A.CSS]
     page = pn.Column(
-        pn.pane.HTML("<div class='ul-note'><b style='font-size:18px'>Underlink</b> "
-                     "Revealing the hidden dependencies behind NT connectivity. "
-                     "Government summary, public version.</div>"),
+        pn.pane.HTML("<div class='ul-note' style='display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center'>"
+                     "<a href='https://underlink-nt.vercel.app/' style='font-weight:700;text-decoration:none'>"
+                     "&larr; Back to the Underlink website</a>"
+                     "<span><b style='font-size:18px'>Underlink</b> From Signal to System. "
+                     "Government summary, public version. Works offline.</span></div>"),
         A.government_view(),
         sizing_mode="stretch_width",
     )

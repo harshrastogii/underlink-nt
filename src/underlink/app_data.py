@@ -233,7 +233,9 @@ def government_view():
     N = numbers()
     tiles = pn.GridBox(*[pn.pane.HTML(tile_html(k), sizing_mode="stretch_width") for k in kpis(N)],
                        ncols=2, sizing_mode="stretch_width")
-    reg = region_classes().rename(columns={"land_council": "Land council region"})
+    plain = {"land_council": "Land council region", "at-anchor": "At a fibre town", "radio-chain": "On a radio chain",
+             "radio-island": "Radio island", "no-radio-site": "No licensed radio site nearby"}
+    reg = region_classes().rename(columns=plain)[list(plain.values())]
     return pn.Column(
         pn.pane.HTML(f"<div class='ul-note'>Four measures DCDD could track. Baselines are as at {BASELINE_DATE} "
                      "and come from outputs/public/numbers.json. Targets are our proposals, not agreed policy. "
@@ -242,9 +244,12 @@ def government_view():
         tiles,
         pn.pane.Markdown("### Larger places by chain class and land council region"),
         pn.pane.DataFrame(reg, index=False, sizing_mode="stretch_width"),
-        pn.pane.HTML("<div class='ul-note'>Counts of 1 or 2 are shown as &lt;3. at-anchor: the site is next to fibre. "
-                     "radio-chain: reaches fibre over licensed radio relays. radio-island: licensed radio but no radio "
-                     "path to fibre we can see. no-radio-site: no licensed radio site within 10 km.</div>"),
+        pn.pane.HTML("<div class='ul-note'>Each number is a count of larger places. <b>&lt;3</b> means 1 or 2 places: "
+                     "we do not show exact small counts, so no single community can be picked out. "
+                     "<b>At a fibre town</b>: its phone site is next to the fibre cable. <b>On a radio chain</b>: it reaches "
+                     "the fibre cable through a line of radio relays. <b>Radio island</b>: it has radio links, but none we "
+                     "can see reach fibre (probably satellite). <b>No licensed radio site nearby</b>: no licensed radio "
+                     "site within 10 km.</div>"),
         pn.pane.Markdown("### Cyclone replays"),
         pn.pane.Bokeh(replay_chart(), sizing_mode="stretch_width"),
         pn.pane.HTML("<div class='ul-note'>A replay removes every relay near a past storm track and re-traces each "
