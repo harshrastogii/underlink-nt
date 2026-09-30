@@ -16,6 +16,7 @@ the old words cannot be found by search or copy-paste.
 from __future__ import annotations
 
 import io
+import re
 import subprocess
 import sys
 import tempfile
@@ -56,9 +57,8 @@ EDITS = {
             "so for them 18 is an upper bound; such links could also join a radio island to fibre and add a chain. "
             "Recommendation 1 is how to check both.")]),
         ("Sixteen of the 18 sit inside", [
-            ("a solar-powered Telstra site near Mapuru could not", "a solar-powered Telstra site could not"),
-            ("The first single-path relay on Galiwin'ku's chain sits about 10 km from Mapuru and is not in the Hardening "
-             "Program, although public data cannot confirm that it is the same site.",
+            (r"re:a solar-powered Telstra site near \w+ could not", "a solar-powered Telstra site could not"),
+            (r"re:The first single-path relay on Galiwin'ku's chain .*? same site\.",
              "None of the five single-path relays on its chain is in the Hardening Program, and public data cannot show "
              "whether one of them is that solar site.")])],
     8: [("Limitations.", [(
@@ -154,6 +154,11 @@ def edit_page(src, pno: int, edits, out) -> None:
     for prefix, subs in edits:
         para, runs = paragraph(page, prefix)
         for old, new in subs:
+            if old.startswith("re:"):               # a pattern, so the old wording need not be printed here
+                pat = re.compile(old[3:])
+                assert any(pat.search(t) for t, _ in runs), f"page {pno + 1}: pattern not found: {old[3:60]}"
+                runs = [[pat.sub(new, t), b] for t, b in runs]
+                continue
             assert any(old in t for t, _ in runs), f"page {pno + 1}: text not found: {old[:60]}"
             runs = [[t.replace(old, new), b] for t, b in runs]
         x0 = para[0]["bbox"][0]

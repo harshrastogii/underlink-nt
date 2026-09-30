@@ -153,7 +153,7 @@ SLIDES = [
         *stat(8.84, 1.55, 3.9, f"{lo} to {hi}%", "share with a single-path relay across all 9 sensitivity runs"),
         img(FIG / "fig1_hero_chain.png", 1.4, 3.75, 7.4),
         t(9.05, 3.95, 3.7, 2.6, "Ampilatwatja reaches fibre through five single-path relays in a row. Galiwin'ku has the same shape. "
-                                "In 2024 a solar site near Mapuru ran flat and Galiwin'ku lost reception for 12 nights.", size=13),
+                                "In 2024 a solar Telstra site ran flat and Galiwin'ku lost reception for 12 nights.", size=13),
         footer(),
     ], notes="Of 23 larger places that reach fibre over radio, 18 depend on at least one single-path relay, and 16 of those are inside Telstra's predicted coverage. Across nine sensitivity runs the share stays "
              "between 78 and 84 percent. Hidden fibre or satellite links can only lower the count, so 18 is an upper bound. About 40 seconds."),
@@ -175,7 +175,7 @@ SLIDES = [
         table(0.6, 1.6, 8.3, [2.3, 3.4, 2.6], [
             ["Reported outage", "Underlink, from public radio data", "Result"],
             ["Ampilatwatja, 2024", "Radio chain, 5 single-path relays", "Consistent (planned works)"],
-            ["Galiwin'ku, 2024", "First single-path relay about 10 km from the failing Mapuru site", "Consistent, including the cause"],
+            ["Galiwin'ku, 2024", "5 single-path relays, none in the Hardening Program", "Fits, if the solar site is on its chain"],
             ["Milingimbi, 2024", "Radio chain, no single-path relay", "Missed: which site serves it"],
             ["Borroloola, 2024", "Fibre town", "Missed: battery hours"],
             ["Wadeye, 2026", "No licensed radio site nearby", "Missed: fibre routes"],
