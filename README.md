@@ -1,8 +1,8 @@
 # Underlink
 
-**Revealing the Hidden Dependencies Behind NT Connectivity**
+**From Signal to System**
 
-Entry for the CDU IT Code Fair 2026 Data Innovation Challenge (remote connectivity). Team DIC017: Harsh Rastogi and Aashish.
+Entry for the CDU IT Code Fair 2026 Data Innovation Challenge (remote connectivity). Team Top Enders (registration DIC017): Harsh Rastogi and Aashish.
 
 - **Web app (public numbers only):** https://underlink-nt.vercel.app
 - **Code:** https://github.com/harshrastogii/underlink-nt
@@ -140,7 +140,7 @@ data/manifest.csv          sources, licences, md5
 outputs/public/            numbers.json, public CSVs, figures, Lite HTML
 outputs/community_samples/ sample card
 outputs/restricted/        not shipped: relay register, per-place chains, warehouse
-docs/                      ETHICS.md, schema.sql, data_dictionary.md, report, deck
+docs/                      ETHICS.md, schema.sql, data_dictionary.md
 web/                       public web app (static; data/public.js from export_web_data.py)
 tests/                     pytest checks
 ```
