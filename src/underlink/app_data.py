@@ -231,8 +231,11 @@ def government_view():
     """KPI tiles, region table and replay chart. Public: aggregates only."""
     import panel as pn
     N = numbers()
-    tiles = pn.GridBox(*[pn.pane.HTML(tile_html(k), sizing_mode="stretch_width") for k in kpis(N)],
-                       ncols=2, sizing_mode="stretch_width")
+    # one HTML block with its own grid: two tiles per row, one per row on phones
+    tiles = pn.pane.HTML("<style>.ul-tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}"
+                         "@media (max-width:720px){.ul-tiles{grid-template-columns:1fr}}</style>"
+                         "<div class='ul-tiles'>" + "".join(tile_html(k) for k in kpis(N)) + "</div>",
+                         sizing_mode="stretch_width")
     plain = {"land_council": "Land council region", "at-anchor": "At a fibre town", "radio-chain": "On a radio chain",
              "radio-island": "Radio island", "no-radio-site": "No licensed radio site nearby"}
     reg = region_classes().rename(columns=plain)[list(plain.values())]

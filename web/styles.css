@@ -353,3 +353,100 @@ html { overflow-anchor: none; }
   .lang-panel { min-height: 70px; }
   .card-foot { margin-top: 8px; }
 }
+
+/* ======================================================================
+   Phones (screen only, under 720 px wide). Desktop rules above are unchanged.
+   ====================================================================== */
+.swipe-hint { display: none; }
+@media screen and (max-width: 720px) {
+  html { scroll-padding-top: 118px; }
+  body { font-size: 15px; }
+  .wrap { padding: 0 14px; }
+  section { padding: 32px 0; }
+  .hero { padding-top: 20px; }
+
+  /* compact header: logo + switch on one row, menu as a swipeable strip */
+  .topbar { top: 6px; margin: 6px 8px 0; border-radius: 14px; }
+  .topbar-inner { flex-wrap: wrap; height: auto; gap: 6px 10px; padding: 8px 12px 6px; }
+  .brand { font-size: 1rem; gap: 8px; }
+  .brand img { width: 32px; }
+  .switch { order: 2; margin-left: auto; padding: 4px 10px 4px 6px; font-size: 0.78rem; gap: 7px; }
+  .switch .track { width: 32px; height: 18px; }
+  .switch .track::after { width: 12px; height: 12px; }
+  .switch input:checked + .track::after { transform: translateX(14px); }
+  .nav { order: 3; width: 100%; margin: 0 -4px; padding: 2px 0; gap: 2px; scroll-snap-type: x proximity;
+         -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent); mask-image: linear-gradient(90deg, #000 88%, transparent); }
+  .nav a { padding: 7px 10px; font-size: 0.82rem; scroll-snap-align: start; }
+
+  /* type */
+  .eyebrow { font-size: 0.68rem; }
+  .hero h1 { font-size: 1.85rem; margin: 10px 0 10px; }
+  h2 { font-size: 1.4rem; }
+  .lead, .section-lead { font-size: 0.95rem; }
+  .plain { font-size: 0.93rem; padding: 10px 12px; }
+
+  /* chain card and sandbox: contain the wide drawings and say they can be swiped */
+  .chain-card { padding: 14px 12px 12px; margin: 20px 0 18px; }
+  #chain { min-width: 0; max-width: 330px; margin: 6px auto 0; }
+  .chip { font-size: 0.72rem; }
+  .chain-status { font-size: 0.9rem; }
+  .swipe-hint { display: block; font-size: 0.75rem; opacity: 0.8; margin: 4px 0 0; }
+  .sandbox > * { min-width: 0; }
+  .sandbox-canvas, .sandbox-side { padding: 12px; }
+  .sandbox-tools { gap: 8px 14px; }
+  .sandbox-canvas .swipe-hint { color: var(--muted); }
+
+  /* cards, stats, facts */
+  .stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat { padding: 14px; }
+  .stat .num { font-size: 1.5rem; }
+  .stat .what { font-size: 0.8rem; }
+  #hero-stats .stat:last-child:nth-child(odd), #works-stats .stat:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .panel { padding: 16px; border-radius: 14px; }
+  .grid-2 { grid-template-columns: 1fr; gap: 14px; }
+  .grid-2 > *, .panel { min-width: 0; }
+  .fact { grid-template-columns: 84px 1fr; gap: 10px; }
+  .fact .n { font-size: 1.2rem; }
+  .sens-out { grid-template-columns: 1fr 1fr; }
+  .big-out strong { font-size: 1.6rem; }
+  .glossary { padding: 14px; }
+  .glossary dl { grid-template-columns: 1fr; gap: 10px; }
+
+  /* controls wrap instead of overflowing */
+  .controls { gap: 8px; }
+  .seg { width: 100%; }
+  .seg .seg-label { width: 100%; padding: 2px 6px 4px; }
+  .seg button { flex: 1 1 auto; padding: 8px 8px; }
+
+  /* charts */
+  .hbars .row { grid-template-columns: 104px 1fr 30px; font-size: 0.8rem; }
+  .stack { height: 36px; }
+  .stack span { font-size: 0.72rem; white-space: normal; text-align: center; line-height: 1.1; padding: 0 2px; }
+
+  /* tables: each row becomes a small stacked card with the column names as labels */
+  table.data, table.data tbody, table.data tr, table.data td { display: block; width: 100%; }
+  table.data thead { display: none; }
+  table.data tr { background: var(--soft); border: 1px solid var(--line); border-radius: 12px; padding: 6px 12px; margin-bottom: 10px; }
+  table.data tbody tr:hover td { background: transparent; }
+  table.data td { display: grid; grid-template-columns: 42% 1fr; gap: 10px; border-bottom: 1px dashed var(--line); padding: 8px 0; font-size: 0.85rem; text-align: left !important; }
+  table.data td:last-child { border-bottom: 0; }
+  table.data td::before { content: attr(data-label); font-weight: 700; color: var(--muted); font-size: 0.78rem; }
+  table.data td:first-child { font-weight: 700; color: var(--navy); }
+
+  /* community card */
+  .card-sheet { padding: 14px; border-radius: 12px; }
+  .card-title { font-size: 1.2rem; }
+  .card-grid { font-size: 0.78rem; border-spacing: 3px; }
+  .card-grid th { font-size: 0.7rem; }
+  .card-grid td.cell { font-size: 0.64rem; padding: 6px 2px; }
+  .card-grid td.svc { font-size: 0.8rem; }
+  .card-key { font-size: 0.76rem; }
+  .card-actions .btn { width: 100%; padding: 12px; }
+
+  /* method, tiers, footer */
+  .steps li { padding: 12px 12px 12px 50px; }
+  .steps li::before { left: 12px; }
+  .sources { columns: 1; }
+  .tiers { grid-template-columns: 1fr; }
+  .footer { font-size: 0.8rem; }
+}

@@ -43,6 +43,15 @@ def main() -> None:
     html = OUT.read_text()
     # Panel adds favicon links that point at its CDN. Drop them so nothing loads remotely.
     html = re.sub(r'<link rel="(?:apple-touch-icon|icon)"[^>]*>\s*', "", html)
+    # Phones: render at the device width (Panel's template has no viewport tag) with phone-only spacing.
+    html = html.replace("<head>", """<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+@media screen and (max-width: 720px) {
+  body { margin: 0 !important; padding: 0 10px !important; overflow-x: hidden; }
+  table { display: block; overflow-x: auto; max-width: 100%; font-size: 13px; }
+}
+</style>""", 1)
     OUT.write_text(html)
     # Checks: no remote scripts or stylesheets, no relay keys.
     remote = re.findall(r'<(?:script|link)[^>]+(?:src|href)="https?://[^"]+"', html)

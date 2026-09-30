@@ -51,23 +51,34 @@
     const y = 78, xs = [205, 275, 345, 415, 485];
     const off = new Set();
     const status = $("chain-status");
+    // Phones draw the chain top to bottom so all of it fits the screen; wider screens draw it left to right.
+    const phone = window.matchMedia("(max-width: 720px)");
+    const K = 0.78;                                          // vertical spacing factor on phones
+    const P = (x, yy) => (phone.matches ? [70 + (yy - y), 24 + (x - 40) * K] : [x, yy]);
+    const line = (x1, y1, x2, y2, attrs) => { const [a1, b1] = P(x1, y1), [a2, b2] = P(x2, y2);
+      return el("line", { x1: a1, y1: b1, x2: a2, y2: b2, ...attrs }); };
+    const circle = (x, r, attrs) => { const [cx, cy] = P(x, y); return el("circle", { cx, cy, r, ...attrs }); };
+    const box = (x, w, h, attrs) => { const [cx, cy] = P(x, y); const [bw, bh] = phone.matches ? [h, w] : [w, h];
+      return el("rect", { x: cx - bw / 2, y: cy - bh / 2, width: bw, height: bh, ...attrs }); };
     function draw() {
       svg.replaceChildren();
+      svg.setAttribute("viewBox", phone.matches ? `0 0 330 ${Math.round(48 + 684 * K)}` : "0 0 760 170");
       // Links past the first switched-off relay no longer carry service, so they fade.
       const cutX = off.size ? xs[Math.min(...off)] : Infinity;
-      const seg_ = (x1, x2) => svg.append(el("line", { x1, y1: y, x2, y2: y, stroke: "#fff", "stroke-width": 3, opacity: x2 <= cutX ? 1 : 0.35 }));
+      const seg_ = (x1, x2) => svg.append(line(x1, y, x2, y, { stroke: "#fff", "stroke-width": 3, opacity: x2 <= cutX ? 1 : 0.35 }));
       // fibre town and fibre-connected site
-      svg.append(el("rect", { x: 40, y: y - 26, width: 14, height: 52, fill: "#fff" }));
-      seg_(54, 112); svg.append(el("circle", { cx: 125, cy: y, r: 13, fill: "none", stroke: "#fff", "stroke-width": 3 }));
+      svg.append(box(47, 14, 52, { fill: "#fff" }));
+      seg_(54, 112); svg.append(circle(125, 13, { fill: "none", stroke: "#fff", "stroke-width": 3 }));
       seg_(138, xs[0] - 15);
       xs.forEach((x, i) => {
         if (i > 0) seg_(xs[i - 1] + 15, x - 15);
         const isOff = off.has(i);
+        const [cx, cy] = P(x, y);
         const g = el("g", { class: "relay", tabindex: 0, role: "button", "aria-pressed": String(isOff),
           "aria-label": `Relay ${i + 1}, ${isOff ? "switched off" : "working"}` });
-        g.append(el("circle", { cx: x, cy: y, r: 15, fill: isOff ? "none" : "#F6A15E", stroke: isOff ? "#fff" : "none",
+        g.append(el("circle", { cx, cy, r: 15, fill: isOff ? "none" : "#F6A15E", stroke: isOff ? "#fff" : "none",
           "stroke-width": 2.5, "stroke-dasharray": isOff ? "4 3" : null }));
-        if (isOff) g.append(el("path", { d: `M${x - 6} ${y - 6} L${x + 6} ${y + 6} M${x + 6} ${y - 6} L${x - 6} ${y + 6}`, stroke: "#fff", "stroke-width": 2.5 }));
+        if (isOff) g.append(el("path", { d: `M${cx - 6} ${cy - 6} L${cx + 6} ${cy + 6} M${cx + 6} ${cy - 6} L${cx - 6} ${cy + 6}`, stroke: "#fff", "stroke-width": 2.5 }));
         const toggle = () => { off.has(i) ? off.delete(i) : off.add(i); draw(); };
         g.addEventListener("click", toggle);
         g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
@@ -75,22 +86,34 @@
       });
       seg_(xs[4] + 15, 568);
       const down = off.size > 0;
-      svg.append(el("rect", { x: 568, y: y - 13, width: 26, height: 26, fill: "none", stroke: "#fff", "stroke-width": 3, opacity: down ? 0.35 : 1 }));
-      svg.append(el("line", { x1: 594, y1: y, x2: 640, y2: y, stroke: "#fff", "stroke-width": 3, "stroke-dasharray": "3 4", opacity: down ? 0.35 : 1 }));
-      svg.append(el("circle", { cx: 690, cy: y, r: 34, fill: down ? "rgba(0,0,0,0.12)" : "none", stroke: "#fff", "stroke-width": 2.5, "stroke-dasharray": "6 5" }));
-      svg.append(el("circle", { cx: 690, cy: y, r: 7, fill: down ? "none" : "#fff", stroke: down ? "#fff" : "none", "stroke-width": 2 }));
-      const label = (x, lines, bold) => lines.forEach((t, k) => svg.append(el("text", { x, y: y + 44 + k * 15, "text-anchor": "middle",
-        fill: "#fff", "font-size": 12.5, "font-weight": bold ? 700 : 400, "font-family": "Arial, sans-serif" }, t)));
+      svg.append(box(581, 26, 26, { fill: "none", stroke: "#fff", "stroke-width": 3, opacity: down ? 0.35 : 1 }));
+      svg.append(line(594, y, 640, y, { stroke: "#fff", "stroke-width": 3, "stroke-dasharray": "3 4", opacity: down ? 0.35 : 1 }));
+      svg.append(circle(690, 34, { fill: down ? "rgba(0,0,0,0.12)" : "none", stroke: "#fff", "stroke-width": 2.5, "stroke-dasharray": "6 5" }));
+      svg.append(circle(690, 7, { fill: down ? "none" : "#fff", stroke: down ? "#fff" : "none", "stroke-width": 2 }));
+      const txt = { fill: "#fff", "font-family": "Arial, sans-serif" };
+      const label = (x, lines, bold) => {
+        const [cx, cy] = P(x, y);
+        lines.forEach((t, k) => svg.append(phone.matches
+          ? el("text", { x: 118, y: cy + 5 - (lines.length - 1) * 8 + k * 16, "text-anchor": "start", "font-size": 14, "font-weight": bold ? 700 : 400, ...txt }, t)
+          : el("text", { x: cx, y: y + 44 + k * 15, "text-anchor": "middle", "font-size": 12.5, "font-weight": bold ? 700 : 400, ...txt }, t)));
+      };
       label(47, ["Fibre", "town"]); label(125, ["Fibre-connected", "site"]); label(581, ["Community", "mobile site"]);
-      label(690, [down ? "No service" : "Community"], true);   // sits under the dashed circle
-      svg.append(el("line", { x1: xs[0] - 10, y1: 30, x2: xs[4] + 10, y2: 30, stroke: "#F6A15E", "stroke-width": 2 }));
-      svg.append(el("text", { x: (xs[0] + xs[4]) / 2, y: 22, "text-anchor": "middle", fill: "#FFD9B0", "font-size": 13, "font-weight": 700,
-        "font-family": "Arial, sans-serif" }, "5 single-path relays in a row"));
+      label(690, [down ? "No service" : "Community"], true);   // sits under (or beside) the dashed circle
+      const tag = { fill: "#FFD9B0", "font-weight": 700, "font-family": "Arial, sans-serif" };
+      if (phone.matches) {
+        const [, t0] = P(xs[0] - 10, y), [, t1] = P(xs[4] + 10, y);
+        svg.append(el("line", { x1: 38, y1: t0, x2: 38, y2: t1, stroke: "#F6A15E", "stroke-width": 2 }));
+        ["5 single-path", "relays in a row"].forEach((t, k) => svg.append(el("text", { x: 118, y: (t0 + t1) / 2 - 4 + k * 17, "font-size": 14, ...tag }, t)));
+      } else {
+        svg.append(el("line", { x1: xs[0] - 10, y1: 30, x2: xs[4] + 10, y2: 30, stroke: "#F6A15E", "stroke-width": 2 }));
+        svg.append(el("text", { x: (xs[0] + xs[4]) / 2, y: 22, "text-anchor": "middle", "font-size": 13, ...tag }, "5 single-path relays in a row"));
+      }
       status.textContent = down
         ? `Relay ${[...off].map((i) => i + 1).join(", ")} ${off.size > 1 ? "are" : "is"} off. The community loses mobile service, even though its own site still works and the coverage map still shows it as covered.`
         : "Every relay on this chain is working. The community has service.";
     }
     $("chain-reset").addEventListener("click", () => { off.clear(); draw(); });
+    phone.addEventListener("change", draw);
     draw();
   })();
 
@@ -249,7 +272,8 @@
     const maxAll = Math.max(...D.replay.variants.map((v) => v.exposed));
     const show = () => {
       const rows = events.map((e) => D.replay.variants.find((v) => v.event === e && v.radius_km === radius && v.gale_only === gale));
-      const W = 520, left = 100, bh = 22, gap = 12, H = rows.length * (bh + gap) + 34;
+      const small = window.matchMedia("(max-width: 720px)").matches;   // phones: narrower drawing, so text stays readable
+      const W = small ? 330 : 520, left = small ? 92 : 100, bh = 22, gap = 12, H = rows.length * (bh + gap) + 34;
       const x = (v) => left + ((W - left - 20) * v) / maxAll;
       const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Cyclone replay results" });
       for (let t = 0; t <= maxAll; t++) {
@@ -265,6 +289,7 @@
       const tot = rows.reduce((s, v) => s + v.exposed, 0), up = rows.reduce((s, v) => s + v.upstream_only, 0);
       host.replaceChildren(svg, el("p", { class: "note" }, `${tot} cases of a larger radio-chain place losing its path; ${up} of them upstream-only (the storm missed the place and its own site).`));
     };
+    window.matchMedia("(max-width: 720px)").addEventListener("change", () => show());
     seg($("rp-radius"), "Distance", [[50, "50 km"], [100, "100 km"], [150, "150 km"]], 100, (v) => { radius = v; show(); });
     seg($("rp-part"), "Track", [[false, "Whole track"], [true, "Gale-strength part"]], false, (v) => { gale = v; show(); });
   })();
@@ -358,7 +383,13 @@
       for (const e of entries) {
         if (!e.isIntersecting) continue;
         links.forEach((a) => a.classList.remove("active"));
-        byId.get(e.target.id)?.classList.add("active");
+        const a = byId.get(e.target.id);
+        if (a) {
+          a.classList.add("active");
+          // on phones the menu scrolls sideways: bring the active link into view
+          const nav = a.parentElement;
+          if (nav.scrollWidth > nav.clientWidth) nav.scrollTo({ left: a.offsetLeft - 8, behavior: "smooth" });
+        }
       }
     }, { rootMargin: "-45% 0px -50% 0px" });
     byId.forEach((_, id) => { const s = document.getElementById(id); if (s) io.observe(s); });
@@ -389,4 +420,9 @@
     box.addEventListener("change", () => apply(true));
     apply(false);
   })();
+  // ---- Tables: give each cell its column name, so phones can show rows as stacked cards ----
+  document.querySelectorAll("table.data").forEach((t) => {
+    const heads = [...t.querySelectorAll("thead th")].map((h) => h.textContent.trim());
+    t.querySelectorAll("tbody tr").forEach((tr) => [...tr.children].forEach((td, k) => { if (heads[k]) td.dataset.label = heads[k]; }));
+  });
 })();
