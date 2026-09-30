@@ -1,0 +1,436 @@
+{
+  "network": {
+    "V": 358,
+    "E": 313,
+    "C": 51,
+    "cycle_rank_radio": 6,
+    "cycle_rank_with_fibre": 20,
+    "roots": 41,
+    "anchors": 49,
+    "components_with_root": 27,
+    "p2p_link_records": 808
+  },
+  "places": {
+    "all": 782,
+    "larger": 116,
+    "larger_with_radio_site": 71,
+    "larger_classes": {
+      "no-radio-site": 45,
+      "at-anchor": 34,
+      "radio-chain": 23,
+      "radio-island": 14
+    },
+    "all_classes": {
+      "no-radio-site": 485,
+      "radio-chain": 114,
+      "at-anchor": 109,
+      "radio-island": 74
+    },
+    "population_match": {
+      "name+distance": 761,
+      "unmatched": 11,
+      "distance<=1km": 10
+    },
+    "named_population_2020": {
+      "Ampilatwatja": 491,
+      "Galiwinku": 2453,
+      "Wadeye": 2679,
+      "Borroloola": 200
+    }
+  },
+  "chains": {
+    "radio_chain_places": 23,
+    "hops_median": 4.0,
+    "hops_max": 6.0,
+    "with_ge1_spof": 18,
+    "with_ge3_spof": 12,
+    "people_on_radio_chains": 8961,
+    "people_ge1_spof": 7107,
+    "people_ge3_spof": 5445,
+    "all_places_radio_chain": 114,
+    "all_places_ge1_spof": 88,
+    "ge1_spof_inside_predicted_4g": 16,
+    "radio_chain_inside_predicted_4g": 19,
+    "share_ge1_spof": 0.783
+  },
+  "named_places": {
+    "Ampilatwatja": {
+      "chain_class": "radio-chain",
+      "hops": 6,
+      "n_spof": 5
+    },
+    "Galiwinku": {
+      "chain_class": "radio-chain",
+      "hops": 6,
+      "n_spof": 5
+    },
+    "Wadeye": {
+      "chain_class": "no-radio-site",
+      "hops": null,
+      "n_spof": 0
+    },
+    "Borroloola": {
+      "chain_class": "at-anchor",
+      "hops": 0,
+      "n_spof": 0
+    }
+  },
+  "fibre_what_if": {
+    "radio_chain_single_fibre_town": 18,
+    "larger_places_single_fibre_town": 39,
+    "larger_places_with_radio_site": 71,
+    "note": "Places whose licensed radio path reaches only one fibre town; a break in that town's fibre would take them down too."
+  },
+  "relays": {
+    "spof_relays": 68,
+    "power_classes": {
+      "P0_unknown": 49,
+      "P4_depot_within_150km": 19
+    },
+    "share_unknown_autonomy": 1.0,
+    "published_autonomy": 0,
+    "median_cyclones_100km": 2.0,
+    "ge5_cyclones_100km": 27,
+    "far_from_sealed_road": 43,
+    "on_aboriginal_land_trust": 26,
+    "graph_sites_matched_to_mnhp": 11
+  },
+  "mnhp": {
+    "items": 25,
+    "distinct_locations": 21,
+    "depots": 4,
+    "classes": {
+      "P1_battery_12h_in_progress": 18,
+      "P4_depot": 4,
+      "P2_permanent_generator": 2,
+      "P3_battery_replacement": 1
+    }
+  },
+  "replay": {
+    "primary": [
+      {
+        "event": "Monica 2006",
+        "radius_km": 100,
+        "cyclone_only": false,
+        "footprint_relays": 85,
+        "exposed_larger": 3,
+        "upstream_only_larger": 0,
+        "exposed_all": 36,
+        "upstream_only_all": 0,
+        "people_exposed_larger": 4236,
+        "by_land_council": {
+          "Northern Land Council": 3
+        }
+      },
+      {
+        "event": "Lam 2015",
+        "radius_km": 100,
+        "cyclone_only": false,
+        "footprint_relays": 54,
+        "exposed_larger": 6,
+        "upstream_only_larger": 3,
+        "exposed_all": 38,
+        "upstream_only_all": 7,
+        "people_exposed_larger": 4504,
+        "by_land_council": {
+          "Northern Land Council": 6
+        }
+      },
+      {
+        "event": "Trevor 2019",
+        "radius_km": 100,
+        "cyclone_only": false,
+        "footprint_relays": 38,
+        "exposed_larger": 6,
+        "upstream_only_larger": 0,
+        "exposed_all": 21,
+        "upstream_only_all": 2,
+        "people_exposed_larger": 1309,
+        "by_land_council": {
+          "Central Land Council": 5,
+          "Northern Land Council": "<3"
+        }
+      },
+      {
+        "event": "Megan 2024",
+        "radius_km": 100,
+        "cyclone_only": false,
+        "footprint_relays": 76,
+        "exposed_larger": 4,
+        "upstream_only_larger": 0,
+        "exposed_all": 46,
+        "upstream_only_all": 1,
+        "people_exposed_larger": 4497,
+        "by_land_council": {
+          "Northern Land Council": 4
+        }
+      },
+      {
+        "event": "Narelle 2026",
+        "radius_km": 100,
+        "cyclone_only": false,
+        "footprint_relays": 55,
+        "exposed_larger": 3,
+        "upstream_only_larger": 1,
+        "exposed_all": 21,
+        "upstream_only_all": 14,
+        "people_exposed_larger": 2722,
+        "by_land_council": {
+          "Anindilyakwa Land Council": "<3",
+          "Northern Land Council": "<3"
+        }
+      }
+    ],
+    "primary_total_exposed_larger": 22,
+    "primary_total_upstream_larger": 4,
+    "sweep_total_exposed_larger": {
+      "r50_system": 13,
+      "r50_cyclone": 9,
+      "r100_system": 22,
+      "r100_cyclone": 14,
+      "r150_system": 25,
+      "r150_cyclone": 17
+    },
+    "sweep_total_upstream_larger": {
+      "r50_system": 1,
+      "r50_cyclone": 0,
+      "r100_system": 4,
+      "r100_cyclone": 3,
+      "r150_system": 2,
+      "r150_cyclone": 2
+    }
+  },
+  "repair": {
+    "jan_bands": {
+      ">14 d": 17,
+      "<1 d": 6
+    },
+    "jul_bands": {
+      "<1 d": 17,
+      "1-3 d": 6
+    },
+    "jan_median_days": 30.84,
+    "jul_median_days": 0.89,
+    "jan_access_dominates": 17,
+    "radio_chain_places": 23,
+    "median_travel_days": 0.39,
+    "median_travel_hours": 3.9,
+    "jul_fast_and_jan_slow": 11,
+    "jan_slow_set_by_spof_relay": 15,
+    "jan_slow_set_by_own_site_only": 2,
+    "sweep": [
+      {
+        "w_wet": 14,
+        "sealed_km": 5,
+        "gt14d": 18,
+        "access_dominates": 18
+      },
+      {
+        "w_wet": 14,
+        "sealed_km": 10,
+        "gt14d": 17,
+        "access_dominates": 17
+      },
+      {
+        "w_wet": 14,
+        "sealed_km": 20,
+        "gt14d": 16,
+        "access_dominates": 16
+      },
+      {
+        "w_wet": 30,
+        "sealed_km": 5,
+        "gt14d": 18,
+        "access_dominates": 18
+      },
+      {
+        "w_wet": 30,
+        "sealed_km": 10,
+        "gt14d": 17,
+        "access_dominates": 17
+      },
+      {
+        "w_wet": 30,
+        "sealed_km": 20,
+        "gt14d": 16,
+        "access_dominates": 16
+      },
+      {
+        "w_wet": 60,
+        "sealed_km": 5,
+        "gt14d": 18,
+        "access_dominates": 18
+      },
+      {
+        "w_wet": 60,
+        "sealed_km": 10,
+        "gt14d": 17,
+        "access_dominates": 17
+      },
+      {
+        "w_wet": 60,
+        "sealed_km": 20,
+        "gt14d": 16,
+        "access_dominates": 16
+      }
+    ]
+  },
+  "fallbacks": {
+    "larger_with_independent_fallback": 48,
+    "larger_with_other_carrier_10km": 21,
+    "radio_chain_with_other_carrier": 1,
+    "radio_chain_with_independent_fallback": 8,
+    "radio_chain_with_payphone_3km": 21,
+    "larger": 116
+  },
+  "funded": {
+    "mbsp_in_progress": 2,
+    "fn_wifi_2026_leo": 8,
+    "fn_wifi_2026_geo": 1
+  },
+  "coverage_flags": {
+    "claimed_4g_all": 355,
+    "all": 782,
+    "claimed_4g_larger": 98,
+    "radio_chain_claimed_covered": 19,
+    "register_not_recorded": 698,
+    "register_N": 17,
+    "register_N_now_claimed": 11,
+    "nbn_satellite_only_share": 0.96
+  },
+  "accc_check": {
+    "match_km": 1.5,
+    "radio_chain_places": 23,
+    "radio_chain_end_is_mobile_site": 19,
+    "ge1_spof_places": 18,
+    "ge1_spof_end_is_mobile_site": 16,
+    "unmatched_min_km": 12.3,
+    "telstra_mobile_sites_2026": 274,
+    "telstra_sites_on_radio_graph": 85,
+    "share_on_radio_graph": 0.31
+  },
+  "namc": {
+    "tiles": 595,
+    "feedback": {
+      "No feedback from MNO": 464,
+      "Coverage not found": 131
+    }
+  },
+  "outage_ledger": {
+    "nbn_rows_including_nt": 5,
+    "nbn_nt_only_rows": 3,
+    "nbn_nt_only_hours_min": 7.42,
+    "nbn_nt_only_hours_max": 28.4
+  },
+  "sensitivity": {
+    "runs": 9,
+    "table": [
+      {
+        "anchor_km": 5,
+        "end_km": 5,
+        "radio_chain": 18,
+        "ge1_spof": 15,
+        "ge3_spof": 10
+      },
+      {
+        "anchor_km": 5,
+        "end_km": 10,
+        "radio_chain": 21,
+        "ge1_spof": 17,
+        "ge3_spof": 11
+      },
+      {
+        "anchor_km": 5,
+        "end_km": 15,
+        "radio_chain": 25,
+        "ge1_spof": 21,
+        "ge3_spof": 15
+      },
+      {
+        "anchor_km": 10,
+        "end_km": 5,
+        "radio_chain": 20,
+        "ge1_spof": 16,
+        "ge3_spof": 11
+      },
+      {
+        "anchor_km": 10,
+        "end_km": 10,
+        "radio_chain": 23,
+        "ge1_spof": 18,
+        "ge3_spof": 12
+      },
+      {
+        "anchor_km": 10,
+        "end_km": 15,
+        "radio_chain": 28,
+        "ge1_spof": 23,
+        "ge3_spof": 17
+      },
+      {
+        "anchor_km": 15,
+        "end_km": 5,
+        "radio_chain": 25,
+        "ge1_spof": 21,
+        "ge3_spof": 10
+      },
+      {
+        "anchor_km": 15,
+        "end_km": 10,
+        "radio_chain": 27,
+        "ge1_spof": 22,
+        "ge3_spof": 10
+      },
+      {
+        "anchor_km": 15,
+        "end_km": 15,
+        "radio_chain": 30,
+        "ge1_spof": 25,
+        "ge3_spof": 13
+      }
+    ],
+    "larger_places_same_class_all_runs": 77,
+    "larger_places": 116,
+    "robust_share": 0.664,
+    "radio_chain_stable_all_runs": 18,
+    "ge1_spof_range": [
+      15,
+      25
+    ],
+    "ge3_spof_range": [
+      10,
+      17
+    ],
+    "ge1_spof_share_range": [
+      0.783,
+      0.84
+    ]
+  },
+  "regions": {
+    "Anindilyakwa Land Council": {
+      "at-anchor": "<3",
+      "no-radio-site": "<3",
+      "radio-chain": "<3",
+      "radio-island": 0
+    },
+    "Central Land Council": {
+      "at-anchor": 13,
+      "no-radio-site": 12,
+      "radio-chain": 15,
+      "radio-island": 5
+    },
+    "Northern Land Council": {
+      "at-anchor": 19,
+      "no-radio-site": 31,
+      "radio-chain": 7,
+      "radio-island": 5
+    },
+    "Tiwi Land Council": {
+      "at-anchor": 0,
+      "no-radio-site": "<3",
+      "radio-chain": 0,
+      "radio-island": 4
+    }
+  },
+  "_generated_by": "src/underlink/pipeline.py"
+}

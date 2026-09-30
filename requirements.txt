@@ -1,0 +1,24 @@
+# Tested with Python 3.12 on macOS. Pinned to the versions used for the submission.
+# Analysis
+numpy==2.5.3
+pandas==3.0.6
+geopandas==1.2.0
+shapely==2.1.2
+pyproj==3.8.0
+networkx==3.7
+pyyaml==6.0.3
+# Only needed for `python run_all.py --prepare` (raw downloads)
+rapidfuzz==3.14.6
+openpyxl==3.1.5
+# Figures, app, community card
+matplotlib==3.11.2
+panel==1.9.4
+bokeh==3.9.2
+reportlab==5.0.1
+# Warehouse
+duckdb==1.5.6
+# Tests and the walkthrough notebook
+pytest==9.1.1
+nbformat==5.11.1
+nbclient==0.11.0
+ipykernel==7.3.0

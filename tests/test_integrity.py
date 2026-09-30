@@ -1,0 +1,89 @@
+"""The headline counts: the graph, the chains, and the warehouse that holds them."""
+import json
+
+import duckdb
+import pytest
+
+from underlink import network as nw, pipeline, schema
+from underlink.config import PUBLIC, ROOT
+
+
+@pytest.fixture(scope="module")
+def numbers():
+    return json.loads((PUBLIC / "numbers.json").read_text())
+
+
+def test_graph_integrity():
+    # V nodes, E edges, C components; cycle rank = E - V + C independent loops
+    got = nw.integrity(nw.load())
+    assert {k: got[k] for k in ("V", "E", "C", "cycle_rank_radio", "cycle_rank_with_fibre")} == {
+        "V": 358, "E": 313, "C": 51, "cycle_rank_radio": 6, "cycle_rank_with_fibre": 20}
+
+
+def test_numbers_json_headline(numbers):
+    assert numbers["chains"]["radio_chain_places"] == 23
+    assert numbers["chains"]["with_ge1_spof"] == 18
+
+
+def test_accc_crosscheck(numbers):
+    # Most chains end at a site the ACCC lists as a Telstra mobile site, so the
+    # nearest-site assumption holds for most of the headline places.
+    a = numbers["accc_check"]
+    assert (a["ge1_spof_end_is_mobile_site"], a["ge1_spof_places"]) == (16, 18)
+    assert (a["radio_chain_end_is_mobile_site"], a["radio_chain_places"]) == (19, 23)
+    assert a["unmatched_min_km"] > 10    # the misses are far off, not near the cut-off
+
+
+def test_recompute_matches_numbers_json(numbers):
+    # Recompute from data/processed without rewriting any output file.
+    _, c = pipeline.base_run()
+    rc = c[c.larger & (c.chain_class == "radio-chain")]
+    assert len(rc) == numbers["chains"]["radio_chain_places"]
+    assert int((rc.n_spof >= 1).sum()) == numbers["chains"]["with_ge1_spof"]
+    assert int((rc.n_spof >= 3).sum()) == numbers["chains"]["with_ge3_spof"]
+
+
+@pytest.fixture(scope="module")
+def warehouse(tmp_path_factory):
+    """Build the star schema, write it to a temp folder and load it with docs/schema.sql."""
+    d = tmp_path_factory.mktemp("warehouse")
+    con = duckdb.connect()
+    con.execute((ROOT / "docs" / "schema.sql").read_text())
+    for name, df in schema.build().items():
+        df.to_csv(d / f"{name}.csv", index=False)
+    for name in schema.TABLES:   # dimensions first so foreign keys resolve
+        con.execute(f"COPY {name} FROM '{d / (name + '.csv')}' (HEADER)")
+    return con
+
+
+def test_warehouse_loads(warehouse):
+    names = {r[0] for r in warehouse.execute("SELECT table_name FROM duckdb_tables()").fetchall()}
+    assert set(schema.TABLES) <= names
+    assert warehouse.execute("SELECT count(*) FROM dim_place").fetchone()[0] == 782
+    assert warehouse.execute("SELECT count(*) FROM dim_site").fetchone()[0] == 358
+
+
+def test_warehouse_reproduces_headline(warehouse, numbers):
+    ge1, total = warehouse.execute("""
+        SELECT count(*) FILTER (WHERE s.n_spof >= 1), count(*)
+        FROM fact_place_snapshot s JOIN dim_place p USING (place_key)
+        WHERE p.larger AND s.chain_class = 'radio-chain'""").fetchone()
+    assert (ge1, total) == (numbers["chains"]["with_ge1_spof"], numbers["chains"]["radio_chain_places"])
+    spof = warehouse.execute("SELECT count(DISTINCT site_key) FROM fact_chain_member WHERE is_spof").fetchone()[0]
+    assert spof == numbers["relays"]["spof_relays"]
+
+
+def test_warehouse_replay_matches(warehouse, numbers):
+    exposed, upstream = warehouse.execute("""
+        SELECT count(*) FILTER (WHERE status <> 'not_affected'), count(*) FILTER (WHERE status = 'upstream_only')
+        FROM fact_replay_result r JOIN dim_place p USING (place_key)
+        WHERE p.larger AND radius_km = 100 AND track_variant = 'system'""").fetchone()
+    assert exposed == numbers["replay"]["primary_total_exposed_larger"]
+    assert upstream == numbers["replay"]["primary_total_upstream_larger"]
+
+
+def test_warehouse_has_no_names_or_coordinates(warehouse):
+    cols = {r[0] for r in warehouse.execute(
+        "SELECT column_name FROM duckdb_columns() WHERE NOT internal AND schema_name = 'main'").fetchall()}
+    assert "site_key" in cols   # sanity: the query sees our tables
+    assert not cols & {"name", "lat", "lon", "lat_full", "lon_full", "site_id"}

@@ -1,0 +1,81 @@
+# Underlink parameters.
+# Every value is tagged: `source` means it comes from a document or dataset,
+# `ASSUMPTION` means we chose it and test how much the result depends on it.
+
+geometry:
+  crs_metric: "EPSG:3577"          # GDA94 / Australian Albers, metres. source: ABS/GA standard for national analysis
+  coord_round_deg: 0.01            # ASSUMPTION: shipped coordinates rounded to ~1 km so the processed data is not a lookup table
+
+network:
+  licensee_pattern: "TELSTRA"      # source: ACMA RRL LICENCEE field; all 823 NT Telstra P2P rows read "TELSTRA LIMITED"
+  anchor_radius_km: 10             # ASSUMPTION: radio site within this distance of a fibre town is treated as fibre-connected
+  anchor_radius_sweep_km: [5, 10, 15]
+  end_site_radius_km: 10           # ASSUMPTION: nearest licensed radio site within this distance stands in for the serving site
+  end_site_radius_sweep_km: [5, 10, 15]
+  regional_centres:                # ASSUMPTION: regional centres are fibre-connected
+    Darwin: [-12.46, 130.84]
+    Katherine: [-14.47, 132.26]
+    Alice Springs: [-23.70, 133.88]
+    Tennant Creek: [-19.65, 134.19]
+    Nhulunbuy: [-12.18, 136.78]
+
+places:
+  larger_types: ["Town", "Major", "Minor", "Village"]   # NTG 2021 COMMUNITY_TYPE values that define a "larger place" (116 places)
+
+hazards:
+  replay_events:                   # source: BoM best track IDCKMSTM0S; DISTURBANCE_ID -> label
+    AU200506_22U: "Monica 2006"
+    AU201415_13U: "Lam 2015"
+    AU201819_20U: "Trevor 2019"
+    AU202324_09U: "Megan 2024"
+    AU202526_34U: "Narelle 2026"
+  replay_radius_km: 100            # ASSUMPTION: footprint half-width; swept below
+  replay_radius_sweep_km: [50, 100, 150]
+  gale_threshold_ms: 17.5          # source: 34 knots, the gale threshold in the BoM tropical cyclone definition
+  exposure_window: [1980, 2026]
+  exposure_radius_km: 100
+
+power:
+  mnhp_match_km: 3                 # ASSUMPTION: an MNHP item within 3 km of a relay is taken to be that relay's site
+  depot_radius_km: 150             # source: MNHP R1 Stage 2 text for Telstra portable generator depots
+
+restore:                            # all indicative; shown as a decomposition, never as a prediction
+  depots:                           # ASSUMPTION: main service towns as crew bases
+    Darwin: [-12.46, 130.84]
+    Katherine: [-14.47, 132.26]
+    Tennant Creek: [-19.65, 134.19]
+    Alice Springs: [-23.70, 133.88]
+    Nhulunbuy: [-12.18, 136.78]
+  t_base_days: 0.5                 # ASSUMPTION: diagnosis and fix once on site (range 0.25-1)
+  circuity: 1.3                    # ASSUMPTION: road distance / straight-line distance
+  speed_sealed_kmh: 70             # ASSUMPTION
+  speed_unsealed_kmh: 40           # ASSUMPTION
+  driving_hours_per_day: 10        # ASSUMPTION
+  unsealed_buffer_km: 25           # descriptive only: unsealed share of road length within this radius
+  wet_sealed_distance_km: 10       # ASSUMPTION: a relay more than 10 km from any sealed road is treated as cut off by wet-season rain
+  wet_sealed_distance_sweep_km: [5, 10, 20]
+  wet_months: [11, 12, 1, 2, 3, 4] # source: NT wet season Nov-Apr (BoM)
+  w_wet_days: 30                   # ASSUMPTION: days until access reopens (range 14-60)
+  w_wet_days_sweep: [14, 30, 60]
+  bands_days: [1, 3, 14]           # <1 d | 1-3 d | 3-14 d | >14 d
+
+fallbacks:
+  walk_radius_km: 3                # ASSUMPTION: fallback counted if within 3 km of the place
+  other_carrier_radius_km: 10      # ASSUMPTION
+
+privacy:
+  min_people: 10                   # suppress people counts below this
+  min_places: 3                    # suppress place counts below this in public outputs
+
+single_score_probe:                # illustration for the Discussion: what one people-per-dollar objective would buy
+  budget_aud: 10000000             # ASSUMPTION
+  exclude_near_funded_km: 5        # places within 5 km of a Black Spot or 2026 First Nations Wi-Fi site are already in the pipeline
+  options:                         # cost per site (AUD) and coverage radius (km)
+    satellite_wifi_geo: [233784, 0.0]   # source: mean NT GEO grant, First Nations Community Wi-Fi Program 2026 funded list
+    satellite_wifi_leo: [398510, 0.0]   # source: mean NT LEO grant, same list
+    small_cell: [483333, 1.5]           # source: NTG/Telstra Remote Small Cells program, $5.8M for 12 communities; radius ASSUMPTION
+    macro_tower: [1500000, 15.0]        # ASSUMPTION: capital cost and radius; swept below
+  macro_cost_sweep: [1000000, 3000000]
+
+checks:
+  accc_match_km: 1.5               # ASSUMPTION: a chain's end site "is" a Telstra mobile site if the ACCC 2026 list has one within 1 km; +0.5 km for the 0.01 deg rounding of shipped coordinates

@@ -1,0 +1,11 @@
+# raw downloads, restricted outputs and derived data never go to the public repository
+/data_probe/
+/data/processed/
+/outputs/restricted/
+/submission/
+/research/
+__pycache__/
+.pytest_cache/
+.ipynb_checkpoints/
+._*
+.DS_Store

@@ -1,0 +1,117 @@
+# What still works when the phone goes down.
+# 7 services x 3 outage scenarios, plus a normal-day baseline.
+# status: works | degraded | not available | ask locally
+# label (optional): the word printed on the card, if different from status.
+# "ask locally" is the default wherever independence from the tower is not documented.
+# The community card (src/underlink/cards.py) reads this file, so the card and the rules never disagree.
+
+sources:
+  acma_000:
+    title: "ACMA, Emergency calls"
+    url: "https://www.acma.gov.au/emergency-calls"
+    says: "000 calls use any available mobile network in range (emergency camp-on). 000 is free from any phone. If no network is in range, a mobile cannot reach 000."
+  telstra_sat_msg:
+    title: "Telstra, Telstra launch Satellite Messaging"
+    url: "https://www.telstra.com.au/exchange/telstra-launch-satellite-messaging"
+    says: "SMS only, outdoors with a clear view of the sky, on a compatible phone and plan. Cannot text 000."
+  uomo_bill:
+    title: "Parliament of Australia, Universal Outdoor Mobile Obligation Bill"
+    url: "https://www.aph.gov.au/Parliamentary_Business/Bills_Legislation/Bills_Search_Results/Result?bId=r7414"
+    says: "If passed, outdoor voice and SMS from 1 December 2027. No data."
+  abc_wadeye_2026:
+    title: "ABC News, 7 April 2026, Wadeye rolling Telstra outages"
+    url: "https://www.abc.net.au/news/2026-04-07/nt-community-wadeye-experiences-weeks-of-rolling-telstra-outages/106535008"
+    says: "During outages from February to April 2026, 000 could not be reached and prepaid power top-ups failed."
+  abc_east_arnhem_2020:
+    title: "ABC News, 12 October 2020, East Arnhem fibre fire outage"
+    url: ""
+    says: "EFTPOS went cash only and telehealth failed while the fibre was cut."
+  baseline:
+    title: "Normal-day baseline"
+    url: ""
+    says: "Service assumed to run as usual when the tower, backhaul and power are all up."
+  none:
+    title: "No public source found"
+    url: ""
+    says: "Not documented. Check with the clinic, store, council or school."
+
+scenarios:
+  normal_day: "Normal day. Tower, backhaul and community power all up."
+  tower_or_line_down: "The mobile site or its backhaul fails."
+  community_power_down: "Community power is down."
+  road_cut: "Road cut. Repairs are delayed."
+
+services:
+  - id: call_000
+    label: "Call 000"
+    rules:
+      normal_day: {status: works, source: acma_000, confidence: high}
+      tower_or_line_down: {status: not available, source: [acma_000, abc_wadeye_2026], confidence: high,
+        note: "Only works if another mobile network is in range. Most remote communities have one network."}
+      community_power_down: {status: ask locally, source: none, confidence: low}
+      road_cut: {status: ask locally, source: none, confidence: low}
+  - id: warnings
+    label: "Emergency warnings"
+    rules:
+      normal_day: {status: works, source: baseline, confidence: medium}
+      tower_or_line_down: {status: ask locally, source: none, confidence: low,
+        note: "Radio or TV may still carry warnings. Not documented for each community."}
+      community_power_down: {status: ask locally, source: none, confidence: low}
+      road_cut: {status: ask locally, source: none, confidence: low}
+  - id: telehealth
+    label: "Clinic telehealth"
+    rules:
+      normal_day: {status: works, source: baseline, confidence: medium}
+      tower_or_line_down: {status: not available, source: abc_east_arnhem_2020, confidence: medium}
+      community_power_down: {status: ask locally, source: none, confidence: low}
+      road_cut: {status: ask locally, source: none, confidence: low}
+  - id: eftpos
+    label: "Card at the store"
+    rules:
+      normal_day: {status: works, source: baseline, confidence: medium}
+      tower_or_line_down: {status: not available, label: cash only, source: abc_east_arnhem_2020, confidence: medium}
+      community_power_down: {status: ask locally, source: none, confidence: low}
+      road_cut: {status: ask locally, source: none, confidence: low}
+  - id: centrelink
+    label: "Centrelink / myGov"
+    rules:
+      normal_day: {status: works, source: baseline, confidence: medium}
+      tower_or_line_down: {status: ask locally, source: none, confidence: low}
+      community_power_down: {status: ask locally, source: none, confidence: low}
+      road_cut: {status: ask locally, source: none, confidence: low}
+  - id: power_topup
+    label: "Power card top-up"
+    rules:
+      normal_day: {status: works, source: baseline, confidence: medium}
+      tower_or_line_down: {status: not available, source: abc_wadeye_2026, confidence: medium}
+      community_power_down: {status: ask locally, source: none, confidence: low}
+      road_cut: {status: ask locally, source: none, confidence: low}
+  - id: school_online
+    label: "School online"
+    rules:
+      normal_day: {status: works, source: baseline, confidence: medium}
+      tower_or_line_down: {status: ask locally, source: none, confidence: low,
+        note: "Some schools have their own satellite link. Not documented for each community."}
+      community_power_down: {status: ask locally, source: none, confidence: low}
+      road_cut: {status: ask locally, source: none, confidence: low}
+
+# Direct-to-device (satellite to an ordinary phone).
+d2d:
+  today:
+    status: degraded
+    what: "Satellite texting (SMS only), outdoors with a clear view of the sky, on some phones and plans. Cannot reach 000."
+    source: telstra_sat_msg
+    confidence: high
+  if_uomo_passes:
+    status: degraded
+    what: "Outdoor voice calls and SMS from 1 December 2027, if the bill passes. No data."
+    source: uomo_bill
+    confidence: medium
+
+# Fixed wording. Do not edit without checking against ACMA.
+triple_zero_text: >-
+  To reach Triple Zero, make a voice call. If another mobile network is in range,
+  your phone will use it for a 000 call, but most remote communities have only one network.
+  000 is free from payphones. You cannot SMS 000. In a cyclone, stay in your shelter.
+  Do not go outside to look for signal.
+triple_zero_source: acma_000

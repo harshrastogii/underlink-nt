@@ -1,0 +1,27 @@
+{
+  "candidate_places": 394,
+  "candidate_people": 2824,
+  "base": {
+    "spent_aud": 9818928,
+    "people_covered": 1799,
+    "mix": {
+      "satellite_wifi_geo": 42
+    }
+  },
+  "macro_cost_sweep": {
+    "1000000": {
+      "spent_aud": 9818928,
+      "people_covered": 1799,
+      "mix": {
+        "satellite_wifi_geo": 42
+      }
+    },
+    "3000000": {
+      "spent_aud": 9818928,
+      "people_covered": 1799,
+      "mix": {
+        "satellite_wifi_geo": 42
+      }
+    }
+  }
+}

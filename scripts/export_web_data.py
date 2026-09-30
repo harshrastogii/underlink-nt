@@ -1,0 +1,108 @@
+"""Export the public-tier numbers the web app shows to web/data/public.js.
+
+The web app reads only this file. It is built from outputs/public/ (already
+suppressed and aggregated) and from config/rules.yaml (the community card),
+so the app never sees a relay key, a coordinate or a per-place row.
+tests/test_public_outputs.py checks the exported file.
+
+    python scripts/export_web_data.py
+"""
+from __future__ import annotations
+
+import csv
+import json
+import sys
+from pathlib import Path
+
+import yaml
+
+ROOT = Path(__file__).resolve().parents[1]
+PUBLIC = ROOT / "outputs" / "public"
+OUT = ROOT / "web" / "data" / "public.js"
+
+# Organiser-suggested datasets are marked so the app can show which we used.
+ORGANISER = ("ACMA Register", "NTG remote communities with mobile coverage 2021", "ACCC Mobile Infrastructure",
+             "BoM tropical cyclone", "First Nations Connectivity Mapping Tool", "nbn footprint")
+
+
+def datasets() -> list[dict]:
+    """One row per source in data/manifest.csv (duplicate layers merged)."""
+    seen, rows = set(), []
+    with open(ROOT / "data" / "manifest.csv") as fh:
+        for r in csv.DictReader(fh):
+            name = r["source"].split(" public layers")[0] if "Mapping Tool" in r["source"] else r["source"]
+            if name.startswith("NTLIS"):
+                name = "NTLIS land council boundaries and counter disaster areas"
+            if name in seen:
+                continue
+            seen.add(name)
+            rows.append({"name": name, "publisher": r["publisher"], "url": r["url"], "licence": r["licence"],
+                         "organiser": name.startswith(ORGANISER)})
+    # Used for context only (no file in the manifest); both are organiser suggestions.
+    rows += [{"name": "Australian Digital Inclusion Index 2025", "publisher": "RMIT University and partners",
+              "url": "https://digitalinclusionindex.org.au/", "licence": "Context only", "organiser": True},
+             {"name": "Census of Population and Housing (TableBuilder)", "publisher": "Australian Bureau of Statistics",
+              "url": "https://www.abs.gov.au/statistics/microdata-tablebuilder/tablebuilder", "licence": "Context only",
+              "organiser": True}]
+    return rows
+
+
+def replay_variants() -> list[dict]:
+    with open(PUBLIC / "replay_summary.csv") as fh:
+        return [{"event": r["event"], "radius_km": int(r["radius_km"]), "gale_only": r["cyclone_only"] == "True",
+                 "exposed": int(r["exposed_larger"]), "upstream_only": int(r["upstream_only_larger"])}
+                for r in csv.DictReader(fh)]
+
+
+def card() -> dict:
+    rules = yaml.safe_load((ROOT / "config" / "rules.yaml").read_text())
+    scen = ["normal_day", "tower_or_line_down", "community_power_down"]
+    return {
+        "scenarios": [{"id": s, "label": {"normal_day": "Normal day", "tower_or_line_down": "Tower or line down",
+                                          "community_power_down": "Power down"}[s]} for s in scen],
+        "services": [{"label": s["label"],
+                      "cells": [{"word": (s["rules"][k].get("label") or s["rules"][k]["status"]),
+                                 "status": s["rules"][k]["status"], "note": s["rules"][k].get("note", "")} for k in scen]}
+                     for s in rules["services"]],
+        "triple_zero": " ".join(rules["triple_zero_text"].split()),
+        "satellite_text": rules["d2d"]["today"]["what"],
+    }
+
+
+def build() -> dict:
+    n = json.loads((PUBLIC / "numbers.json").read_text())
+    probe = json.loads((PUBLIC / "single_score_probe.json").read_text())
+    keep = {
+        "network": n["network"],
+        "larger_classes": n["places"]["larger_classes"],
+        "larger": n["places"]["larger"], "all_places": n["places"]["all"],
+        "chains": n["chains"], "fibre_what_if": n["fibre_what_if"],
+        "relays": n["relays"],
+        "replay": {"variants": replay_variants(), "primary_total_exposed": n["replay"]["primary_total_exposed_larger"],
+                   "primary_total_upstream": n["replay"]["primary_total_upstream_larger"]},
+        "repair": {k: n["repair"][k] for k in ("jan_bands", "jul_bands", "jan_median_days", "jul_median_days",
+                                              "median_travel_hours", "radio_chain_places", "jul_fast_and_jan_slow",
+                                              "jan_slow_set_by_spof_relay", "jan_slow_set_by_own_site_only", "sweep")},
+        "fallbacks": n["fallbacks"],
+        "coverage_flags": n["coverage_flags"],
+        "sensitivity": n["sensitivity"],
+        "regions": n["regions"],
+        "accc_check": n["accc_check"],
+        "single_score": {"places": probe["candidate_places"], "spent_aud": probe["base"]["spent_aud"],
+                         "mix": probe["base"]["mix"]},
+        "datasets": datasets(),
+        "card": card(),
+    }
+    return keep
+
+
+def main() -> None:
+    data = build()
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+    OUT.write_text("// Generated by scripts/export_web_data.py from outputs/public. Do not edit.\n"
+                   "window.UNDERLINK = " + json.dumps(data, indent=1) + ";\n")
+    print("wrote", OUT.relative_to(ROOT), f"({OUT.stat().st_size / 1024:.0f} KB)")
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Underlink: hidden dependencies behind NT connectivity</title>
+<meta name="description" content="Underlink reads the public radio licence register as a network and finds the relays remote Northern Territory communities cannot route around. Team DIC017, CDU IT Code Fair 2026.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <a class="brand" href="#top" aria-label="Underlink home">
+      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="1" y="7" width="3" height="8" fill="currentColor"/><line x1="4" y1="11" x2="21" y2="11" stroke="currentColor" stroke-width="2"/><circle cx="10" cy="11" r="3" fill="#eb6834"/><circle cx="17" cy="11" r="3" fill="#eb6834"/></svg>
+      Underlink
+    </a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#try">Try it</a>
+      <a href="#findings">Findings</a>
+      <a href="#repair">Repair</a>
+      <a href="#works">What still works</a>
+      <a href="#card">Community card</a>
+      <a href="#government">For government</a>
+      <a href="#method">Method</a>
+      <a href="#ethics">Data rules</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- HERO -------------------------------------------------------------------->
+<section id="top" class="hero">
+  <div class="wrap">
+    <p class="eyebrow">CDU IT Code Fair 2026 · Data Innovation Challenge · Team DIC017</p>
+    <h1>Covered is not the same as connected.</h1>
+    <p class="lead">Coverage maps show where a phone should get signal on a normal day. They do not show what that signal depends on. Underlink reads the public radio licence register as a network and finds, for each remote Northern Territory community, the relays its service cannot route around.</p>
+
+    <figure class="chain-card" aria-labelledby="chain-cap">
+      <div class="chain-head">
+        <span class="chip">Tap a relay to switch it off</span>
+        <button class="btn-ghost" id="chain-reset" type="button">Reset</button>
+      </div>
+      <div class="chain-scroll"><svg id="chain" viewBox="0 0 760 170" role="img" aria-label="A radio chain from a fibre town through five relays to a community mobile site"></svg></div>
+      <p id="chain-status" class="chain-status" aria-live="polite">Every relay on this chain is working. The community has service.</p>
+      <figcaption id="chain-cap">The shape of Ampilatwatja's licensed radio path to fibre, drawn without locations. All five relays are single-path relays: there is no other licensed path around any of them.</figcaption>
+    </figure>
+
+    <div class="stats" id="hero-stats"></div>
+  </div>
+</section>
+
+<!-- SANDBOX ----------------------------------------------------------------->
+<section id="try" class="band">
+  <div class="wrap">
+    <h2>Try it: break a link</h2>
+    <p class="section-lead">This small network is made up. It works the same way as the analysis of the real one: 358 Telstra radio sites and 313 links from the ACMA register. Switch relays off and see which communities lose their path to a fibre town. Real relay locations are not shown anywhere on this site.</p>
+    <div class="sandbox">
+      <div class="sandbox-canvas">
+        <div class="sandbox-tools">
+          <label class="toggle"><input type="checkbox" id="sb-spof" checked> Mark single-path relays</label>
+          <label class="toggle"><input type="checkbox" id="sb-link"> Add a second path (dashed link)</label>
+          <button class="btn-ghost" id="sb-reset" type="button">Reset</button>
+        </div>
+        <div class="sandbox-scroll"><svg id="sandbox" viewBox="0 0 720 420" role="img" aria-label="Illustrative network of fibre towns, relays and communities"></svg></div>
+        <div class="legend">
+          <span><i class="lg lg-fibre"></i>Fibre town</span>
+          <span><i class="lg lg-relay"></i>Relay</span>
+          <span><i class="lg lg-spof"></i>Single-path relay</span>
+          <span><i class="lg lg-off"></i>Switched off</span>
+          <span><i class="lg lg-comm"></i>Community</span>
+        </div>
+      </div>
+      <aside class="sandbox-side">
+        <h3>What each community depends on</h3>
+        <ul id="sb-list" class="sb-list" aria-live="polite"></ul>
+        <p class="note">A <strong>single-path relay</strong> is a relay that every licensed radio path from a community to fibre must pass through. The code finds them with a dominator tree (NetworkX), which gives the same answer as switching each relay off in turn.</p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- FINDINGS ---------------------------------------------------------------->
+<section id="findings">
+  <div class="wrap">
+    <h2>What we found</h2>
+    <p class="section-lead">All numbers below come from <code>outputs/public/numbers.json</code>, which one command rebuilds from public data. Results are for the 116 larger places (NT Government types Town, Major, Minor and Village).</p>
+
+    <div class="grid-2">
+      <article class="panel">
+        <h3>How the 116 larger places reach fibre</h3>
+        <div id="classes-chart" class="hbars"></div>
+        <p class="note">A radio island has licensed radio links but none that reach fibre, so it probably uses satellite or backhaul the register cannot show.</p>
+      </article>
+      <article class="panel">
+        <h3>The 23 places on a radio chain</h3>
+        <div id="chain-facts" class="factlist"></div>
+      </article>
+    </div>
+
+    <article class="panel">
+      <h3>Does the result depend on our distance choices?</h3>
+      <p class="note">We treat a radio site within 10 km of a fibre town as fibre-connected, and the nearest radio site within 10 km of a place as the one serving it. Change either distance:</p>
+      <div class="controls">
+        <div class="seg" role="radiogroup" aria-label="Fibre-town radius" id="sens-anchor"></div>
+        <div class="seg" role="radiogroup" aria-label="Serving-site radius" id="sens-end"></div>
+      </div>
+      <div id="sens-out" class="sens-out" aria-live="polite"></div>
+    </article>
+
+    <article class="panel">
+      <h3>Checked against a second dataset</h3>
+      <div id="accc-out" class="factlist"></div>
+    </article>
+
+    <div class="grid-2">
+      <article class="panel">
+        <h3>Cyclone replays: exposure, not recorded outages</h3>
+        <div class="controls">
+          <div class="seg" role="radiogroup" aria-label="Distance from the track" id="rp-radius"></div>
+          <div class="seg" role="radiogroup" aria-label="Part of the track" id="rp-part"></div>
+        </div>
+        <div id="replay-chart" class="vbars" aria-live="polite"></div>
+        <div class="legend">
+          <span><i class="lg lg-dark"></i>Own site or place in the footprint</span>
+          <span><i class="lg lg-orange"></i>Cut off by an upstream relay only</span>
+        </div>
+        <p class="note">Each replay removes every relay within the chosen distance of a real Bureau of Meteorology track, then re-traces every place. The bars count larger radio-chain places that lose their path to fibre.</p>
+      </article>
+      <article class="panel">
+        <h3>The 68 single-path relays</h3>
+        <div id="relay-facts" class="factlist"></div>
+      </article>
+    </div>
+
+    <article class="panel">
+      <h3>By land council region</h3>
+      <p class="note">Public outputs use four regions only and show counts under 3 places as "&lt;3", so no count points to one community.</p>
+      <div class="table-wrap"><table id="regions" class="data"></table></div>
+    </article>
+  </div>
+</section>
+
+<!-- REPAIR ------------------------------------------------------------------>
+<section id="repair" class="band">
+  <div class="wrap">
+    <h2>How long a repair could take</h2>
+    <p class="section-lead">Days to restore = 0.5 days on site + travel from the nearest of five crew bases + a wet-season delay when a radio site on the chain is more than a set distance from a sealed road. The delay and the distance are our assumptions, so you can change them.</p>
+    <div class="grid-2">
+      <article class="panel">
+        <h3>23 radio-chain places, July and January</h3>
+        <div id="repair-bands"></div>
+        <p class="note" id="repair-note"></p>
+      </article>
+      <article class="panel">
+        <h3>Change the assumptions</h3>
+        <p class="label">Wet-season delay (November to April)</p>
+        <div class="seg" role="radiogroup" aria-label="Wet-season delay" id="rep-wet"></div>
+        <p class="label">Distance from a sealed road that triggers the delay</p>
+        <div class="seg" role="radiogroup" aria-label="Sealed-road distance" id="rep-km"></div>
+        <div id="rep-out" class="big-out" aria-live="polite"></div>
+        <p class="note">The count moves between 16 and 18 across all nine combinations. The day counts rest on the assumed delay; which places wait comes from road distance alone.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT STILL WORKS -------------------------------------------------------->
+<section id="works">
+  <div class="wrap">
+    <h2>What still works when the tower is down</h2>
+    <div class="stats" id="works-stats"></div>
+    <article class="panel callout">
+      <h3>Triple Zero</h3>
+      <p id="t0-text"></p>
+      <p class="note">Wording fixed by ACMA's emergency call rules. The code tests the card for required and forbidden phrases.</p>
+    </article>
+  </div>
+</section>
+
+<!-- COMMUNITY CARD ---------------------------------------------------------->
+<section id="card" class="band">
+  <div class="wrap">
+    <h2>Community card: a draft for co-design</h2>
+    <p class="section-lead">Each community would get a one-page card, "When the phone goes down". This sample is for a made-up place. The layout, symbols and wording are all open to change with the community; only the 000 facts are fixed. No community has reviewed this card.</p>
+    <div class="card-sheet" id="card-sheet">
+      <div class="card-top">
+        <div>
+          <p class="card-title">When the phone goes down</p>
+          <p class="card-sub">Sample Community · information as at 29 September 2026</p>
+        </div>
+        <span class="watermark">Illustrative sample</span>
+      </div>
+      <div class="table-wrap"><table class="card-grid" id="card-grid"></table></div>
+      <div class="card-cols">
+        <div>
+          <p class="card-h">Where to go</p>
+          <ul class="card-list">
+            <li>Satellite Wi-Fi phone: [location to be added by community]</li>
+            <li>Sky Muster at the school or evacuation centre</li>
+            <li>Payphone: ask locally whether it works when the tower is down</li>
+          </ul>
+          <p class="card-h">Before the wet</p>
+          <ul class="card-list">
+            <li>Charge power banks</li>
+            <li>Know your nearest working phone</li>
+            <li>Save clinic and council numbers</li>
+            <li>Know who to tell when the phone is down</li>
+          </ul>
+        </div>
+        <div>
+          <p class="card-h">000</p>
+          <p class="card-t0" id="card-t0"></p>
+          <div class="lang-panel">
+            <p class="card-h">In community language</p>
+            <p>To be written and voiced by community members with paid interpreters (Aboriginal Interpreter Service). No machine translation.</p>
+          </div>
+        </div>
+      </div>
+      <p class="card-foot">Draft for co-design. Built from public information. Is this right? Tell your community's chosen contact.</p>
+    </div>
+    <div class="card-actions">
+      <button class="btn" id="card-print" type="button">Print the sample card</button>
+    </div>
+  </div>
+</section>
+
+<!-- GOVERNMENT -------------------------------------------------------------->
+<section id="government">
+  <div class="wrap">
+    <h2>For government: measures with a starting point</h2>
+    <p class="section-lead">Each recommendation in the report comes with a measure. Public data gives the starting value today.</p>
+    <div class="table-wrap"><table class="data" id="kpi"></table></div>
+
+    <div class="grid-2">
+      <article class="panel">
+        <h3>Three fields to ask carriers for</h3>
+        <p>When the NT Government co-invests in a site, it asks the carrier for three restricted fields per site:</p>
+        <ol class="plain">
+          <li><strong>Backhaul type:</strong> fibre, radio or satellite</li>
+          <li><strong>Battery hours</strong> at the site and at each relay feeding it</li>
+          <li><strong>A three-year outage log</strong></li>
+        </ol>
+        <p class="note">This extends the restricted government access to asset locations that the 2024 Regional Telecommunications Review proposed (Recommendation 6).</p>
+      </article>
+      <article class="panel">
+        <h3>Ready for a data warehouse</h3>
+        <p>The pipeline writes a star schema (<code>docs/schema.sql</code>) that loads into DuckDB, and a test builds and queries it on every run.</p>
+        <div class="schema" aria-label="Star schema tables">
+          <div class="schema-col"><span class="tbl dim">dim_place</span><span class="tbl dim">dim_site</span><span class="tbl dim">dim_event</span></div>
+          <div class="schema-col"><span class="tbl fact">fact_place_snapshot</span><span class="tbl fact">fact_chain_member</span><span class="tbl fact">fact_replay_result</span><span class="tbl fact">fact_fallback</span><span class="tbl fact">fact_outage_event</span></div>
+        </div>
+        <p class="note"><code>fact_outage_event</code> is where monthly carrier outage registers would land, so observed repair times can replace our assumed ones.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- METHOD ------------------------------------------------------------------>
+<section id="method" class="band">
+  <div class="wrap">
+    <h2>Method and data</h2>
+    <ol class="steps">
+      <li><strong>Build the network.</strong> 808 NT point-to-point link records licensed to Telstra become 358 sites and 313 links in 51 separate pieces.</li>
+      <li><strong>Trace each place to fibre.</strong> Every fibre-connected site joins one imaginary source; a dominator tree finds the relays each place's site cannot route around.</li>
+      <li><strong>Add four measures beside it.</strong> Cyclone replays, published backup power, a repair window from road access, and what still works nearby. They are shown side by side and never merged into one score.</li>
+      <li><strong>Check it.</strong> Nine sensitivity runs, the ACCC site list, and every outage reported in the news that we could find.</li>
+      <li><strong>Release by tier.</strong> Regional counts in public, a relay register for government and carriers only, and a card each community controls.</li>
+    </ol>
+
+    <article class="panel">
+      <h3>Against reported outages</h3>
+      <p class="note">Communities are named here only because news reports named them, and only to test the model.</p>
+      <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>Reported event</th><th>Reported cause</th><th>Underlink, from public radio data</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr><td>Ampilatwatja, late 2024</td><td>Planned upgrade works, about one week</td><td>Radio chain; 5 single-path relays</td><td><span class="tag fit">Fits</span> The outage was planned works</td></tr>
+          <tr><td>Galiwin'ku, March to April 2024</td><td>Solar site near Mapuru ran its batteries flat at night, 12 nights</td><td>Radio chain; first of 5 single-path relays about 10 km from Mapuru, not in the Hardening Program</td><td><span class="tag fit">Fits</span> Including the mechanism</td></tr>
+          <tr><td>Milingimbi, March to April 2024</td><td>Nightly losses for 10 days; cause not given</td><td>Radio chain; no single-path relay</td><td><span class="tag miss">Misses</span> The register does not show which site serves which place</td></tr>
+          <tr><td>Borroloola, March 2024</td><td>Solar batteries flat under Ex-TC Megan</td><td>Fibre town; not flagged</td><td><span class="tag miss">Misses</span> Battery hours are not public</td></tr>
+          <tr><td>Wadeye, February to April 2026</td><td>Flood damage to fibre; power cut</td><td>No licensed radio site within 10 km</td><td><span class="tag miss">Misses</span> Fibre routes are not public</td></tr>
+          <tr><td>Parts of the NT, June 2026</td><td>Fibre break</td><td>Not flagged</td><td><span class="tag miss">Misses</span> Fibre routes are not public</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="note">Each miss traces to data carriers hold and do not publish: battery hours, fibre routes and which sites serve which places.</p>
+    </article>
+
+    <article class="panel">
+      <h3>18 sources</h3>
+      <p class="note">★ marks the eight datasets the organisers suggested. Licences and retrieval dates are in <code>DATA_LICENCES.md</code> and <code>data/manifest.csv</code>.</p>
+      <ul class="sources" id="sources"></ul>
+    </article>
+
+    <article class="panel">
+      <h3>Limits</h3>
+      <ul class="plain-list">
+        <li>The ACMA register shows only licensed radio. Fibre and satellite backhaul are missing, so 18 is an upper bound.</li>
+        <li>Fibre towns are assumed to be sound. The nearest radio site stands in for the serving site; the ACCC check above tests that.</li>
+        <li>Replays show exposure without probabilities. Repair parameters are assumptions and are swept.</li>
+        <li>Population figures are 2020 estimates, and homeland populations change with the seasons.</li>
+      </ul>
+    </article>
+  </div>
+</section>
+
+<!-- ETHICS ------------------------------------------------------------------>
+<section id="ethics">
+  <div class="wrap">
+    <h2>Data rules</h2>
+    <p class="section-lead">Underlink studies a carrier's network, so every finding describes equipment, links and missing data. We follow the CARE principles and the Maiam nayri Wingara principles of Indigenous data sovereignty, and we avoid data that is blaming, aggregate, decontextualised, deficit-based and restricted (Walter's BADDR critique).</p>
+    <div class="tiers">
+      <article class="tier"><p class="tier-name">Public (this site)</p><p>Aggregate counts, four land council regions, the made-up network above. No relay locations, no site identifiers, no community rankings.</p></article>
+      <article class="tier"><p class="tier-name">Government and carriers</p><p>The relay register with hashed identifiers, for DCDD and carrier field teams only.</p></article>
+      <article class="tier"><p class="tier-name">Each community</p><p>Its own card and any outage records it chooses to keep. A custodian the community chooses approves or withholds anything about it. Automated steps cannot publish.</p></article>
+    </div>
+    <ul class="plain-list">
+      <li>A test fails the build if any public table holds place keys or names.</li>
+      <li>Land tenure is used only to flag permit lead time (a section 19 lease on Aboriginal Land Trust land). No sacred-site data is used or inferred.</li>
+      <li>Community-language text is written and voiced by paid interpreters. No machine translation.</li>
+    </ul>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <p class="ack">We acknowledge the Larrakia people, Traditional Owners of the land on which Charles Darwin University's Darwin campuses stand, and the Traditional Owners of all the Country this work discusses.</p>
+    <div class="foot-row">
+      <p>Underlink · Team DIC017 · CDU IT Code Fair 2026, Data Innovation Challenge. Public data only; no community has reviewed this work.</p>
+      <p><a href="https://github.com/harshrastogii/underlink-nt">Code on GitHub</a> · <a href="downloads/underlink_offline.html">Offline dashboard (one HTML file)</a></p>
+    </div>
+  </div>
+</footer>
+
+<script src="data/public.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
