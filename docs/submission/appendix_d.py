@@ -106,7 +106,8 @@ def build(out: str, page: int) -> None:
         Paragraph("Aashish compared the NT with New Zealand, which also has remote rural areas, shared rural towers and severe "
                   "weather. We checked every fact below against its source on 30 September 2026. The comparison supports "
                   "Recommendations 1 to 3 and the community card.", S["p"]),
-        Paragraph("Table D1. New Zealand practice that bears on Underlink's recommendations.", S["cap"]),
+        Paragraph('<font name="Arial-Bold" color="#1a1a1a">Table D1.</font> New Zealand practice that bears on Underlink\'s '
+                  'recommendations.', ParagraphStyle("capd", fontName="Arial", fontSize=10, leading=12.5, textColor=HEAD, spaceAfter=5)),
         t, Spacer(1, 8),
         Paragraph("None of the New Zealand sources we checked shows which towers depend on a single backhaul path. That is the gap "
                   "Underlink fills for the NT.", S["p"]),
