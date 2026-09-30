@@ -27,7 +27,7 @@ S = {
     "h2": ParagraphStyle("h2", fontName="Arial-Bold", fontSize=13, leading=16, textColor=INK, spaceBefore=10, spaceAfter=4, keepWithNext=1),
     "h3": ParagraphStyle("h3", fontName="Arial-Bold", fontSize=11, leading=14, textColor=INK, spaceBefore=6, spaceAfter=3, keepWithNext=1),
     "p": ParagraphStyle("p", fontName="Arial", fontSize=10, leading=13.5, textColor=INK, spaceAfter=5),
-    "li": ParagraphStyle("li", fontName="Arial", fontSize=10, leading=13.5, textColor=INK, leftIndent=14, bulletIndent=2, spaceAfter=2),
+    "li": ParagraphStyle("li", fontName="Arial", fontSize=10, leading=13.5, textColor=INK, leftIndent=14, bulletIndent=2, spaceAfter=2, bulletFontName="Arial"),
     "code": ParagraphStyle("code", fontName="Mono", fontSize=8.5, leading=10.5, textColor=INK, backColor=colors.HexColor("#f2f4f6"), borderPadding=4, spaceBefore=3, spaceAfter=7),
     "cell": ParagraphStyle("cell", fontName="Arial", fontSize=9, leading=11, textColor=INK),
 }

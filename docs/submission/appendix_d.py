@@ -22,7 +22,7 @@ pdfmetrics.registerFontFamily("Arial", normal="Arial", bold="Arial-Bold", italic
 
 W, H = 594.96, 841.92                        # the team's page size
 LEFT, RIGHT = 54.0, 542.2
-INK = Color(0.102, 0.102, 0.102); GREY = Color(0.541, 0.537, 0.518); HEAD = Color(0.361, 0.357, 0.341)
+INK = Color(0.102, 0.102, 0.102); GREY = Color(0.541, 0.537, 0.518); HEAD = Color(0.361, 0.357, 0.341)   # #1a1a1a, #8a8984, #5c5b57
 RULE_LIGHT = Color(0.839, 0.835, 0.816)
 
 S = {
@@ -74,16 +74,22 @@ SOURCES = [
 ]
 
 
+def header_footer(c, page: int) -> None:
+    """Running header and footer as on the team's pages: grey 9 pt text left, bold ink page label right."""
+    label = f"Team DIC017 | Page {page}"
+    c.setFillColor(GREY); c.setFont("Arial", 9)
+    c.drawString(53.85, 793.17, "Underlink: Revealing the Hidden Dependencies Behind NT Connectivity")
+    c.drawString(53.85, 34.17, "CDU IT Code Fair 2026, Data Innovation Challenge")
+    c.setFillColor(INK); c.setFont("Arial-Bold", 9)
+    c.drawRightString(542.24, 793.17, label)
+    c.drawRightString(542.24, 34.17, label)
+
+
 def build(out: str, page: int) -> None:
     c = canvas.Canvas(out, pagesize=(W, H), initialFontName="Arial")
     c.setTitle("Appendix D: What New Zealand already publishes")
     # header and footer exactly where the team's pages have them
-    c.setFont("Arial", 9); c.setFillColor(GREY)
-    label = f"Team DIC017 | Page {page}"
-    c.drawString(53.8, 793.17, "Underlink: Revealing the Hidden Dependencies Behind NT Connectivity")
-    c.drawRightString(RIGHT, 793.17, label)
-    c.drawString(53.8, 34.17, "CDU IT Code Fair 2026, Data Innovation Challenge")
-    c.drawRightString(RIGHT, 34.17, label)
+    header_footer(c, page)
 
     tw = RIGHT - LEFT
     data = [[Paragraph("Practice in New Zealand", S["th"]), Paragraph("Evidence", S["th"]), Paragraph("Supports", S["th"])]]

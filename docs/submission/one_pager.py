@@ -117,7 +117,8 @@ def build(out: str) -> None:
                   "10 km from a sealed road.", S["li"], bulletText="2."),
         Paragraph("Work with one community that wants to take part to redesign the card together.", S["li"], bulletText="3."),
 
-        Paragraph("The full report, slides and code are in our submission (DataChallenge_Team_DIC017_Submission.zip).", S["foot"]),
+        Paragraph("Try it: underlink-nt.vercel.app. Code: github.com/harshrastogii/underlink-nt. The full report, slides "
+                  "and code are in our submission (DataChallenge_Team_DIC017_Submission.zip).", S["foot"]),
     ]
     doc = SimpleDocTemplate(out, pagesize=A4, leftMargin=1.9 * cm, rightMargin=1.9 * cm, topMargin=1.5 * cm, bottomMargin=1.2 * cm,
                             title="Underlink in plain English", author="Team DIC017")

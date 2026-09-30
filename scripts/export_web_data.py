@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import csv
 import json
-import sys
 from pathlib import Path
 
 import yaml
@@ -105,4 +104,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
