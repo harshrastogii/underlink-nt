@@ -5,7 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Underlink: hidden dependencies behind NT connectivity</title>
 <meta name="description" content="Underlink reads the public radio licence register as a network and finds the relays remote Northern Territory communities cannot route around. Team DIC017, CDU IT Code Fair 2026.">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#F7F9FC">
+<meta name="color-scheme" content="light">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,600;9..40,700;9..40,800&display=swap">
@@ -16,10 +20,7 @@
 
 <header class="topbar">
   <div class="wrap topbar-inner">
-    <a class="brand" href="#top" aria-label="Underlink home">
-      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="1" y="7" width="3" height="8" fill="currentColor"/><line x1="4" y1="11" x2="21" y2="11" stroke="currentColor" stroke-width="2"/><circle cx="10" cy="11" r="3" fill="#eb6834"/><circle cx="17" cy="11" r="3" fill="#eb6834"/></svg>
-      Underlink
-    </a>
+    <a class="brand" href="#top" aria-label="Underlink home"><img src="logo.webp" alt="" width="44" height="36"> Underlink</a>
     <nav class="nav" aria-label="Sections">
       <a href="#try">Try it</a>
       <a href="#findings">Findings</a>
@@ -30,6 +31,11 @@
       <a href="#method">Method</a>
       <a href="#ethics">Data rules</a>
     </nav>
+    <label class="switch" title="Show or hide the detailed tables and charts">
+      <input type="checkbox" id="detail-toggle">
+      <span class="track" aria-hidden="true"></span>
+      <span class="switch-label">Show the numbers</span>
+    </label>
   </div>
 </header>
 
@@ -38,9 +44,15 @@
 <!-- HERO -------------------------------------------------------------------->
 <section id="top" class="hero">
   <div class="wrap">
+    <div class="hero-grid">
+    <div>
     <p class="eyebrow">CDU IT Code Fair 2026 · Data Innovation Challenge · Team DIC017</p>
     <h1>Covered is not the same as connected.</h1>
     <p class="lead">Coverage maps show where a phone should get signal on a normal day. They do not show what that signal depends on. Underlink reads the public radio licence register as a network and finds, for each remote Northern Territory community, the relays its service cannot route around.</p>
+    <p class="plain"><strong>In plain words:</strong> many remote communities get phone service through a line of radio towers on hills. If one tower in that line breaks and there is no way around it, the whole community can lose service, even when the map says it is covered.</p>
+    </div>
+    <img class="hero-logo" src="logo.webp" alt="A line of radio towers carrying signal from a town over the hills to a remote home" width="440" height="361">
+    </div>
 
     <figure class="chain-card" aria-labelledby="chain-cap">
       <div class="chain-head">
@@ -53,6 +65,16 @@
     </figure>
 
     <div class="stats" id="hero-stats"></div>
+
+    <div class="glossary" aria-label="Words we use">
+      <p class="glossary-title">Words we use</p>
+      <dl>
+        <div><dt>Relay</dt><dd>A radio tower that passes the phone signal on to the next tower.</dd></div>
+        <div><dt>Weak link <span>(single-path relay)</span></dt><dd>A relay with no way around it. If it stops, everyone after it loses service.</dd></div>
+        <div><dt>Fibre town</dt><dd>A town on the fibre cable, where the signal joins the national network.</dd></div>
+        <div><dt>Radio chain</dt><dd>The line of relays that carries a community's signal to a fibre town.</dd></div>
+      </dl>
+    </div>
   </div>
 </section>
 
@@ -64,7 +86,7 @@
     <div class="sandbox">
       <div class="sandbox-canvas">
         <div class="sandbox-tools">
-          <label class="toggle"><input type="checkbox" id="sb-spof" checked> Mark single-path relays</label>
+          <label class="toggle"><input type="checkbox" id="sb-spof" checked> Show weak links</label>
           <label class="toggle"><input type="checkbox" id="sb-link"> Add a second path (dashed link)</label>
           <button class="btn-ghost" id="sb-reset" type="button">Reset</button>
         </div>
@@ -72,7 +94,7 @@
         <div class="legend">
           <span><i class="lg lg-fibre"></i>Fibre town</span>
           <span><i class="lg lg-relay"></i>Relay</span>
-          <span><i class="lg lg-spof"></i>Single-path relay</span>
+          <span><i class="lg lg-spof"></i>Weak link (single-path relay)</span>
           <span><i class="lg lg-off"></i>Switched off</span>
           <span><i class="lg lg-comm"></i>Community</span>
         </div>
@@ -80,7 +102,7 @@
       <aside class="sandbox-side">
         <h3>What each community depends on</h3>
         <ul id="sb-list" class="sb-list" aria-live="polite"></ul>
-        <p class="note">A <strong>single-path relay</strong> is a relay that every licensed radio path from a community to fibre must pass through. The code finds them with a dominator tree (NetworkX), which gives the same answer as switching each relay off in turn.</p>
+        <p class="note detail">A <strong>single-path relay</strong> is a relay that every licensed radio path from a community to fibre must pass through. The code finds them with a dominator tree (NetworkX), which gives the same answer as switching each relay off in turn.</p>
       </aside>
     </div>
   </div>
@@ -90,7 +112,8 @@
 <section id="findings">
   <div class="wrap">
     <h2>What we found</h2>
-    <p class="section-lead">All numbers below come from <code>outputs/public/numbers.json</code>, which one command rebuilds from public data. Results are for the 116 larger places (NT Government types Town, Major, Minor and Village).</p>
+    <p class="plain"><strong>In plain words:</strong> 23 larger communities reach the phone network through a radio chain. 18 of them have at least one weak link, and about 7,100 people live there. For 16 of those 18 the coverage map says "covered".</p>
+    <p class="section-lead detail">All numbers below come from <code>outputs/public/numbers.json</code>, which one command rebuilds from public data. Results are for the 116 larger places (NT Government types Town, Major, Minor and Village).</p>
 
     <div class="grid-2">
       <article class="panel">
@@ -104,7 +127,7 @@
       </article>
     </div>
 
-    <article class="panel">
+    <article class="panel detail">
       <h3>Does the result depend on our distance choices?</h3>
       <p class="note">We treat a radio site within 10 km of a fibre town as fibre-connected, and the nearest radio site within 10 km of a place as the one serving it. Change either distance:</p>
       <div class="controls">
@@ -114,12 +137,12 @@
       <div id="sens-out" class="sens-out" aria-live="polite"></div>
     </article>
 
-    <article class="panel">
+    <article class="panel detail">
       <h3>Checked against a second dataset</h3>
       <div id="accc-out" class="factlist"></div>
     </article>
 
-    <div class="grid-2">
+    <div class="grid-2 detail">
       <article class="panel">
         <h3>Cyclone replays: exposure, not recorded outages</h3>
         <div class="controls">
@@ -139,7 +162,7 @@
       </article>
     </div>
 
-    <article class="panel">
+    <article class="panel detail">
       <h3>By land council region</h3>
       <p class="note">Public outputs use four regions only and show counts under 3 places as "&lt;3", so no count points to one community.</p>
       <div class="table-wrap"><table id="regions" class="data"></table></div>
@@ -151,14 +174,15 @@
 <section id="repair" class="band">
   <div class="wrap">
     <h2>How long a repair could take</h2>
-    <p class="section-lead">Days to restore = 0.5 days on site + travel from the nearest of five crew bases + a wet-season delay when a radio site on the chain is more than a set distance from a sealed road. The delay and the distance are our assumptions, so you can change them.</p>
+    <p class="plain"><strong>In plain words:</strong> in the dry season most of these communities would be reconnected within a day. In the wet season, 17 of 23 could wait more than two weeks, because a tower on their chain is far from a sealed road.</p>
+    <p class="section-lead detail">Days to restore = 0.5 days on site + travel from the nearest of five crew bases + a wet-season delay when a radio site on the chain is more than a set distance from a sealed road. The delay and the distance are our assumptions, so you can change them.</p>
     <div class="grid-2">
       <article class="panel">
         <h3>23 radio-chain places, July and January</h3>
         <div id="repair-bands"></div>
         <p class="note" id="repair-note"></p>
       </article>
-      <article class="panel">
+      <article class="panel detail">
         <h3>Change the assumptions</h3>
         <p class="label">Wet-season delay (November to April)</p>
         <div class="seg" role="radiogroup" aria-label="Wet-season delay" id="rep-wet"></div>
@@ -235,8 +259,9 @@
 <section id="government">
   <div class="wrap">
     <h2>For government: measures with a starting point</h2>
-    <p class="section-lead">Each recommendation in the report comes with a measure. Public data gives the starting value today.</p>
-    <div class="table-wrap"><table class="data" id="kpi"></table></div>
+    <p class="plain"><strong>In plain words:</strong> ask phone companies how each tower connects, how long its batteries last and when it has gone down, then check the weak links before every wet season.</p>
+    <p class="section-lead detail">Each recommendation in the report comes with a measure. Public data gives the starting value today.</p>
+    <div class="table-wrap detail"><table class="data" id="kpi"></table></div>
 
     <div class="grid-2">
       <article class="panel">
@@ -249,7 +274,7 @@
         </ol>
         <p class="note">This extends the restricted government access to asset locations that the 2024 Regional Telecommunications Review proposed (Recommendation 6).</p>
       </article>
-      <article class="panel">
+      <article class="panel detail">
         <h3>Ready for a data warehouse</h3>
         <p>The pipeline writes a star schema (<code>docs/schema.sql</code>) that loads into DuckDB, and a test builds and queries it on every run.</p>
         <div class="schema" aria-label="Star schema tables">
@@ -280,7 +305,7 @@
       <p class="note">This site names no community. The report names them only because news reports did, and only to test the model.</p>
     </article>
 
-    <article class="panel">
+    <article class="panel detail">
       <h3>18 sources</h3>
       <p class="note">★ marks the eight datasets the organisers suggested. Licences and retrieval dates are in <code>DATA_LICENCES.md</code> and <code>data/manifest.csv</code>.</p>
       <ul class="sources" id="sources"></ul>

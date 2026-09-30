@@ -65,7 +65,7 @@
         const isOff = off.has(i);
         const g = el("g", { class: "relay", tabindex: 0, role: "button", "aria-pressed": String(isOff),
           "aria-label": `Relay ${i + 1}, ${isOff ? "switched off" : "working"}` });
-        g.append(el("circle", { cx: x, cy: y, r: 15, fill: isOff ? "none" : "#1a1a1a", stroke: isOff ? "#fff" : "none",
+        g.append(el("circle", { cx: x, cy: y, r: 15, fill: isOff ? "none" : "#F6A15E", stroke: isOff ? "#fff" : "none",
           "stroke-width": 2.5, "stroke-dasharray": isOff ? "4 3" : null }));
         if (isOff) g.append(el("path", { d: `M${x - 6} ${y - 6} L${x + 6} ${y + 6} M${x + 6} ${y - 6} L${x - 6} ${y + 6}`, stroke: "#fff", "stroke-width": 2.5 }));
         const toggle = () => { off.has(i) ? off.delete(i) : off.add(i); draw(); };
@@ -78,13 +78,13 @@
       svg.append(el("rect", { x: 568, y: y - 13, width: 26, height: 26, fill: "none", stroke: "#fff", "stroke-width": 3, opacity: down ? 0.35 : 1 }));
       svg.append(el("line", { x1: 594, y1: y, x2: 640, y2: y, stroke: "#fff", "stroke-width": 3, "stroke-dasharray": "3 4", opacity: down ? 0.35 : 1 }));
       svg.append(el("circle", { cx: 690, cy: y, r: 34, fill: down ? "rgba(0,0,0,0.12)" : "none", stroke: "#fff", "stroke-width": 2.5, "stroke-dasharray": "6 5" }));
-      svg.append(el("circle", { cx: 690, cy: y, r: 7, fill: down ? "none" : "#1a1a1a", stroke: down ? "#fff" : "none", "stroke-width": 2 }));
+      svg.append(el("circle", { cx: 690, cy: y, r: 7, fill: down ? "none" : "#fff", stroke: down ? "#fff" : "none", "stroke-width": 2 }));
       const label = (x, lines, bold) => lines.forEach((t, k) => svg.append(el("text", { x, y: y + 44 + k * 15, "text-anchor": "middle",
         fill: "#fff", "font-size": 12.5, "font-weight": bold ? 700 : 400, "font-family": "Arial, sans-serif" }, t)));
       label(47, ["Fibre", "town"]); label(125, ["Fibre-connected", "site"]); label(581, ["Community", "mobile site"]);
       label(690, [down ? "No service" : "Community"], true);   // sits under the dashed circle
-      svg.append(el("line", { x1: xs[0] - 10, y1: 30, x2: xs[4] + 10, y2: 30, stroke: "#1a1a1a", "stroke-width": 2 }));
-      svg.append(el("text", { x: (xs[0] + xs[4]) / 2, y: 22, "text-anchor": "middle", fill: "#1a1a1a", "font-size": 13, "font-weight": 700,
+      svg.append(el("line", { x1: xs[0] - 10, y1: 30, x2: xs[4] + 10, y2: 30, stroke: "#F6A15E", "stroke-width": 2 }));
+      svg.append(el("text", { x: (xs[0] + xs[4]) / 2, y: 22, "text-anchor": "middle", fill: "#FFD9B0", "font-size": 13, "font-weight": 700,
         "font-family": "Arial, sans-serif" }, "5 single-path relays in a row"));
       status.textContent = down
         ? `Relay ${[...off].map((i) => i + 1).join(", ")} ${off.size > 1 ? "are" : "is"} off. The community loses mobile service, even though its own site still works and the coverage map still shows it as covered.`
@@ -188,8 +188,8 @@
         let msg;
         if (s.island) msg = [el("span", { class: "st" }, "Radio island. "), "Licensed links, but none reach fibre. Probably satellite or a link the register cannot show."];
         else if (!s.connected) msg = [el("span", { class: "st cut" }, "Cut off. "), s.causes.length ? `Relay ${s.causes.map((x) => x.slice(1)).join(" or ")} is off.` : "More than one relay on its paths is off."];
-        else if (!s.spofs.length) msg = [el("span", { class: "st ok" }, "Connected. "), "Every relay has a way around it."];
-        else msg = [el("span", { class: "st ok" }, "Connected. "), `Depends on ${s.spofs.length} single-path relay${s.spofs.length > 1 ? "s" : ""}: ${s.spofs.map((x) => x.slice(1)).join(", ")}.`];
+        else if (!s.spofs.length) msg = [el("span", { class: "st ok" }, "Connected. "), "No weak links: every relay has a way around it."];
+        else msg = [el("span", { class: "st ok" }, "Connected. "), `Depends on ${s.spofs.length} weak link${s.spofs.length > 1 ? "s" : ""}: relay ${s.spofs.map((x) => x.slice(1)).join(", ")}.`];
         return el("li", {}, el("strong", {}, N[k].name + ": "), ...msg);
       }));
     }
@@ -362,5 +362,16 @@
       }
     }, { rootMargin: "-45% 0px -50% 0px" });
     byId.forEach((_, id) => { const s = document.getElementById(id); if (s) io.observe(s); });
+  })();
+  // ---- "Show the numbers" switch (as in Pyrantis): plain view first, detail on demand ----
+  (function detailSwitch() {
+    const box = $("detail-toggle");
+    const apply = () => {
+      document.body.classList.toggle("show-numbers", box.checked);
+      try { localStorage.setItem("underlink-detail", box.checked ? "1" : "0"); } catch (e) {}
+    };
+    try { box.checked = localStorage.getItem("underlink-detail") === "1"; } catch (e) {}
+    box.addEventListener("change", apply);
+    apply();
   })();
 })();
