@@ -289,7 +289,7 @@ ol.plain li { margin: 6px 0; }
 .topbar { background: rgba(255, 255, 255, 0.92); border: 1px solid rgba(22, 50, 92, 0.1); box-shadow: 0 8px 24px -8px rgba(22, 50, 92, 0.18); }
 .topbar-inner { height: 68px; gap: 16px; }
 .brand { color: var(--navy); font-size: 1.15rem; letter-spacing: -0.01em; }
-.brand img { width: 44px; height: auto; display: block; }
+.brand img { width: 40px; height: auto; display: block; }
 .nav { margin-left: 8px; }
 .nav a { color: var(--navy-2); font-size: 0.9rem; padding: 8px 12px; }
 .nav a:hover { background: var(--sky); color: var(--navy); }
@@ -306,10 +306,6 @@ ol.plain li { margin: 6px 0; }
 @media (max-width: 720px) { .topbar-inner { flex-wrap: wrap; height: auto; padding: 10px 16px; } .switch { margin-left: 0; order: 2; } .nav { order: 3; width: 100%; margin-left: 0; } }
 body:not(.show-numbers) .detail { display: none !important; }
 
-/* hero with the logo illustration */
-.hero-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 32px; align-items: center; }
-@media (max-width: 860px) { .hero-grid { grid-template-columns: 1fr; } .hero-logo { max-width: 320px; margin: 0 auto; } }
-.hero-logo { width: 100%; max-width: 440px; height: auto; justify-self: center; filter: drop-shadow(0 24px 40px rgba(22, 50, 92, 0.18)); }
 .hero h1 { color: var(--navy); }
 .eyebrow { color: var(--navy); background: rgba(246, 176, 110, 0.25); }
 
@@ -333,3 +329,9 @@ h2 { color: var(--navy); }
 .topbar-inner { gap: 10px; }
 @media (max-width: 1180px) { .topbar-inner { flex-wrap: wrap; height: auto; padding-top: 10px; padding-bottom: 10px; } .nav { order: 3; width: 100%; margin-left: -9px; } }
 html { overflow-anchor: none; }
+
+/* colours from the U logo: blue end, purple middle, orange end */
+:root { --primary: #0A5CE6; --primary-light: #5B93F2; --blue: #0A5CE6; --error: #F2652A; --orange: #F2652A; --warning: #FF8A3D; }
+.chain-card { background: linear-gradient(120deg, #0A4FCC 0%, #3D5BD6 45%, #8656A8 75%, #F2652A 115%); }
+.eyebrow { background: rgba(10, 92, 230, 0.1); color: #0A4FCC; }
+.plain { border-left-color: #F2652A; border-color: rgba(242, 101, 42, 0.3); }
