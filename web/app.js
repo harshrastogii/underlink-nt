@@ -336,8 +336,8 @@
     const rows = [
       ["1. Carrier data as a condition of co-investment", "Single-path relays with backhaul type, battery hours and a three-year outage log held by DCDD", `0 of ${r.spof_relays} in public data`, "All " + r.spof_relays + " before the 2027-28 wet season"],
       ["2. Battery check before each wet season", `Share of the ${r.far_from_sealed_road} single-path relays more than 10 km from a sealed road with confirmed battery hours`, `0 of ${r.far_from_sealed_road} public`, "Reported by 1 November each year"],
-      ["3. Outage KPI in the DCDD warehouse", "Outage hours per radio-chain place per wet season", "Not published per place", "Loaded monthly from carrier outage registers"],
-      ["4. Refresh NT connectivity registers", "Places in the 2021 register with no recorded mobile status", `${D.coverage_flags.register_not_recorded} of ${D.coverage_flags.all}`, "Every register carries an \"as at\" date"],
+      ["3. Outage KPI in the DCDD warehouse", "Outage hours per radio-chain place per wet season", "Not published per place", "Hours reported for all 23 places after the 2026-27 wet season (restricted tier)"],
+      ["4. Refresh NT connectivity registers", "Places in the 2021 register with no recorded mobile status", `${D.coverage_flags.register_not_recorded} of ${D.coverage_flags.all}`, "Every place has a recorded status and an \"as at\" date"],
       ["5. Keep and document payphones", "Radio-chain places with a payphone within 3 km whose backhaul is public", `0 of ${fb.radio_chain_with_payphone_3km}`, "Published for each payphone the card lists"],
       ["6. Test the card with one community", "Communities that have reviewed and control their card", "0", "One community that chooses to take part, after the 2026-27 wet season"],
     ];

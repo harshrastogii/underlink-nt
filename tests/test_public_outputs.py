@@ -59,10 +59,9 @@ def test_public_csvs_have_no_per_place_rows():
         assert not cols & {"place_key", "name", "spof_relays", "end_site"}, f"{f.name} carries per-place columns"
 
 
-# The web app is public. Beyond the relay-key check above, it may name a community
-# only where news reports named it and the report uses it to test the model.
-VALIDATION_NAMES = {"wadeye", "ampilatwatja", "galiwinku", "galiwin'ku", "borroloola", "milingimbi", "mapuru",
-                    "darwin"}   # Darwin: the capital, named in the acknowledgement of Country
+# The web app is public and names no community (Section 4 of the report says so).
+# Darwin appears only in the acknowledgement of Country.
+ALLOWED_WEB_NAMES = {"darwin"}
 WEB_FILES = [p for p in FILES if p.is_relative_to(ROOT / "web") and "downloads" not in p.parts]
 
 
@@ -71,9 +70,9 @@ def test_web_app_has_no_coordinates():
     assert '"lat"' not in data and '"lon"' not in data and "latitude" not in data.lower()
 
 
-def test_web_app_names_only_validation_communities():
+def test_web_app_names_no_community():
     import pandas as pd
     names = {n.strip().lower() for n in pd.read_csv(ROOT / "data" / "processed" / "places.csv").name.dropna() if len(n.strip()) >= 5}
     text = " ".join(p.read_text(errors="ignore").lower() for p in WEB_FILES)
     found = {n for n in names if re.search(r"\b" + re.escape(n) + r"\b", text)}
-    assert found <= VALIDATION_NAMES, f"web app names communities outside the validation set: {sorted(found - VALIDATION_NAMES)}"
+    assert found <= ALLOWED_WEB_NAMES, f"web app names communities: {sorted(found - ALLOWED_WEB_NAMES)}"

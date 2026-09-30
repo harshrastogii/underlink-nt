@@ -104,17 +104,18 @@ def appendix_f() -> list:
              f"Share of the {R['far_from_sealed_road']} single-path relays more than 10 km from a sealed road with confirmed battery hours",
              f"0 of {R['far_from_sealed_road']} public", "Reported by 1 November each year"],
             ["3. Outage KPI in the DCDD warehouse", "Outage hours per radio-chain place per wet season",
-             "Not published per place", "Loaded monthly from carrier outage registers into fact_outage_event"],
+             "Not published per place", "Hours reported for all 23 places after the 2026-27 wet season (restricted tier)"],
             ["4. Refresh NT connectivity registers", "Places in the 2021 register with no recorded mobile status",
-             f"{CF['register_not_recorded']} of {CF['all']}", 'Every register carries an "as at" date'],
+             f"{CF['register_not_recorded']} of {CF['all']}", 'Every place has a recorded status and an "as at" date'],
             ["5. Keep and document payphones", "Radio-chain places with a payphone within 3 km whose backhaul is public",
              f"0 of {FB['radio_chain_with_payphone_3km']}", "Published for each payphone the card lists"],
             ["6. Test the card with one community", "Communities that have reviewed and control their card", "0",
              "One community that chooses to take part, after the 2026-27 wet season"]]
     return [
         Paragraph("Appendix F: Measures and starting values", ST["h"]),
-        p("Each recommendation in Section 5 has a measure. Public data gives its starting value today. DCDD could track all "
-          "six in the star schema Underlink already writes (docs/schema.sql)."),
+        p("Section 5 states measures for Recommendations 1 and 2. This table gives a measure for all six, with its "
+          "starting value from public data today. DCDD could track them in the star schema Underlink already writes "
+          "(docs/schema.sql)."),
         cap("Table F1.", "A measure, a starting value and a target for each recommendation."),
         table(rows, [0.25, 0.37, 0.16, 0.22]),
     ]

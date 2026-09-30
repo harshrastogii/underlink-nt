@@ -46,7 +46,7 @@
       </div>
       <div class="chain-scroll"><svg id="chain" viewBox="0 0 760 170" role="img" aria-label="A radio chain from a fibre town through five relays to a community mobile site"></svg></div>
       <p id="chain-status" class="chain-status" aria-live="polite">Every relay on this chain is working. The community has service.</p>
-      <figcaption id="chain-cap">The shape of Ampilatwatja's licensed radio path to fibre, drawn without locations. All five relays are single-path relays: there is no other licensed path around any of them.</figcaption>
+      <figcaption id="chain-cap">The shape of one community's licensed radio path to fibre, from a reported outage, drawn without locations. All five relays are single-path relays: there is no other licensed path around any of them.</figcaption>
     </figure>
 
     <div class="stats" id="hero-stats"></div>
@@ -273,21 +273,8 @@
 
     <article class="panel">
       <h3>Against reported outages</h3>
-      <p class="note">Communities are named here only because news reports named them, and only to test the model.</p>
-      <div class="table-wrap">
-      <table class="data">
-        <thead><tr><th>Reported event</th><th>Reported cause</th><th>Underlink, from public radio data</th><th>Result</th></tr></thead>
-        <tbody>
-          <tr><td>Ampilatwatja, late 2024</td><td>Planned upgrade works, about one week</td><td>Radio chain; 5 single-path relays</td><td><span class="tag fit">Fits</span> The outage was planned works</td></tr>
-          <tr><td>Galiwin'ku, March to April 2024</td><td>Solar site near Mapuru ran its batteries flat at night, 12 nights</td><td>Radio chain; first of 5 single-path relays about 10 km from Mapuru, not in the Hardening Program</td><td><span class="tag fit">Fits</span> Including the mechanism</td></tr>
-          <tr><td>Milingimbi, March to April 2024</td><td>Nightly losses for 10 days; cause not given</td><td>Radio chain; no single-path relay</td><td><span class="tag miss">Misses</span> The register does not show which site serves which place</td></tr>
-          <tr><td>Borroloola, March 2024</td><td>Solar batteries flat under Ex-TC Megan</td><td>Fibre town; not flagged</td><td><span class="tag miss">Misses</span> Battery hours are not public</td></tr>
-          <tr><td>Wadeye, February to April 2026</td><td>Flood damage to fibre; power cut</td><td>No licensed radio site within 10 km</td><td><span class="tag miss">Misses</span> Fibre routes are not public</td></tr>
-          <tr><td>Parts of the NT, June 2026</td><td>Fibre break</td><td>Not flagged</td><td><span class="tag miss">Misses</span> Fibre routes are not public</td></tr>
-        </tbody>
-      </table>
-      </div>
-      <p class="note">Each miss traces to data carriers hold and do not publish: battery hours, fibre routes and which sites serve which places.</p>
+      <p>The report tests the model against six outages that news reports described (Table 2). Two happened at places the model puts on chains of five single-path relays. It misses four, and each miss traces to data carriers hold and do not publish: battery hours, fibre routes and which sites serve which places.</p>
+      <p class="note">This site names no community. The report names them only because news reports did, and only to test the model.</p>
     </article>
 
     <article class="panel">
@@ -299,7 +286,7 @@
     <article class="panel">
       <h3>Limits</h3>
       <ul class="plain-list">
-        <li>The ACMA register shows only licensed radio. Fibre and satellite backhaul are missing, so 18 is an upper bound.</li>
+        <li>The ACMA register shows only licensed radio. Fibre and satellite backhaul are missing; links it cannot show can only lower the count for the 23 chains.</li>
         <li>Fibre towns are assumed to be sound. The nearest radio site stands in for the serving site; the ACCC check above tests that.</li>
         <li>Replays show exposure without probabilities. Repair parameters are assumptions and are swept.</li>
         <li>Population figures are 2020 estimates, and homeland populations change with the seasons.</li>
