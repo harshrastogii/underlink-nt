@@ -349,4 +349,18 @@
   // ---- Sources ---------------------------------------------------------------------------
   $("sources").append(...D.datasets.map((s) => el("li", {}, s.organiser ? "★ " : "",
     el("a", { href: s.url, rel: "noopener" }, s.name), el("br"), el("span", { class: "pub" }, `${s.publisher} · ${s.licence}`))));
+  // ---- Top navigation: highlight the section in view ------------------------------------
+  (function navSpy() {
+    const links = [...document.querySelectorAll(".nav a")];
+    const byId = new Map(links.map((a) => [a.getAttribute("href").slice(1), a]));
+    if (!("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        links.forEach((a) => a.classList.remove("active"));
+        byId.get(e.target.id)?.classList.add("active");
+      }
+    }, { rootMargin: "-45% 0px -50% 0px" });
+    byId.forEach((_, id) => { const s = document.getElementById(id); if (s) io.observe(s); });
+  })();
 })();
