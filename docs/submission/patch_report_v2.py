@@ -204,6 +204,10 @@ def title_links(page) -> None:
     rows = (("Web app", "underlink-nt.vercel.app", APP), ("Code", "github.com/harshrastogii/underlink-nt", CODE))
 
     def paint(c):
+        # the U logo beside the 20 pt title "Underlink" (title box 54-146 pt wide, 378.6-401 pt down)
+        logo = HERE.parents[1] / "docs" / "assets" / "underlink_logo.png"
+        h = 22.0
+        c.drawImage(str(logo), 154.0, H - 400.0, width=h * 900 / 651, height=h, mask="auto")
         c.setFont("Arial", SIZE)
         for i, (label, text, _) in enumerate(rows):
             y = H - (564.74 + 22.5 * (i + 1))
