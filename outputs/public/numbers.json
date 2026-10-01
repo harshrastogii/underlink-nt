@@ -34,6 +34,7 @@
     "named_population_2020": {
       "Ampilatwatja": 491,
       "Galiwinku": 2453,
+      "Milingimbi": 1439,
       "Wadeye": 2679,
       "Borroloola": 200
     }
@@ -63,6 +64,11 @@
       "chain_class": "radio-chain",
       "hops": 6,
       "n_spof": 5
+    },
+    "Milingimbi": {
+      "chain_class": "radio-chain",
+      "hops": 1,
+      "n_spof": 0
     },
     "Wadeye": {
       "chain_class": "no-radio-site",
@@ -119,7 +125,7 @@
         "upstream_only_all": 0,
         "people_exposed_larger": 4236,
         "by_land_council": {
-          "Northern Land Council": 3
+          "Top End land councils (Northern, Tiwi, Anindilyakwa)": 3
         }
       },
       {
@@ -133,7 +139,7 @@
         "upstream_only_all": 7,
         "people_exposed_larger": 4504,
         "by_land_council": {
-          "Northern Land Council": 6
+          "Top End land councils (Northern, Tiwi, Anindilyakwa)": 6
         }
       },
       {
@@ -148,7 +154,7 @@
         "people_exposed_larger": 1309,
         "by_land_council": {
           "Central Land Council": 5,
-          "Northern Land Council": "<3"
+          "Top End land councils (Northern, Tiwi, Anindilyakwa)": "<3"
         }
       },
       {
@@ -162,7 +168,7 @@
         "upstream_only_all": 1,
         "people_exposed_larger": 4497,
         "by_land_council": {
-          "Northern Land Council": 4
+          "Top End land councils (Northern, Tiwi, Anindilyakwa)": 4
         }
       },
       {
@@ -176,8 +182,7 @@
         "upstream_only_all": 14,
         "people_exposed_larger": 2722,
         "by_land_council": {
-          "Anindilyakwa Land Council": "<3",
-          "Northern Land Council": "<3"
+          "Top End land councils (Northern, Tiwi, Anindilyakwa)": 3
         }
       }
     ],
@@ -309,6 +314,25 @@
     "telstra_sites_on_radio_graph": 85,
     "share_on_radio_graph": 0.31
   },
+  "wide_links": {
+    "min_bw_mhz": 2.0,
+    "links_total": 313,
+    "links_wide": 102,
+    "radio_chain_places": 15,
+    "with_ge1_spof": 11,
+    "people_ge1_spof": 3663,
+    "headline_places_still_flagged": 11,
+    "headline_places": 18,
+    "people_still_flagged": 3663
+  },
+  "co_investment_reach": {
+    "telstra_sites_cofunded": 49,
+    "flagged_places": 18,
+    "flagged_places_cofunded_end": 6,
+    "people_cofunded_end": 1527,
+    "spof_relays_total": 68,
+    "spof_relays_on_cofunded_chains": 12
+  },
   "namc": {
     "tiles": 595,
     "feedback": {
@@ -407,30 +431,34 @@
     ]
   },
   "regions": {
-    "Anindilyakwa Land Council": {
-      "at-anchor": "<3",
-      "no-radio-site": "<3",
-      "radio-chain": "<3",
-      "radio-island": 0
-    },
     "Central Land Council": {
       "at-anchor": 13,
       "no-radio-site": 12,
       "radio-chain": 15,
       "radio-island": 5
     },
-    "Northern Land Council": {
-      "at-anchor": 19,
-      "no-radio-site": 31,
-      "radio-chain": 7,
-      "radio-island": 5
-    },
-    "Tiwi Land Council": {
-      "at-anchor": 0,
-      "no-radio-site": "<3",
-      "radio-chain": 0,
-      "radio-island": 4
+    "Top End land councils (Northern, Tiwi, Anindilyakwa)": {
+      "at-anchor": 21,
+      "no-radio-site": 33,
+      "radio-chain": 8,
+      "radio-island": 9
     }
   },
-  "_generated_by": "src/underlink/pipeline.py"
+  "_generated_by": "src/underlink/pipeline.py",
+  "_inputs": {
+    "anchors.csv": "ad21b1aa5d8d77010fbaac809e0b445e",
+    "fallbacks.csv": "ee3031d5ef1807c22b64e4bf94cf9c8e",
+    "funded.csv": "ab6de42e0de05b1a987dceec4fc57e7c",
+    "links.csv": "8543c44cb157af0bb661dcfcb6afb3f9",
+    "namc_tiles.csv": "b49596e164d563bce1c8c10a0a5b9a4a",
+    "ntg_backhaul_2019.csv": "96a0fc473c99418cb7fc7041a5a672ce",
+    "other_carriers.csv": "02c99388053137758fad00b503985660",
+    "outage_ledger.csv": "2d35ca57294edd268af739fcab61acdb",
+    "places.csv": "97718a5477a056f1b741fc3e19a21830",
+    "power.csv": "85d56c2c625d0c45651f6a3ff7f4d3dc",
+    "sites.csv": "7d8dd3d2be1724cb1e017293be6c69c5",
+    "telstra_mobile_sites.csv": "d75932e57ad356e2ba34fb522a708b57",
+    "tracks.csv": "28574ade2c5f722a7bc7a944efe91ba3",
+    "params.yaml": "0e21974e81c0f25475030bf3050e6a43"
+  }
 }

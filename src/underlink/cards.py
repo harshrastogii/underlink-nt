@@ -274,7 +274,13 @@ def card_strings() -> list[str]:
     return draw(io.BytesIO())
 
 
-def build(out: Path = OUT_PDF) -> Path:
+def build(out: Path = OUT_PDF, community: str = COMMUNITY, release=None) -> Path:
+    """Write the card. The made-up Sample Community needs no release; a card for a real
+    community is written only after its custodian has released it (governance.require_release)."""
+    if community != COMMUNITY:
+        from underlink.governance import require_release
+        require_release(release, community)
+        raise NotImplementedError("Cards for real communities are drawn only after co-design (Recommendation 6).")
     out.parent.mkdir(parents=True, exist_ok=True)
     with open(out, "wb") as fh:
         draw(fh)

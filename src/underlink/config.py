@@ -18,6 +18,15 @@ with open(ROOT / "config" / "params.yaml") as fh:
     P = yaml.safe_load(fh)
 
 
+TOP_END = "Top End land councils (Northern, Tiwi, Anindilyakwa)"
+
+
+def public_region(land_council: str) -> str:
+    """Public outputs group the NT into two regions. With four land councils, the two island
+    councils had cells of 1 or 2 that anyone could recover by subtracting from the published totals."""
+    return "Central Land Council" if land_council == "Central Land Council" else TOP_END
+
+
 def ensure_dirs() -> None:
     for d in (PROCESSED, REFERENCE, PUBLIC, RESTRICTED, FIGURES):
         d.mkdir(parents=True, exist_ok=True)

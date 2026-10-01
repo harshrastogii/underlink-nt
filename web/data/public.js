@@ -446,29 +446,17 @@ window.UNDERLINK = {
   ]
  },
  "regions": {
-  "Anindilyakwa Land Council": {
-   "at-anchor": "<3",
-   "no-radio-site": "<3",
-   "radio-chain": "<3",
-   "radio-island": 0
-  },
   "Central Land Council": {
    "at-anchor": 13,
    "no-radio-site": 12,
    "radio-chain": 15,
    "radio-island": 5
   },
-  "Northern Land Council": {
-   "at-anchor": 19,
-   "no-radio-site": 31,
-   "radio-chain": 7,
-   "radio-island": 5
-  },
-  "Tiwi Land Council": {
-   "at-anchor": 0,
-   "no-radio-site": "<3",
-   "radio-chain": 0,
-   "radio-island": 4
+  "Top End land councils (Northern, Tiwi, Anindilyakwa)": {
+   "at-anchor": 21,
+   "no-radio-site": 33,
+   "radio-chain": 8,
+   "radio-island": 9
   }
  },
  "accc_check": {
@@ -481,6 +469,25 @@ window.UNDERLINK = {
   "telstra_mobile_sites_2026": 274,
   "telstra_sites_on_radio_graph": 85,
   "share_on_radio_graph": 0.31
+ },
+ "wide_links": {
+  "min_bw_mhz": 2.0,
+  "links_total": 313,
+  "links_wide": 102,
+  "radio_chain_places": 15,
+  "with_ge1_spof": 11,
+  "people_ge1_spof": 3663,
+  "headline_places_still_flagged": 11,
+  "headline_places": 18,
+  "people_still_flagged": 3663
+ },
+ "co_investment_reach": {
+  "telstra_sites_cofunded": 49,
+  "flagged_places": 18,
+  "flagged_places_cofunded_end": 6,
+  "people_cofunded_end": 1527,
+  "spof_relays_total": 68,
+  "spof_relays_on_cofunded_chains": 12
  },
  "single_score": {
   "places": 394,

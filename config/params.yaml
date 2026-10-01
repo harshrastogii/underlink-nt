@@ -78,4 +78,5 @@ single_score_probe:                # illustration for the Discussion: what one p
   macro_cost_sweep: [1000000, 3000000]
 
 checks:
+  wide_link_mhz: 2.0               # ASSUMPTION: a link carries 4G backhaul only if a licensed channel is wider than 2 MHz (rules out 25 kHz VHF/UHF and 1-2 MHz thin-route channels)
   accc_match_km: 1.5               # ASSUMPTION: a chain's end site "is" a Telstra mobile site if the ACCC 2026 list has one within 1 km; +0.5 km for the 0.01 deg rounding of shipped coordinates

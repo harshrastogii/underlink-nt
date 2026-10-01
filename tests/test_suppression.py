@@ -22,8 +22,11 @@ def test_no_small_integers(table):
         assert v == f"<{FLOOR}" or int(v) == 0 or int(v) >= FLOOR
 
 
-def test_small_cells_are_marked(table):
-    assert (table == f"<{FLOOR}").values.sum() > 0
+def test_no_hidden_cell_can_be_recovered_by_subtraction(table):
+    # The class totals are published, so a column with exactly one hidden cell gives that cell away.
+    # Public regions are grouped (Central, Top End) so that no column has a lone hidden cell.
+    hidden = (table == f"<{FLOOR}")
+    assert not (hidden.sum(axis=0) == 1).any()
 
 
 def test_matches_unsuppressed_where_available(table):

@@ -51,16 +51,26 @@ community may prefer its own organisation.
 
 ## 4. Public numbers are aggregated and small counts are hidden
 
-- Public counts are given for the four land council regions only, never ranked
-  by community.
+- Public counts are given for two land council groups only (Central; and the
+  Northern, Tiwi and Anindilyakwa councils together), never ranked by community.
+  With four separate regions, the two island councils had counts of 1 or 2 that
+  anyone could recover by subtracting from the published totals. A test now
+  fails if any hidden cell can be recovered that way.
 - A count of places from 1 to 2 is shown as `<3`. A count of people below 10 is
   suppressed. Zero stays zero, because an empty cell reveals nothing about a
   community. `tests/test_suppression.py` checks the public region table and
   `numbers.json`.
 - Shipped coordinates are rounded to 0.01 degrees (about 1 km).
-- Four places are named in public outputs: Ampilatwatja, Galiwinku, Wadeye and
-  Borroloola. Each had an outage that was reported in the news. We quote their
-  chain class only, so the reader can check the method against a known event.
+- Five places are named in the report and slides, and in numbers.json: Ampilatwatja,
+  Galiwin'ku, Milingimbi, Wadeye and Borroloola. Each had an outage that was
+  reported in the news. We quote their chain class only, so the reader can check the
+  method against a known event. The public web app names no community (tested).
+- Any output about a real community is written only after its custodian releases it.
+  `governance.require_release` is that gate: automated steps cannot reach PUBLISHED,
+  and the card builder refuses a real community without a custodian's release
+  (`test_card_for_a_real_community_needs_a_custodian_release`).
+- Community language text, recordings, symbols and local knowledge added to a card
+  belong to that community. The MIT licence covers the code, not them.
 
 ## 5. Relay details stay in a restricted tier
 

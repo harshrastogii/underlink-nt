@@ -141,10 +141,12 @@ def build_network(salt: str):
         pos[b] = (r.rx_lat, r.rx_lon)
         k = tuple(sorted((a, b)))
         y = r.year if not np.isnan(r.year) else np.nan
+        bw = float(r.BANDWIDTH) / 1e6 if not pd.isna(r.BANDWIDTH) else np.nan   # licensed channel width, MHz
         if k in edges:
             edges[k]["first_auth_year"] = np.nanmin([edges[k]["first_auth_year"], y])
+            edges[k]["max_bw_mhz"] = np.nanmax([edges[k]["max_bw_mhz"], bw])
         else:
-            edges[k] = {"first_auth_year": y, "km": r.km}
+            edges[k] = {"first_auth_year": y, "km": r.km, "max_bw_mhz": bw}
     sites = pd.DataFrame([(s, *pos[s]) for s in pos], columns=["site_id", "lat_full", "lon_full"])
     sites["site_key"] = [_key(s, salt) for s in sites.site_id]
     sites["dist_sealed_km"] = dist_to_sealed(sites.lat_full, sites.lon_full)
@@ -251,7 +253,9 @@ def build_telstra_sites() -> pd.DataFrame:
     """Telstra mobile sites the ACCC lists for 2026. Used only to check that each radio chain ends at a mobile site."""
     A = pd.read_csv(RAW / "listed-datasets/accc/accc_mobile_sites_NT_bbox_2018_2026.csv", low_memory=False)
     A = A[(A.Year == 2026) & (A.MNO.str.lower() == "telstra")].dropna(subset=["Latitude", "Longitude"])
-    return pd.DataFrame({"lat": _r(A.Latitude), "lon": _r(A.Longitude)})
+    # Co_funded marks sites built with government co-investment (the lever in Recommendation 1).
+    cof = A.Co_funded.astype(str).str.strip().str.lower().isin(["y", "yes", "true", "1"])
+    return pd.DataFrame({"lat": _r(A.Latitude), "lon": _r(A.Longitude), "co_funded": cof.values})
 
 
 def build_funded() -> pd.DataFrame:

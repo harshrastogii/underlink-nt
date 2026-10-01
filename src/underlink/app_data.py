@@ -13,7 +13,7 @@ import pandas as pd
 import yaml
 
 from . import hazards, network as nw, readouts as ro
-from .config import P, PROCESSED, PUBLIC, RESTRICTED, ROOT
+from .config import P, PROCESSED, PUBLIC, RESTRICTED, ROOT, public_region
 
 MIN_PLACES = P["privacy"]["min_places"]
 MIN_PEOPLE = P["privacy"]["min_people"]
@@ -66,7 +66,7 @@ def replay_view(event_id: str, radius_km: int, cyclone_only: bool) -> dict:
     net, c = base()
     R = ro.replay(c, net, tracks(), event_id, radius_km, cyclone_only)
     L = R[R.larger & R.exposed]
-    by_region = L.groupby("land_council").size()
+    by_region = L.land_council.map(public_region).value_counts()
     return {
         "footprint_relays": int(R.footprint_relays.iloc[0]),
         "exposed_larger": int(len(L)),
@@ -110,26 +110,26 @@ def knockout(site_key: str, month: int) -> dict:
 # Government: KPI tiles, all read from numbers.json
 # ---------------------------------------------------------------------------
 def kpis(N: dict | None = None) -> list[dict]:
+    """The measures and targets of the report's Appendix F (and the web app), so every surface agrees."""
     N = N or numbers()
-    ch, rl, rp, cf, pl = N["chains"], N["relays"], N["repair"], N["coverage_flags"], N["places"]
-    no_backup = rl["spof_relays"] - rl["published_autonomy"]
+    rl, cf, fb = N["relays"], N["coverage_flags"], N["fallbacks"]
     return [
-        {"title": "Larger places that depend on 3 or more relays with no alternative path",
-         "value": ch["with_ge3_spof"], "of": ch["radio_chain_places"], "unit": "larger radio-chain places",
-         "target": "Halve by 2028 by adding a second path or backup to the shared relays",
-         "owner": "DCDD with carriers", "refresh": "Monthly, with the ACMA radio licence register"},
-        {"title": "Single-point relays with no published backup-power upgrade",
-         "value": no_backup, "of": rl["spof_relays"], "unit": "single-point relays",
-         "target": "Backup hours published for every single-point relay by 2027",
-         "owner": "Carriers, reported to DCDD", "refresh": "Quarterly, with Mobile Network Hardening Program updates"},
-        {"title": "Larger radio-chain places whose wet-season repair window is over 14 days",
-         "value": rp["jan_bands"].get(">14 d", 0), "of": rp["radio_chain_places"], "unit": "larger radio-chain places",
-         "target": "Pre-positioned spares or backup for each of these before the wet season",
-         "owner": "DCDD with carriers and NTES", "refresh": "Yearly, before November"},
-        {"title": "Places in the NTG 2021 register with no recorded mobile status",
-         "value": cf["register_not_recorded"], "of": pl["all"], "unit": "places",
-         "target": "Every place has a recorded status, checked each year",
-         "owner": "DCDD", "refresh": "Yearly register update"},
+        {"title": "Single-path relays with backhaul type, battery hours and a three-year outage log held by DCDD (Rec 1)",
+         "value": 0, "of": rl["spof_relays"], "unit": "single-path relays, in public data",
+         "target": "All on co-funded chains before the 2027-28 wet season, then all 68",
+         "owner": "DCDD, as a condition of NT co-investment", "refresh": "Each co-investment round"},
+        {"title": "Remote single-path relays with confirmed battery hours (Rec 2)",
+         "value": 0, "of": rl["far_from_sealed_road"], "unit": "relays more than 10 km from a sealed road, public",
+         "target": "First list sent October 2026; hours confirmed by 1 December 2026, then by 1 November each year",
+         "owner": "DCDD with Telstra", "refresh": "Yearly, before the wet season"},
+        {"title": "Places in the NTG 2021 register with no recorded mobile status (Rec 4)",
+         "value": cf["register_not_recorded"], "of": cf["all"], "unit": "places",
+         "target": "Every place has a recorded status and an 'as at' date",
+         "owner": "NT Government (DCDD)", "refresh": "Yearly register update"},
+        {"title": "Radio-chain places with a payphone within 3 km whose backhaul is public (Rec 5)",
+         "value": 0, "of": fb["radio_chain_with_payphone_3km"], "unit": "places",
+         "target": "Published for each payphone the community card lists",
+         "owner": "Commonwealth with Telstra", "refresh": "Yearly"},
     ]
 
 
@@ -236,7 +236,7 @@ def government_view():
                          "@media (max-width:720px){.ul-tiles{grid-template-columns:1fr}}</style>"
                          "<div class='ul-tiles'>" + "".join(tile_html(k) for k in kpis(N)) + "</div>",
                          sizing_mode="stretch_width")
-    plain = {"land_council": "Land council region", "at-anchor": "At a fibre town", "radio-chain": "On a radio chain",
+    plain = {"land_council": "Land council group", "at-anchor": "At a fibre town", "radio-chain": "On a radio chain",
              "radio-island": "Radio island", "no-radio-site": "No licensed radio site nearby"}
     reg = region_classes().rename(columns=plain)[list(plain.values())]
     return pn.Column(

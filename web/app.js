@@ -358,16 +358,23 @@
 
   // ---- Government measures ------------------------------------------------------------
   (function kpi() {
+    const cr = D.co_investment_reach, rest = r.spof_relays - cr.spof_relays_on_cofunded_chains;
     const rows = [
-      ["1. Carrier data as a condition of co-investment", "Single-path relays with backhaul type, battery hours and a three-year outage log held by DCDD", `0 of ${r.spof_relays} in public data`, "All " + r.spof_relays + " before the 2027-28 wet season"],
-      ["2. Battery check before each wet season", `Share of the ${r.far_from_sealed_road} single-path relays more than 10 km from a sealed road with confirmed battery hours`, `0 of ${r.far_from_sealed_road} public`, "Reported by 1 November each year"],
-      ["3. Outage KPI in the DCDD warehouse", "Outage hours per radio-chain place per wet season", "Not published per place", "Hours reported for all 23 places after the 2026-27 wet season (restricted tier)"],
-      ["4. Refresh NT connectivity registers", "Places in the 2021 register with no recorded mobile status", `${D.coverage_flags.register_not_recorded} of ${D.coverage_flags.all}`, "Every place has a recorded status and an \"as at\" date"],
-      ["5. Keep and document payphones", "Radio-chain places with a payphone within 3 km whose backhaul is public", `0 of ${fb.radio_chain_with_payphone_3km}`, "Published for each payphone the card lists"],
-      ["6. Test the card with one community", "Communities that have reviewed and control their card", "0", "One community that chooses to take part, after the 2026-27 wet season"],
+      ["1. Carrier data as a condition of co-investment", "Single-path relays with backhaul type, battery hours and a three-year outage log held by DCDD", `0 of ${r.spof_relays} in public data`,
+       `The ${cr.spof_relays_on_cofunded_chains} relays on co-funded chains before the 2027-28 wet season; the other ${rest} through Rec 2`, "DCDD"],
+      ["2. Battery check before each wet season", `Share of the ${r.far_from_sealed_road} single-path relays more than 10 km from a sealed road with confirmed battery hours`, `0 of ${r.far_from_sealed_road} public`,
+       "First list October 2026, hours confirmed by 1 December 2026; then by 1 November each year", "DCDD with Telstra"],
+      ["3. Outage KPI in the DCDD warehouse", "Outage hours per radio-chain place per wet season (view v_outage_hours_per_place)", "Not published per place",
+       "Hours reported for all 23 places after the 2026-27 wet season (restricted tier)", "DCDD"],
+      ["4. Refresh NT connectivity registers", "Places in the 2021 register with no recorded mobile status", `${D.coverage_flags.register_not_recorded} of ${D.coverage_flags.all}`,
+       "Every place has a recorded status and an \"as at\" date", "NT Government (DCDD)"],
+      ["5. Keep and document payphones", "Radio-chain places with a payphone within 3 km whose backhaul is public", `0 of ${fb.radio_chain_with_payphone_3km}`,
+       "Published for each payphone the card lists", "Commonwealth with Telstra"],
+      ["6. Co-design the card with one community", "Communities that have shaped and control their own card", "0",
+       "One community that chooses to take part, starting from its own questions, after the 2026-27 wet season", "CDU and DCDD, led by the community's custodian"],
     ];
     const t = $("kpi");
-    t.append(el("thead", {}, el("tr", {}, ...["Recommendation", "Measure", "Starting value", "Target"].map((h) => el("th", {}, h)))));
+    t.append(el("thead", {}, el("tr", {}, ...["Recommendation", "Measure", "Starting value", "Target", "Owner"].map((h) => el("th", {}, h)))));
     t.append(el("tbody", {}, ...rows.map((row) => el("tr", {}, ...row.map((x, i) => el("td", i === 2 ? { style: "font-weight:700" } : {}, x))))));
   })();
 

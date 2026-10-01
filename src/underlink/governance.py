@@ -92,6 +92,22 @@ class Output:
         return self
 
 
+class NotReleased(Exception):
+    """Raised when an output about a real community is written without a custodian's release."""
+
+
+def require_release(output: "Output | None", community: str) -> None:
+    """The gate every output about a real community passes before it is written.
+
+    It must be PUBLISHED, and the step that got it there must have been taken by the
+    custodian the community chose. Automated steps (the pipeline, any AI tool) cannot
+    reach PUBLISHED, so code alone can never release one."""
+    if output is None or output.state != S.PUBLISHED:
+        raise NotReleased(f"No custodian release for {community}: nothing is written.")
+    if not any(h[1] == Actor.CUSTODIAN.value and h[3] == S.CUSTODIAN_APPROVED.value for h in output.history):
+        raise NotReleased(f"{community}: the release was not approved by the community's custodian.")
+
+
 def suppress_count(n: float, floor: int) -> float | str:
     """Public counts below the floor are shown as '<floor'. Zero stays zero.
 

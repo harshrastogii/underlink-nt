@@ -121,6 +121,9 @@ def fact_outage_event() -> pd.DataFrame:
         "start_date": pd.to_datetime(o.start, dayfirst=True).dt.date.astype(str),
         "end_date": pd.to_datetime(o.end, dayfirst=True).dt.date.astype(str),
         "duration_hours": o.duration, "states": o.states, "cause": o.cause, "nt_only": o.nt_only,
+        # the nbn register names towns, not sites; carriers (Rec 3) or communities (Rec 6) fill this in
+        "place_key": pd.Series([None] * len(o), dtype="object"),
+        "recorded_by": o.source,
     })
 
 

@@ -72,7 +72,10 @@ def test_web_app_has_no_coordinates():
 
 def test_web_app_names_no_community():
     import pandas as pd
-    names = {n.strip().lower() for n in pd.read_csv(ROOT / "data" / "processed" / "places.csv").name.dropna() if len(n.strip()) >= 5}
+    places = ROOT / "data" / "processed" / "places.csv"
+    if not places.exists():
+        pytest.skip("data/processed/ is not in the public repository; it ships in the submission ZIP")
+    names = {n.strip().lower() for n in pd.read_csv(places).name.dropna() if len(n.strip()) >= 5}
     text = " ".join(p.read_text(errors="ignore").lower() for p in WEB_FILES)
     found = {n for n in names if re.search(r"\b" + re.escape(n) + r"\b", text)}
     assert found <= ALLOWED_WEB_NAMES, f"web app names communities: {sorted(found - ALLOWED_WEB_NAMES)}"

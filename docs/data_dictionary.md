@@ -24,7 +24,7 @@ dim_place --- fact_replay_result
     |   +---- fact_fallback
     |   +---- fact_chain_member --- dim_site
 
-fact_outage_event (stands alone: the nbn register names towns, not sites)
+fact_outage_event (links to dim_place once a carrier or community names the place)
 ```
 
 | Table | Grain | Rows (2026-09-29) |
@@ -48,7 +48,7 @@ Primary key: `place_key`.
 | ntg_type | text | NTG `COMMUNITY_TYPE`, for example Town, Major, Minor, Village, Family Outstation |
 | larger | boolean | True when `ntg_type` is Town, Major, Minor or Village. 116 places. Most headline counts use these. |
 | land_council | text | Land council region the place falls in (NTLIS boundaries). This is the unit for public counts. |
-| population_2020 | integer | Bushfires NT 2020 population, matched by name and distance. Null for the 11 places with no match. |
+| population_2020 | integer | Bushfires NT 2020 population, matched by name and distance. Null for 298 places: 11 have no match in the Bushfires NT list and 287 match a row with no population. People counts in numbers.json add only known values, so they are lower bounds. |
 | claimed_4g_2026 | boolean | Place is inside Telstra's predicted 4G outdoor footprint in the ACCC 2026 release. A prediction, not a measurement. |
 | mobile_2021 | text | NTG 2021 register field: `Y`, `N` or `Not recorded` |
 | valid_from | date | First day this row applies |
@@ -134,8 +134,9 @@ Primary key: `(place_key, channel_type)`. Foreign key: `place_key` to dim_place.
 
 ## fact_outage_event
 
-Primary key: `outage_key`. No foreign keys: the register lists towns, and we do
-not link published outages to places or sites.
+Primary key: `outage_key`. Foreign key: `place_key` to dim_place, empty until a carrier
+(Recommendation 3) or a community custodian (Recommendation 6) names the place. Public
+registers name towns, not sites, so published rows stay unlinked.
 
 | Column | Type | Meaning |
 |---|---|---|
@@ -147,6 +148,11 @@ not link published outages to places or sites.
 | states | text | States and territories affected, as published |
 | cause | text | High-level cause, as published |
 | nt_only | boolean | True when the NT is the only territory listed |
+| place_key | text | Place the outage hit, if known; empty for register rows |
+| recorded_by | text | `nbn register`, a carrier, or a community custodian |
+
+The view `v_outage_hours_per_place` sums outage hours per place per wet season
+(November to April). It is the Recommendation 3 KPI.
 
 ## Example query
 

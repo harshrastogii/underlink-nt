@@ -13,7 +13,7 @@ import pandas as pd
 
 from . import hazards, network as nw, readouts as ro
 from .geo import haversine_km
-from .config import P, PROCESSED, PUBLIC, RESTRICTED, ensure_dirs
+from .config import P, PROCESSED, PUBLIC, RESTRICTED, ensure_dirs, public_region
 
 MIN_PLACES = P["privacy"]["min_places"]
 MIN_PEOPLE = P["privacy"]["min_people"]
@@ -63,7 +63,7 @@ def run() -> dict:
         "share_ge1_spof": round(float((rc.n_spof >= 1).mean()), 3),
     }
     # Publicly reported places we are allowed to name (their outages were in the news).
-    named = ["Ampilatwatja", "Galiwinku", "Wadeye", "Borroloola"]
+    named = ["Ampilatwatja", "Galiwinku", "Milingimbi", "Wadeye", "Borroloola"]   # the five reported outages (Table 2)
     N["named_places"] = {n: {k: (None if pd.isna(v) else (int(v) if isinstance(v, (np.integer, float, int)) and k != "chain_class" else v))
                              for k, v in c[c.name.str.lower() == n.lower()][["chain_class", "hops", "n_spof"]].iloc[0].to_dict().items()}
                          for n in named if (c.name.str.lower() == n.lower()).any()}
@@ -114,7 +114,7 @@ def run() -> dict:
                              "exposed_all": int(R.exposed.sum()), "upstream_only_all": int(R.upstream_only.sum()),
                              "people_exposed_larger": int(RL[RL.exposed].population_2020.sum())})
                 if r_km == P["hazards"]["replay_radius_km"] and not cyc_only:
-                    reg = RL[RL.exposed].groupby("land_council").size()
+                    reg = RL[RL.exposed].land_council.map(public_region).value_counts()
                     rows[-1]["by_land_council"] = {k: suppress(int(v), MIN_PLACES) for k, v in reg.items()}
     rep = pd.DataFrame(rows)
     rep.drop(columns=["by_land_council"], errors="ignore").to_csv(PUBLIC / "replay_summary.csv", index=False)
@@ -196,6 +196,39 @@ def run() -> dict:
         "telstra_sites_on_radio_graph": int((d_ts <= km).sum()),
         "share_on_radio_graph": round(float((d_ts <= km).mean()), 3),
     }
+    # --- 5c. Stricter test: only links wide enough to carry a 4G site's traffic -----
+    # 25 kHz VHF/UHF and 1-2 MHz thin-route channels are licensed point-to-point links,
+    # but too narrow for 4G backhaul. Rebuild the chains with wider links only.
+    bw = P["checks"]["wide_link_mhz"]
+    net_w = nw.load(min_bw_mhz=bw)
+    cw = nw.classify(nw.assign_end_sites(pd.read_csv(PROCESSED / "places.csv"), net_w), net_w)
+    rw = cw[cw.larger & (cw.chain_class == "radio-chain")]
+    head = set(rc[rc.n_spof >= 1].place_key)
+    both = rw[(rw.n_spof >= 1) & rw.place_key.isin(head)]
+    N["wide_links"] = {
+        "min_bw_mhz": bw,
+        "links_total": int(net.G.number_of_edges()), "links_wide": int(net_w.G.number_of_edges()),
+        "radio_chain_places": int(len(rw)), "with_ge1_spof": int((rw.n_spof >= 1).sum()),
+        "people_ge1_spof": int(rw[rw.n_spof >= 1].population_2020.sum()),
+        "headline_places_still_flagged": int(len(both)), "headline_places": int(len(head)),
+        "people_still_flagged": int(both.population_2020.sum()),
+    }
+
+    # --- 5d. Reach of Recommendation 1: chains that end at a co-funded Telstra site ---
+    cof = ts[ts.co_funded]
+    d_cof = np.array([haversine_km(a, b, cof.lat.values, cof.lon.values).min() if len(cof) else np.inf
+                      for a, b in zip(ends.lat, ends.lon)])
+    reach = rc.assign(cofunded_end=d_cof <= km)
+    flagged = reach[reach.n_spof >= 1]
+    relays_reached = set().union(*[set(x) for x in flagged[flagged.cofunded_end].spof_relays]) if flagged.cofunded_end.any() else set()
+    all_spof = set().union(*[set(x) for x in c[c.n_spof >= 1].spof_relays])
+    N["co_investment_reach"] = {
+        "telstra_sites_cofunded": int(len(cof)),
+        "flagged_places": int(len(flagged)), "flagged_places_cofunded_end": int(flagged.cofunded_end.sum()),
+        "people_cofunded_end": int(flagged[flagged.cofunded_end].population_2020.sum()),
+        "spof_relays_total": int(len(all_spof)), "spof_relays_on_cofunded_chains": int(len(relays_reached & all_spof)),
+    }
+
     namc = pd.read_csv(PROCESSED / "namc_tiles.csv")
     N["namc"] = {"tiles": int(len(namc)), "feedback": namc.feedback.value_counts().to_dict()}
     led = pd.read_csv(PROCESSED / "outage_ledger.csv")
@@ -227,7 +260,7 @@ def run() -> dict:
     }
 
     # --- 7. Region table for public outputs (suppressed) ------------------------
-    reg = L.groupby(["land_council", "chain_class"]).size().unstack(fill_value=0)
+    reg = L.assign(land_council=L.land_council.map(public_region)).groupby(["land_council", "chain_class"]).size().unstack(fill_value=0)
     reg.to_csv(RESTRICTED / "region_classes_unsuppressed.csv")
     reg.map(lambda v: suppress(v, MIN_PLACES)).to_csv(PUBLIC / "region_classes.csv")
     N["regions"] = {lc: {k: suppress(int(v), MIN_PLACES) for k, v in row.items()} for lc, row in reg.iterrows()}
@@ -238,6 +271,11 @@ def run() -> dict:
     fb.to_csv(RESTRICTED / "fallbacks_by_place.csv", index=False)
     pd.concat([rep_jan, rep_jul]).to_csv(RESTRICTED / "repair_by_place.csv", index=False)
     N["_generated_by"] = "src/underlink/pipeline.py"
+    # Lineage: the exact inputs behind these numbers, so a stale numbers.json can be spotted.
+    import hashlib
+    md5 = lambda f: hashlib.md5(f.read_bytes()).hexdigest()   # noqa: E731
+    N["_inputs"] = {f.name: md5(f) for f in sorted(PROCESSED.glob("*.csv")) if not f.name.startswith("._")}
+    N["_inputs"]["params.yaml"] = md5(PROCESSED.parents[1] / "config" / "params.yaml")
     (PUBLIC / "numbers.json").write_text(json.dumps(N, indent=2, default=lambda o: int(o) if isinstance(o, np.integer) else float(o) if isinstance(o, np.floating) else str(o)))
     return N
 

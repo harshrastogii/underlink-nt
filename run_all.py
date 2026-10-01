@@ -17,6 +17,10 @@ sys.path.insert(0, str(ROOT / "src"))
 from underlink import pipeline  # noqa: E402
 
 if __name__ == "__main__":
+    if "--prepare" not in sys.argv and not (ROOT / "data" / "processed" / "places.csv").exists():
+        # The public GitHub copy leaves data/processed/ out: with the code it rebuilds the restricted relay register.
+        sys.exit("data/processed/ is not here. It ships in the submission ZIP. To rebuild it from the public raw\n"
+                 "downloads listed in data/manifest.csv, put them under data_probe/ and run: python run_all.py --prepare")
     if "--prepare" in sys.argv:
         from underlink import prepare
         print("1/3 preparing processed data from raw downloads ...")

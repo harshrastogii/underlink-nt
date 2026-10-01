@@ -30,10 +30,15 @@ class Network:
     root_anchor: dict = field(default_factory=dict)    # root site -> set of anchor keys
 
 
-def load(anchor_radius_km: float | None = None) -> Network:
-    """Build the graph from data/processed and attach fibre anchors."""
+def load(anchor_radius_km: float | None = None, min_bw_mhz: float | None = None) -> Network:
+    """Build the graph from data/processed and attach fibre anchors.
+
+    min_bw_mhz keeps only links whose widest licensed channel is wider than this,
+    a stricter test: thin VHF/UHF and 1-2 MHz channels cannot carry a 4G site's traffic."""
     sites = pd.read_csv(PROCESSED / "sites.csv")
     links = pd.read_csv(PROCESSED / "links.csv")
+    if min_bw_mhz is not None:
+        links = links[links.max_bw_mhz > min_bw_mhz]
     anchors = pd.read_csv(PROCESSED / "anchors.csv")
     G = nx.Graph()
     G.add_nodes_from(sites.site_key)

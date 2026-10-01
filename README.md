@@ -90,7 +90,7 @@ Three sources have no stated licence or one we have not confirmed (the First Nat
 The full rules are in [docs/ETHICS.md](docs/ETHICS.md). In short:
 
 - **We study relays and paths.** No output describes a person.
-- **Two tiers.** Public outputs (`outputs/public/`, `docs/`, the Lite HTML, the card) give counts for the four land council regions only. Place counts of 1 or 2 are shown as `<3`, and people counts under 10 are suppressed. Relay keys, relay locations and per-place chains stay in `outputs/restricted/`, which is not shipped and is ignored by git.
+- **Two tiers.** Public outputs (`outputs/public/`, `docs/`, the Lite HTML, the card) give counts for two land council groups only (Central; and Northern, Tiwi and Anindilyakwa together), so no small count can be recovered from the published totals. People counts under 10 are suppressed. Relay keys, relay locations and per-place chains stay in `outputs/restricted/`, which is not shipped and is ignored by git.
 - **Hashed ids, rounded coordinates.** Radio site ids are replaced by salted hashes and shipped coordinates are rounded to 0.01 degrees (about 1 km).
 - **Consent before publication.** `src/underlink/governance.py` encodes who may move an output towards publication. Code can only compute. Only the custodian a community chooses can approve, publish onward or withhold.
 - **No community has reviewed any output of this project.** Everything here is built from published data. Any use with communities needs their agreement, ethics approval and land council permits first.
@@ -98,6 +98,10 @@ The full rules are in [docs/ETHICS.md](docs/ETHICS.md). In short:
 The tests check the privacy rules: `test_public_outputs.py` scans public files for relay keys, coordinate columns and per-place tables, and `test_suppression.py` checks small cells.
 
 ## Reproducing from raw data
+
+`docs/REFRESH.md` is the runbook for a monthly refresh: which source changes how often, the order of the steps,
+who keeps the salt, and how to re-baseline the pinned tests. `scripts/extract_acma.py` turns the ACMA RRL bulk
+download into the NT point-to-point extract.
 
 ```bash
 python run_all.py --prepare
@@ -151,4 +155,4 @@ macOS with Python 3.12. Package versions are pinned in `requirements.txt`.
 
 ## Licence
 
-Code: MIT (see [LICENSE](LICENSE)). Data keep their own licences (see [DATA_LICENCES.md](DATA_LICENCES.md)).
+Code: MIT (see [LICENSE](LICENSE)). Data keep their own licences (see [DATA_LICENCES.md](DATA_LICENCES.md)). Any community language text, recordings, symbols or local knowledge added to a card belong to that community. They are not covered by the MIT licence and are not reused without the community's consent.

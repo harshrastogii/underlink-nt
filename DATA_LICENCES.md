@@ -31,7 +31,7 @@ terms with the publisher before any wider release.
 
 **Geoscape National Roads.** Geoscape Australia, via the Digital Atlas of Australia (Geoscience Australia), licensed under CC BY 4.0. https://services-ap1.arcgis.com/ypkPEy1AmwPKGNNv/arcgis/rest/services/National_Roads/FeatureServer/0
 
-**NTLIS land council boundaries and counter disaster areas.** Northern Territory Government, NT Land Information System. CC BY 4.0, *to be confirmed*. https://ogc.ntlis.nt.gov.au/gs/ntlis/wfs
+**NTLIS land council boundaries, Aboriginal Land Trusts and counter disaster areas.** Northern Territory Government, NT Land Information System. CC BY 4.0, *to be confirmed*. https://ogc.ntlis.nt.gov.au/gs/ntlis/wfs
 
 **Bushfire risk for remote communities in the Northern Territory (2020).** Bushfires NT, Northern Territory Government, licensed under CC BY 4.0. Used for 2020 population figures. https://data.nt.gov.au/dataset/bushfire-risk-for-remote-communities-in-the-northern-territory
 

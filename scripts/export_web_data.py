@@ -87,6 +87,8 @@ def build() -> dict:
         "sensitivity": n["sensitivity"],
         "regions": n["regions"],
         "accc_check": n["accc_check"],
+        "wide_links": n["wide_links"],
+        "co_investment_reach": n["co_investment_reach"],
         "single_score": {"places": probe["candidate_places"], "spent_aud": probe["base"]["spent_aud"],
                          "mix": probe["base"]["mix"]},
         "datasets": datasets(),

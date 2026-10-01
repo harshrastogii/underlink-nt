@@ -34,6 +34,17 @@ def test_accc_crosscheck(numbers):
     assert a["unmatched_min_km"] > 10    # the misses are far off, not near the cut-off
 
 
+def test_stricter_link_test_and_co_investment_reach(numbers):
+    # Only links wider than 2 MHz can carry 4G backhaul: 11 of the 18 flagged places stay flagged.
+    w = numbers["wide_links"]
+    assert (w["links_wide"], w["links_total"]) == (102, 313)
+    assert (w["headline_places_still_flagged"], w["headline_places"]) == (11, 18)
+    # A co-investment condition (Rec 1) reaches the chains that end at a co-funded site: 6 of 18.
+    r = numbers["co_investment_reach"]
+    assert (r["flagged_places_cofunded_end"], r["flagged_places"]) == (6, 18)
+    assert (r["spof_relays_on_cofunded_chains"], r["spof_relays_total"]) == (12, 68)
+
+
 def test_recompute_matches_numbers_json(numbers):
     # Recompute from data/processed without rewriting any output file.
     _, c = pipeline.base_run()
@@ -87,3 +98,12 @@ def test_warehouse_has_no_names_or_coordinates(warehouse):
         "SELECT column_name FROM duckdb_columns() WHERE NOT internal AND schema_name = 'main'").fetchall()}
     assert "site_key" in cols   # sanity: the query sees our tables
     assert not cols & {"name", "lat", "lon", "lat_full", "lon_full", "site_id"}
+
+
+def test_numbers_json_matches_its_inputs(numbers):
+    # numbers.json records the md5 of every processed table and params.yaml it was built from.
+    import hashlib
+    from underlink.config import PROCESSED
+    for name, digest in numbers["_inputs"].items():
+        f = (PROCESSED.parents[1] / "config" / name) if name == "params.yaml" else PROCESSED / name
+        assert hashlib.md5(f.read_bytes()).hexdigest() == digest, f"{name} changed since numbers.json was built: rerun run_all.py"

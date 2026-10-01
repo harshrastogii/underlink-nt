@@ -30,7 +30,7 @@ COMMENT ON TABLE dim_place IS 'One row per place in the NTG 2021 remote communit
 
 CREATE TABLE dim_site (
     site_key            VARCHAR PRIMARY KEY,  -- R + 8 hex chars, salted hash of the ACMA site id
-    dist_sealed_km      DOUBLE NOT NULL,      -- straight-line km to nearest sealed road (Geoscape)
+    dist_sealed_km      DOUBLE PRECISION NOT NULL,      -- straight-line km to nearest sealed road (Geoscape)
     power_class         VARCHAR NOT NULL,     -- P0_unknown, P1..P3 (MNHP item within 3 km), P4_depot_within_150km
     is_fibre_connected  BOOLEAN NOT NULL,     -- within 10 km of a fibre town (a graph root)
     valid_from          DATE NOT NULL,
@@ -96,9 +96,23 @@ CREATE TABLE fact_outage_event (
     title           VARCHAR NOT NULL,
     start_date      DATE NOT NULL,
     end_date        DATE,
-    duration_hours  DOUBLE,                 -- as published in the register
+    duration_hours  DOUBLE PRECISION,                 -- as published in the register
     states          VARCHAR NOT NULL,       -- states and territories affected, as published
     cause           VARCHAR,
-    nt_only         BOOLEAN NOT NULL
+    nt_only         BOOLEAN NOT NULL,
+    place_key       VARCHAR REFERENCES dim_place (place_key),  -- empty until a carrier or community names the place
+    recorded_by     VARCHAR NOT NULL        -- 'nbn register', a carrier, or a community custodian (Rec 6)
 );
-COMMENT ON TABLE fact_outage_event IS 'Grain: one published outage that includes the NT. Not linked to places: the register names towns, not sites.';
+COMMENT ON TABLE fact_outage_event IS 'Grain: one outage. Public registers name towns, not sites, so place_key stays empty until a carrier (Rec 3) or a community (Rec 6) names the place.';
+
+-- Rec 3 KPI: outage hours per radio-chain place per wet season (November to April).
+-- Rows without a place_key are not counted; the share of hours with a place is the data-gap measure.
+CREATE VIEW v_outage_hours_per_place AS
+SELECT p.place_key,
+       CASE WHEN EXTRACT(MONTH FROM o.start_date) >= 11 THEN EXTRACT(YEAR FROM o.start_date)
+            ELSE EXTRACT(YEAR FROM o.start_date) - 1 END AS wet_season_start_year,
+       SUM(o.duration_hours) AS outage_hours
+FROM fact_outage_event o
+JOIN dim_place p ON p.place_key = o.place_key
+WHERE EXTRACT(MONTH FROM o.start_date) IN (11, 12, 1, 2, 3, 4)
+GROUP BY 1, 2;

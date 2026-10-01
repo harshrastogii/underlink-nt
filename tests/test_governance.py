@@ -47,3 +47,16 @@ def test_full_path_with_audit_trail():
 def test_skipping_review_is_refused():
     with pytest.raises(IllegalTransition):
         Output("x").move(State.COMPUTED, Actor.TEAM).move(State.PUBLISHED, Actor.TEAM)
+
+
+def test_card_for_a_real_community_needs_a_custodian_release(tmp_path):
+    import pytest
+    from underlink import cards, governance as g
+    with pytest.raises(g.NotReleased):
+        cards.build(tmp_path / "x.pdf", community="Any real community")
+    # automated steps cannot produce a release, so the gate stays shut
+    out = g.Output("card")
+    with pytest.raises(g.IllegalTransition):
+        out.move(g.State.PUBLISHED, g.Actor.AUTOMATED)
+    with pytest.raises(g.NotReleased):
+        g.require_release(out, "Any real community")
