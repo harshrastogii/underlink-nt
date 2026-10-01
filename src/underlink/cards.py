@@ -82,6 +82,7 @@ def source_line(rules: dict) -> str:
         "uomo_bill": "Parliament of Australia, UOMO Bill",
         "abc_wadeye_2026": "ABC News 7 Apr 2026",
         "abc_east_arnhem_2020": "ABC News 12 Oct 2020",
+        "secure_nt_cyclone": "SecureNT, Cyclone warnings",
     }
     return "Sources: " + "; ".join(short.values()) + "."
 

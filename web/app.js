@@ -387,10 +387,10 @@
 
   // ---- Government measures ------------------------------------------------------------
   (function kpi() {
-    const cr = D.co_investment_reach, rest = r.spof_relays - cr.spof_relays_on_cofunded_chains;
+    const cr = D.co_investment_reach, rest = r.spof_relays - cr.spof_relays_on_nt_program_chains;
     const rows = [
       ["1. Carrier data as a condition of co-investment", "Single-path relays with backhaul type, battery hours and a three-year outage log held by DCDD", `0 of ${r.spof_relays} in public data`,
-       `The ${cr.spof_relays_on_cofunded_chains} relays on co-funded chains before the 2027-28 wet season; the other ${rest} through Rec 2`, "DCDD"],
+       `The ${cr.spof_relays_on_nt_program_chains} relays on chains ending at NT co-funded sites before the 2027-28 wet season; the other ${rest} through Rec 2`, "DCDD"],
       ["2. Battery check before each wet season", `Share of the ${r.far_from_sealed_road} single-path relays more than 10 km from a sealed road with confirmed battery hours`, `0 of ${r.far_from_sealed_road} public`,
        "First list October 2026, hours confirmed by 1 December 2026; then by 1 November each year", "DCDD with Telstra"],
       ["3. Outage KPI in the DCDD warehouse", "Outage hours per radio-chain place per wet season (view v_outage_hours_per_place)", "Not published per place",

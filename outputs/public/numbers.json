@@ -327,6 +327,9 @@
   },
   "co_investment_reach": {
     "telstra_sites_cofunded": 49,
+    "telstra_sites_nt_program": 25,
+    "flagged_places_nt_program_end": 5,
+    "spof_relays_on_nt_program_chains": 9,
     "flagged_places": 18,
     "flagged_places_cofunded_end": 6,
     "people_cofunded_end": 1527,
@@ -457,7 +460,7 @@
     "places.csv": "97718a5477a056f1b741fc3e19a21830",
     "power.csv": "85d56c2c625d0c45651f6a3ff7f4d3dc",
     "sites.csv": "7d8dd3d2be1724cb1e017293be6c69c5",
-    "telstra_mobile_sites.csv": "d75932e57ad356e2ba34fb522a708b57",
+    "telstra_mobile_sites.csv": "9ce2bd61792c6feca1ea8dc8935042c2",
     "tracks.csv": "28574ade2c5f722a7bc7a944efe91ba3",
     "params.yaml": "0e21974e81c0f25475030bf3050e6a43"
   }

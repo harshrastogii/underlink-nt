@@ -483,6 +483,9 @@ window.UNDERLINK = {
  },
  "co_investment_reach": {
   "telstra_sites_cofunded": 49,
+  "telstra_sites_nt_program": 25,
+  "flagged_places_nt_program_end": 5,
+  "spof_relays_on_nt_program_chains": 9,
   "flagged_places": 18,
   "flagged_places_cofunded_end": 6,
   "people_cofunded_end": 1527,

@@ -255,7 +255,9 @@ def build_telstra_sites() -> pd.DataFrame:
     A = A[(A.Year == 2026) & (A.MNO.str.lower() == "telstra")].dropna(subset=["Latitude", "Longitude"])
     # Co_funded marks sites built with government co-investment (the lever in Recommendation 1).
     cof = A.Co_funded.astype(str).str.strip().str.lower().isin(["y", "yes", "true", "1"])
-    return pd.DataFrame({"lat": _r(A.Latitude), "lon": _r(A.Longitude), "co_funded": cof.values})
+    # The flag covers federal, state and local programs; only NT programs carry an NT condition.
+    nt = cof & A.Co_contribution_program.astype(str).str.contains(r"\bNT\b|Northern Territory", regex=True)
+    return pd.DataFrame({"lat": _r(A.Latitude), "lon": _r(A.Longitude), "co_funded": cof.values, "nt_program": nt.values})
 
 
 def build_funded() -> pd.DataFrame:

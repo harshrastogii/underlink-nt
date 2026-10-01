@@ -21,7 +21,11 @@ sources:
   abc_wadeye_2026:
     title: "ABC News, 7 April 2026, Wadeye rolling Telstra outages"
     url: "https://www.abc.net.au/news/2026-04-07/nt-community-wadeye-experiences-weeks-of-rolling-telstra-outages/106535008"
-    says: "During outages from February to April 2026, 000 could not be reached and prepaid power top-ups failed."
+    says: "During outages from February to April 2026, residents were largely unable to make calls (one could not call police or an ambulance) and prepaid power top-ups failed."
+  secure_nt_cyclone:
+    title: "NT Government, SecureNT, Cyclone warnings"
+    url: "https://securent.nt.gov.au/prepare-for-an-emergency/weather-events/cyclones/alerts-and-warnings"
+    says: "At the emergency warning level: seek shelter now, stay away from windows and doors."
   abc_east_arnhem_2020:
     title: "ABC News, 12 October 2020, East Arnhem fibre fire outage"
     url: ""
@@ -108,10 +112,11 @@ d2d:
     source: uomo_bill
     confidence: medium
 
-# Fixed wording. Do not edit without checking against ACMA.
+# Fixed wording. Do not edit without checking against ACMA (000) and SecureNT (cyclone shelter).
 triple_zero_text: >-
   To reach Triple Zero, make a voice call. If another mobile network is in range,
   your phone will use it for a 000 call, but most remote communities have only one network.
   000 is free from payphones. You cannot SMS 000. In a cyclone, stay in your shelter.
   Do not go outside to look for signal.
-triple_zero_source: acma_000
+triple_zero_source: acma_000      # the 000 sentences
+shelter_source: secure_nt_cyclone   # "In a cyclone, stay in your shelter."

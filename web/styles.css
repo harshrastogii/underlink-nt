@@ -477,7 +477,7 @@ html { overflow-anchor: none; }
 .og-caption h3 { font-size: 1.15rem; color: var(--navy); margin: 0 0 6px; }
 .og-uses { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
 .og-use { font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 6px; background: rgba(123, 97, 217, 0.1); color: #4B35A6; }
-.og-proven { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.og-proven { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
 .og-card { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 12px; background: var(--soft); border: 1px solid var(--line); color: var(--ink); transition: transform 160ms ease-out, background 200ms; }
 .og-card b { color: var(--navy); }
 .og-card span { font-size: 0.86rem; color: var(--muted); }

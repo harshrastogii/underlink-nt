@@ -222,8 +222,14 @@ def run() -> dict:
     flagged = reach[reach.n_spof >= 1]
     relays_reached = set().union(*[set(x) for x in flagged[flagged.cofunded_end].spof_relays]) if flagged.cofunded_end.any() else set()
     all_spof = set().union(*[set(x) for x in c[c.n_spof >= 1].spof_relays])
+    ntc = ts[ts.nt_program]
+    d_nt = np.array([haversine_km(a, b, ntc.lat.values, ntc.lon.values).min() for a, b in zip(ends.lat, ends.lon)])
+    nt_end = flagged.index.isin(rc.index[d_nt <= km]) & flagged.cofunded_end.values
+    relays_nt = set().union(*[set(x) for x in flagged[nt_end].spof_relays]) if nt_end.any() else set()
     N["co_investment_reach"] = {
-        "telstra_sites_cofunded": int(len(cof)),
+        "telstra_sites_cofunded": int(len(cof)), "telstra_sites_nt_program": int(len(ntc)),
+        "flagged_places_nt_program_end": int(nt_end.sum()),
+        "spof_relays_on_nt_program_chains": int(len(relays_nt & all_spof)),
         "flagged_places": int(len(flagged)), "flagged_places_cofunded_end": int(flagged.cofunded_end.sum()),
         "people_cofunded_end": int(flagged[flagged.cofunded_end].population_2020.sum()),
         "spof_relays_total": int(len(all_spof)), "spof_relays_on_cofunded_chains": int(len(relays_reached & all_spof)),

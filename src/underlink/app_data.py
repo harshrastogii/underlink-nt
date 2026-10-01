@@ -116,7 +116,7 @@ def kpis(N: dict | None = None) -> list[dict]:
     return [
         {"title": "Single-path relays with backhaul type, battery hours and a three-year outage log held by DCDD (Rec 1)",
          "value": 0, "of": rl["spof_relays"], "unit": "single-path relays, in public data",
-         "target": "All on co-funded chains before the 2027-28 wet season, then all 68",
+         "target": "All on chains ending at NT co-funded sites before the 2027-28 wet season, then all 68",
          "owner": "DCDD, as a condition of NT co-investment", "refresh": "Each co-investment round"},
         {"title": "Remote single-path relays with confirmed battery hours (Rec 2)",
          "value": 0, "of": rl["far_from_sealed_road"], "unit": "relays more than 10 km from a sealed road, public",

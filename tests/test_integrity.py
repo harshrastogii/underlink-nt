@@ -43,6 +43,8 @@ def test_stricter_link_test_and_co_investment_reach(numbers):
     r = numbers["co_investment_reach"]
     assert (r["flagged_places_cofunded_end"], r["flagged_places"]) == (6, 18)
     assert (r["spof_relays_on_cofunded_chains"], r["spof_relays_total"]) == (12, 68)
+    # Only NT programs carry an NT condition: 5 of those 6 chains, 9 relays (the sixth is a Commonwealth MBSP site).
+    assert (r["flagged_places_nt_program_end"], r["spof_relays_on_nt_program_chains"], r["telstra_sites_nt_program"]) == (5, 9, 25)
 
 
 def test_recompute_matches_numbers_json(numbers):
