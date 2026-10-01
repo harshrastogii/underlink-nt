@@ -49,6 +49,8 @@ We looked at the 782 places in the NT Government 2021 remote communities list. T
 - **What still works.** 8 of the 23 radio-chain places have a satellite-backed Wi-Fi phone or STAND Sky Muster service within 3 km. 1 has another carrier's mobile site within 10 km.
 - **Coverage maps.** 19 of the 23 radio-chain places, and 16 of the 18 with a single-path relay, sit inside Telstra's predicted 4G outdoor footprint.
 - **Checked against ACCC site data.** For 16 of the 18 places with a single-path relay (19 of all 23 radio-chain places), the chain ends at a site the ACCC 2026 list shows as a Telstra mobile site (within 1.5 km: 1 km plus the rounding of shipped coordinates). The other chains end at least 12 km from one. Only 85 of Telstra's 274 NT mobile sites (31%) sit on the licensed radio graph; the rest run on fibre, satellite or links the register does not show.
+- **Stricter link test.** Counting only links whose licensed channel is wider than 2 MHz (wide enough to carry 4G backhaul), 11 of the 18 places stay flagged (3,663 people). This is a lower bound: the thin links we drop may still be real paths.
+- **Co-investment reach.** 6 of the 18 flagged chains end at a Telstra site the ACCC list marks as co-funded (1,527 people), and 12 of the 68 single-path relays sit on those chains.
 - **Sensitivity.** We reran the chain analysis with the two distance assumptions each set to 5, 10 and 15 km. The share of radio-chain places with a single-path relay stays between 78% and 84% across the 9 runs. 18 places are radio-chain places in every run.
 
 ## How it works
@@ -73,9 +75,17 @@ The results are also exported as a star schema for a data warehouse: `python -m 
 
 ## Web app
 
-`web/` is a static site: `index.html`, `styles.css`, `app.js` and `data/public.js`. It needs no build step and no internet once loaded. Open `web/index.html` in a browser, or serve it with `python -m http.server 8000 --directory web`.
+`web/` is a static site: `index.html`, `styles.css`, the scripts `app.js`, `maps.js`, `offgrid.js` and `pipeline.js`, and the data files in `web/data/`. It needs no build step and no internet once loaded. Open `web/index.html` in a browser, or serve it with `python -m http.server 8000 --directory web`.
 
 It shows the public tier only. `scripts/export_web_data.py` (run by `run_all.py`) writes `web/data/public.js` from `outputs/public/` and `config/rules.yaml`, so the app quotes the same numbers as the report. The "break a link" network is made up; no real relay location, site key or per-place result is in `web/`, and `tests/test_public_outputs.py` checks that.
+
+Besides the numbers, the app has:
+
+- **An animated pipeline** (Method): data moving from the public sources to the three outputs.
+- **Off-grid fallbacks** (Off-grid): a six-step animation of how a community could keep passing text messages when a relay fails, using tools already in use elsewhere: Bluetooth phone-to-phone mesh (Bitchat), solar LoRa nodes (Meshtastic, or Reticulum with LXMF, legal at 915 to 928 MHz under the ACMA LIPD class licence), one bridge node on a satellite or Wi-Fi link, and a vehicle that carries queued messages. None of these carries calls or reaches 000. Report Appendix H has the sources.
+- **A hazard map** (Hazards): fire hotspots (Geoscience Australia DEA Hotspots), road closures, damage, flooding and roadworks (NT Road Report) and current Bureau of Meteorology warnings on one NT map. Pick the layers, and the legend in the map follows; save it as a PNG or as a PDF through the print dialog. The feeds send no CORS headers, so `scripts/hazards_snapshot.py` writes a snapshot to `web/data/hazards.js`, and a GitHub Action (`.github/workflows/hazards.yml`) reruns it every three hours. The map shows no relay, site or community; road names are left out because some match community names.
+
+Every animation stops under `prefers-reduced-motion`, and the numbered steps under each one say the same thing in words.
 
 To deploy on Vercel: import the GitHub repository, set **Root Directory** to `web`, leave the framework as **Other** with no build command, and deploy. The project name `underlink-nt` gives https://underlink-nt.vercel.app.
 
@@ -138,7 +148,7 @@ src/underlink/
   app_data.py              data for the app
 app/app.py                 Panel app (Explorer, Government, Community tabs)
 notebooks/                 walkthrough notebook
-scripts/                   figures and the Lite HTML export
+scripts/                   figures, Lite HTML export, web data, hazard snapshot, ACMA extract
 data/processed/            shipped inputs (hashed, rounded)
 data/manifest.csv          sources, licences, md5
 outputs/public/            numbers.json, public CSVs, figures, Lite HTML

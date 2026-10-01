@@ -26,6 +26,8 @@
       <a href="#findings">Findings</a>
       <a href="#repair">Repair</a>
       <a href="#works">What still works</a>
+      <a href="#offgrid">Off-grid</a>
+      <a href="#hazards">Hazards</a>
       <a href="#card">Community card</a>
       <a href="#government">For government</a>
       <a href="#method">Method</a>
@@ -205,6 +207,80 @@
   </div>
 </section>
 
+<!-- OFF-GRID ---------------------------------------------------------------->
+<section id="offgrid">
+  <div class="wrap">
+    <h2 id="offgrid-title">When the tower is down: keep the community talking</h2>
+    <p class="plain"><strong>In plain words:</strong> a broken weak link cuts the phone network, but people can still pass text messages if the community has its own small radios. Step through it below.</p>
+    <div class="og-wrap">
+      <div class="og-stage panel">
+        <div class="og-scroll"><div id="offgrid-scene"></div></div>
+        <p class="swipe-hint">Swipe the picture sideways to see all of it.</p>
+        <div class="og-controls">
+          <button class="btn-ghost" id="og-prev" type="button">Back</button>
+          <button class="btn" id="og-play" type="button">Pause</button>
+          <button class="btn-ghost" id="og-next" type="button">Next</button>
+          <div class="og-dots" id="og-dots" role="group" aria-label="Steps"></div>
+        </div>
+      </div>
+      <aside class="og-caption panel" aria-live="polite">
+        <p class="og-step-n" id="og-step-n"></p>
+        <h3 id="og-step-t"></h3>
+        <p id="og-step-d"></p>
+        <div class="og-uses" id="og-step-uses"></div>
+      </aside>
+    </div>
+    <div class="grid-2">
+      <article class="panel">
+        <h3>What it can and cannot do</h3>
+        <ul class="plain-list">
+          <li>It carries short text messages and map positions. It does not carry phone calls, internet, card payments or power top-ups.</li>
+          <li>It cannot reach 000. For 000, use a payphone, a satellite phone, or another company's mobile network if one is in range.</li>
+          <li>Radios need sun or power, a high place and someone to look after them. The community decides where nodes go and who runs them.</li>
+          <li>A node can list itself on public maps such as rmap.world. That shows where it is, so whether to list it is the community's call.</li>
+        </ul>
+      </article>
+      <article class="panel">
+        <h3>Where a pilot could start</h3>
+        <div class="factlist" id="og-facts"></div>
+      </article>
+    </div>
+    <article class="panel">
+      <h3>Already working elsewhere</h3>
+      <div class="og-proven">
+        <a class="og-card" href="https://meshtastic.org/" rel="noopener"><b>Meshtastic</b><span>Open-source text messaging over LoRa radios. Your phone pairs with a small radio by Bluetooth, and solar nodes on high places pass messages for kilometres.</span></a>
+        <a class="og-card" href="https://reticulum.network/" rel="noopener"><b>Reticulum and LXMF</b><span>A network that joins LoRa, Wi-Fi, Ethernet and serial links into one. LXMF holds messages for people who are offline. Apps: NomadNet, Columba, MeshChatX, Ren Browser.</span></a>
+        <a class="og-card" href="https://rmap.world/" rel="noopener"><b>rmap.world</b><span>A live map of more than 800 Reticulum nodes whose owners chose to list them: proof the network runs today.</span></a>
+        <a class="og-card" href="https://bitchat.free/" rel="noopener"><b>Bitchat</b><span>Phone-to-phone messages over Bluetooth, with no internet, tower or account. Each hop reaches tens of metres.</span></a>
+        <a class="og-card" href="https://lanceplugin.com/" rel="noopener"><b>ATAK with LANCE</b><span>Emergency teams share positions, markers and messages over Meshtastic radios, with no tower or server.</span></a>
+        <a class="og-card" href="https://www.ted.com/talks/juliana_rotich_meet_brck_internet_access_built_for_africa" rel="noopener"><b>BRCK, Kenya (2013)</b><span>A battery-backed router built for places where power and lines fail. It switches to whichever network still works.</span></a>
+        <a class="og-card" href="https://www.nasa.gov/communicating-with-missions/delay-disruption-tolerant-networking/" rel="noopener"><b>Delay-tolerant networking</b><span>NASA's method for links that come and go: data waits safely and moves on when the next link appears.</span></a>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- HAZARDS ------------------------------------------------------------------>
+<section id="hazards">
+  <div class="wrap">
+    <h2>Hazards now: fire, flood and closed roads</h2>
+    <p class="plain"><strong>In plain words:</strong> fires and floods take relays down, and closed roads keep repair crews away. This map puts the current public feeds together. Pick the layers you need, then save it as a picture or a PDF.</p>
+    <div class="hz-wrap">
+      <div class="panel hz-map" id="hazard-sheet"><div class="hz-scroll"><div id="hazard-map"></div></div></div>
+      <aside class="panel hz-side">
+        <h3>Layers</h3>
+        <div class="hz-layers" id="hazard-layers"></div>
+        <div class="hz-actions">
+          <button class="btn" id="hazard-png" type="button">Download picture (PNG)</button>
+          <button class="btn-ghost" id="hazard-pdf" type="button">Save as PDF</button>
+        </div>
+        <p class="note" id="hazard-note"></p>
+        <p class="note">The map shows no relay, site or community. Warning titles are quoted from the Bureau of Meteorology. Satellite fire points can include planned burns. Check the NT Road Report and the Bureau of Meteorology before travelling.</p>
+      </aside>
+    </div>
+  </div>
+</section>
+
 <!-- COMMUNITY CARD ---------------------------------------------------------->
 <section id="card" class="band">
   <div class="wrap">
@@ -289,6 +365,7 @@
 <section id="method" class="band">
   <div class="wrap">
     <h2>Method and data</h2>
+    <div class="panel pl-wrap"><div id="pipeline-anim"></div></div>
     <ol class="steps">
       <li><strong>Build the network.</strong> 808 NT point-to-point link records licensed to Telstra become 358 sites and 313 links in 51 separate pieces.</li>
       <li><strong>Trace each place to fibre.</strong> Every fibre-connected site joins one imaginary source; a dominator tree finds the relays each place's site cannot route around.</li>
@@ -351,6 +428,11 @@
 </footer>
 
 <script src="data/public.js"></script>
+<script src="data/nt_base.js"></script>
+<script src="data/hazards.js"></script>
 <script src="app.js"></script>
+<script src="maps.js"></script>
+<script src="offgrid.js"></script>
+<script src="pipeline.js"></script>
 </body>
 </html>

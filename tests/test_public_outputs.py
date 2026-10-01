@@ -76,6 +76,13 @@ def test_web_app_names_no_community():
     if not places.exists():
         pytest.skip("data/processed/ is not in the public repository; it ships in the submission ZIP")
     names = {n.strip().lower() for n in pd.read_csv(places).name.dropna() if len(n.strip()) >= 5}
-    text = " ".join(p.read_text(errors="ignore").lower() for p in WEB_FILES)
+    text = " ".join(p.read_text(errors="ignore").lower() for p in WEB_FILES if p.name != "hazards.js")
+    # hazards.js: the only free text is BoM warning titles, quoted as published (public safety warnings)
+    import json as _json
+    hz = ROOT / "web" / "data" / "hazards.js"
+    if hz.exists():
+        d = _json.loads(hz.read_text().split("=", 1)[1].rstrip().rstrip(";"))
+        assert all(set(r) <= {"kind", "what", "restriction", "from", "to"} for r in d["roads"]), "road items must not carry names"
+        text += " " + _json.dumps({k: v for k, v in d.items() if k not in ("warnings", "errors")}).lower()
     found = {n for n in names if re.search(r"\b" + re.escape(n) + r"\b", text)}
     assert found <= ALLOWED_WEB_NAMES, f"web app names communities: {sorted(found - ALLOWED_WEB_NAMES)}"

@@ -271,16 +271,24 @@ ol.plain li { margin: 6px 0; }
 
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
 
-/* print: only the community card, on one A4 page */
+/* print: the community card by default; the hazard map alone when body[data-print="map"] */
 @page { size: A4; margin: 12mm; }
 @media print {
   html, body { background: #fff !important; }
-  body::before, body::after, .skip, .topbar, .footer, main > section:not(#card),
-  #card h2, #card .section-lead, #card .plain, .card-actions { display: none !important; }
+  body::before, body::after, .skip, .topbar, .footer { display: none !important; }
+  body:not([data-print="map"]) main > section:not(#card),
+  body:not([data-print="map"]) #card h2, body:not([data-print="map"]) #card .section-lead,
+  body:not([data-print="map"]) #card .plain, .card-actions { display: none !important; }
   #card { padding: 0; }
   #card .wrap { padding: 0; max-width: none; }
   .card-sheet { max-width: none; width: 100%; box-shadow: none; border: 1.5px solid #1b1f24; break-inside: avoid; }
   .card-grid td.cell { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body[data-print="map"] main > section:not(#hazards), body[data-print="map"] #hazards h2,
+  body[data-print="map"] #hazards .plain, body[data-print="map"] .hz-side { display: none !important; }
+  body[data-print="map"] #hazards { padding: 0; }
+  body[data-print="map"] .hz-wrap { display: block; }
+  body[data-print="map"] .hz-map { box-shadow: none; border: 0; padding: 0; }
+  body[data-print="map"] #hazard-map svg { width: 100%; height: auto; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 
 /* summary widgets: keep text above the decorative circle; dark-mode tints */
@@ -449,4 +457,61 @@ html { overflow-anchor: none; }
   .sources { columns: 1; }
   .tiers { grid-template-columns: 1fr; }
   .footer { font-size: 0.8rem; }
+}
+
+
+/* ---- Off-grid scenario --------------------------------------------------------------- */
+.og-wrap { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(260px, 1fr); gap: 20px; margin-bottom: 20px; }
+.og-stage { padding: 14px; }
+#offgrid-scene svg { width: 100%; height: auto; display: block; }
+.og-dim { opacity: 0.18; transition: opacity 400ms cubic-bezier(0.23, 1, 0.32, 1); }
+.og-node, #og-sat, #og-ntes, #og-bus, #og-hill-lbl { transition: opacity 400ms cubic-bezier(0.23, 1, 0.32, 1); }
+.og-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+.og-controls .btn, .og-controls .btn-ghost { transition: transform 160ms ease-out, background 200ms; }
+.og-controls .btn:active, .og-controls .btn-ghost:active { transform: scale(0.97); }
+.og-dots { display: flex; gap: 6px; margin-left: auto; }
+.og-dots button { width: 12px; height: 12px; border-radius: 50%; border: 0; background: #C4CDD5; cursor: pointer; padding: 0; transition: transform 160ms ease-out, background 200ms; }
+.og-dots button[aria-current="true"] { background: var(--navy); transform: scale(1.25); }
+.og-caption { display: flex; flex-direction: column; gap: 4px; margin: 0; }
+.og-step-n { font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin: 0; }
+.og-caption h3 { font-size: 1.15rem; color: var(--navy); margin: 0 0 6px; }
+.og-uses { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.og-use { font-size: 0.75rem; font-weight: 700; padding: 3px 8px; border-radius: 6px; background: rgba(123, 97, 217, 0.1); color: #4B35A6; }
+.og-proven { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.og-card { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-radius: 12px; background: var(--soft); border: 1px solid var(--line); color: var(--ink); transition: transform 160ms ease-out, background 200ms; }
+.og-card b { color: var(--navy); }
+.og-card span { font-size: 0.86rem; color: var(--muted); }
+@media (hover: hover) and (pointer: fine) { .og-card:hover { background: var(--blue-soft); text-decoration: none; } }
+.og-card:active { transform: scale(0.98); }
+@media (max-width: 860px) { .og-wrap { grid-template-columns: 1fr; } }
+
+/* ---- Hazard map ------------------------------------------------------------------------ */
+.hz-wrap { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(260px, 1fr); gap: 20px; }
+.hz-map { padding: 10px; }
+#hazard-map svg { width: 100%; height: auto; display: block; border-radius: 10px; }
+.hz-layers { display: grid; gap: 6px; margin-bottom: 14px; }
+.layer-chip { display: grid; grid-template-columns: auto 14px 1fr auto; align-items: center; gap: 8px; font-size: 0.86rem; padding: 6px 8px; border-radius: 8px; background: var(--soft); cursor: pointer; }
+.layer-chip input { accent-color: var(--navy); }
+.layer-chip i { width: 14px; height: 14px; border-radius: 4px; display: block; }
+.layer-chip b { font-family: var(--font-num); color: var(--muted); }
+.hz-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.hz-actions .btn:active, .hz-actions .btn-ghost:active { transform: scale(0.97); }
+@media (max-width: 860px) { .hz-wrap { grid-template-columns: 1fr; } }
+
+@media screen and (max-width: 720px) {
+  .og-scroll, .hz-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  #offgrid-scene svg { min-width: 560px; }
+  #hazard-map svg { min-width: 620px; }
+  .og-dots { margin-left: 0; width: 100%; justify-content: center; }
+  .og-controls .btn, .og-controls .btn-ghost { flex: 1 1 auto; }
+  .hz-actions .btn, .hz-actions .btn-ghost { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .og-dim, .og-node, .og-dots button { transition: none; } }
+
+/* ---- Method pipeline animation: each stage lights up in turn ---------------------------- */
+.pl-wrap { padding: 12px 16px; margin-bottom: 16px; }
+#pipeline-anim svg { width: 100%; height: auto; display: block; }
+@media (prefers-reduced-motion: no-preference) {
+  .pl-stage circle { animation: pl-glow 6s cubic-bezier(0.23, 1, 0.32, 1) infinite; animation-delay: calc(var(--i) * 1s); transform-box: fill-box; transform-origin: center; }
+  @keyframes pl-glow { 0%, 12% { transform: scale(1.18); fill: #FFF5EA; } 22%, 100% { transform: scale(1); fill: #fff; } }
 }

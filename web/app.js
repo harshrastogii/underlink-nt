@@ -10,7 +10,7 @@
   const about = (n, to = 100) => fmt(Math.round(n / to) * to);
 
   function el(tag, attrs = {}, ...kids) {
-    const svg = ["svg", "g", "circle", "rect", "line", "text", "path", "title"].includes(tag);
+    const svg = ["svg", "g", "circle", "rect", "line", "text", "path", "title", "animateMotion", "animate", "animateTransform"].includes(tag);
     const e = svg ? document.createElementNS(SVGNS, tag) : document.createElement(tag);
     for (const [k, v] of Object.entries(attrs)) {
       if (v === null || v === undefined || v === false) continue;
@@ -107,6 +107,19 @@
       } else {
         svg.append(el("line", { x1: xs[0] - 10, y1: 30, x2: xs[4] + 10, y2: 30, stroke: "#F6A15E", "stroke-width": 2 }));
         svg.append(el("text", { x: (xs[0] + xs[4]) / 2, y: 22, "text-anchor": "middle", "font-size": 13, ...tag }, "5 single-path relays in a row"));
+      }
+      // Signal pulses run from the fibre town along the chain and stop at the first switched-off relay.
+      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        const stops = [47, 125, ...xs, 581, 690];
+        const first = off.size ? Math.min(...off) : -1;
+        const live = first < 0 ? stops : stops.slice(0, stops.indexOf(xs[first]) + 1);
+        const d = "M" + live.map((x) => P(x, y).join(",")).join("L");
+        const dur = (live.length * 0.42).toFixed(2);
+        for (let k = 0; k < 3; k++) {
+          const dot = el("circle", { r: 4.5, fill: first < 0 ? "#FFFFFF" : "#FFD9B0", "pointer-events": "none" });
+          dot.append(el("animateMotion", { dur: dur + "s", begin: (k * dur / 3).toFixed(2) + "s", repeatCount: "indefinite", path: d }));
+          svg.append(dot);
+        }
       }
       status.textContent = down
         ? `Relay ${[...off].map((i) => i + 1).join(", ")} ${off.size > 1 ? "are" : "is"} off. The community loses mobile service, even though its own site still works and the coverage map still shows it as covered.`
@@ -206,6 +219,22 @@
           svg.append(el("circle", { cx: n.x, cy: n.y, r: 4.5, fill: cut ? "var(--orange)" : "var(--ink)" }));
           svg.append(el("text", { x: n.x, y: n.y + 32, "text-anchor": "middle" }, n.name));
         }
+      }
+      // Pulses travel each connected community's shortest live path from a fibre town.
+      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        const adj = {};
+        for (const [u, v] of edges()) { if (off.has(u) || off.has(v)) continue; (adj[u] ||= []).push(v); (adj[v] ||= []).push(u); }
+        const parent = {}, q = Object.keys(N).filter((k) => N[k].t === "fibre");
+        q.forEach((k) => (parent[k] = null));
+        while (q.length) { const u = q.shift(); for (const v of adj[u] || []) if (!(v in parent)) { parent[v] = u; q.push(v); } }
+        Object.keys(N).filter((k) => N[k].t === "comm" && k in parent).forEach((k, idx) => {
+          const pts = []; for (let x = k; x != null; x = parent[x]) pts.unshift([N[x].x, N[x].y]);
+          if (pts.length < 2) return;
+          const d = "M" + pts.map((pt) => pt.join(",")).join("L");
+          const dot = el("circle", { r: 4, fill: "var(--blue)", "pointer-events": "none" });
+          dot.append(el("animateMotion", { dur: (0.55 * pts.length).toFixed(2) + "s", begin: (idx * 0.3).toFixed(2) + "s", repeatCount: "indefinite", path: d }));
+          svg.append(dot);
+        });
       }
       list.replaceChildren(...Object.entries(res).map(([k, s]) => {
         let msg;
@@ -432,4 +461,14 @@
     const heads = [...t.querySelectorAll("thead th")].map((h) => h.textContent.trim());
     t.querySelectorAll("tbody tr").forEach((tr) => [...tr.children].forEach((td, k) => { if (heads[k]) td.dataset.label = heads[k]; }));
   });
+  // ---- Off-grid: where a pilot could start (numbers from numbers.json) --------------------
+  (function ogFacts() {
+    const box = $("og-facts");
+    if (!box) return;
+    box.append(
+      fact(`${c.with_ge1_spof} of ${c.radio_chain_places}`, "radio-chain places lose service when one weak link fails: the places a community mesh would help most", "orange"),
+      fact(`${fb.radio_chain_with_independent_fallback} of ${rep.radio_chain_places}`, "already have a satellite Wi-Fi phone or a Sky Muster service within 3 km, where a bridge node could start", "blue"),
+      fact(`${fb.radio_chain_with_other_carrier} of ${rep.radio_chain_places}`, "has another company's mobile site within 10 km, so 000 by mobile mostly depends on the one chain"),
+    );
+  })();
 })();
