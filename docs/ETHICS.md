@@ -65,7 +65,7 @@ community may prefer its own organisation.
   Galiwin'ku, Milingimbi, Wadeye and Borroloola. Each had an outage that was
   reported in the news. We quote their chain class only, so the reader can check the
   method against a known event. The public web app names no community (tested).
-- Any output about a real community is written only after its custodian releases it.
+- Apart from the five validation results above, which no custodian has released and no community has reviewed, any output about a real community is written only after its custodian releases it. Before any use of the five beyond this entry, we would ask each community, through a contact it chooses, and remove its result if asked.
   `governance.require_release` is that gate: automated steps cannot reach PUBLISHED,
   and the card builder refuses a real community without a custodian's release
   (`test_card_for_a_real_community_needs_a_custodian_release`).

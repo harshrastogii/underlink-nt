@@ -9,9 +9,10 @@
 -- Tier: RESTRICTED. dim_site and fact_chain_member hold salted, hashed relay
 -- keys. No table holds a community name or a coordinate.
 --
--- Snapshot handling: dimensions carry valid_from / valid_to. This release has
--- one snapshot (2026-09-29), so place_key and site_key are unique on their own.
--- A second snapshot would add a surrogate key and close valid_to on old rows.
+-- Snapshot handling: every fact table except fact_outage_event carries snapshot_date
+-- in its primary key, so a new month adds rows. dim_place and dim_site hold the
+-- current row per key; a place or site that leaves the source keeps its row with
+-- valid_to set. dim_event and fact_outage_event are upserted on their keys.
 
 -- ---------------------------------------------------------------- dimensions
 
@@ -77,7 +78,9 @@ CREATE TABLE fact_replay_result (
     track_variant  VARCHAR NOT NULL CHECK (track_variant IN ('system', 'cyclone_only')),
     place_key      VARCHAR NOT NULL REFERENCES dim_place (place_key),
     status         VARCHAR NOT NULL CHECK (status IN ('not_affected', 'direct', 'upstream_only')),
-    PRIMARY KEY (event_key, radius_km, track_variant, place_key)
+    variant        VARCHAR NOT NULL,
+    snapshot_date  DATE NOT NULL,
+    PRIMARY KEY (event_key, radius_km, track_variant, place_key, variant, snapshot_date)
 );
 COMMENT ON TABLE fact_replay_result IS 'Grain: one place under one replay. Shows exposure, not what happened.';
 
@@ -87,17 +90,20 @@ CREATE TABLE fact_fallback (
     count_within_km  INTEGER NOT NULL,      -- how many of this channel lie within radius_km of the place
     radius_km        INTEGER NOT NULL,      -- 3 for walkable fallbacks, 10 for other carriers
     independence     VARCHAR NOT NULL,      -- whether it uses a path separate from the mobile network
-    PRIMARY KEY (place_key, channel_type)
+    variant          VARCHAR NOT NULL,
+    snapshot_date    DATE NOT NULL,
+    PRIMARY KEY (place_key, channel_type, variant, snapshot_date)
 );
 COMMENT ON TABLE fact_fallback IS 'Grain: one place and one fallback channel type.';
 
 CREATE TABLE fact_outage_event (
-    outage_key      VARCHAR PRIMARY KEY,    -- O001..
+    outage_key      VARCHAR PRIMARY KEY,    -- the register's Reference, e.g. ACM000000000071
     source          VARCHAR NOT NULL,       -- nbn register
     title           VARCHAR NOT NULL,
     start_date      DATE NOT NULL,
     end_date        DATE,
-    duration_hours  DOUBLE PRECISION,                 -- as published in the register
+    duration_hours  DOUBLE PRECISION,       -- end minus start, in hours
+    duration_published VARCHAR,             -- the register's Duration (hours.minutes, as published)
     states          VARCHAR NOT NULL,       -- states and territories affected, as published
     cause           VARCHAR,
     nt_only         BOOLEAN NOT NULL,

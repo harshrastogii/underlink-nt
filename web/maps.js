@@ -24,7 +24,7 @@
       attr: "Tiles © Esri. Sources: Esri, HERE, Garmin, Intermap, USGS, FAO, NPS, NRCAN, GeoBase, IGN, (c) OpenStreetMap contributors, and the GIS User Community" },
   ];
   const LAYERS = [
-    { id: "fire", label: "Fire hotspots, last 3 days", color: "#E4602E", on: true },
+    { id: "fire", label: "Fire hotspot cells (about 5 km), last 3 days", color: "#E4602E", on: true },
     { id: "flood", label: "Flooding on a road", color: "#1E6FD9", on: true },
     { id: "closed", label: "Road closed", color: "#A83A12", on: true },
     { id: "damage", label: "Road damage", color: "#F29A3F", on: true },
@@ -39,11 +39,15 @@
   const fmtTime = (iso) => { try { return new Date(iso).toLocaleString("en-AU", { timeZone: "Australia/Darwin", day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" }) + " (Darwin time)"; } catch (e) { return iso; } };
   const roadCount = (k) => H.roads.filter((r) => r.kind === k).length;
   const standCount = ((window.UNDERLINK || {}).layers || {}).stand_sites_nt || (B && B.stand ? B.stand.length : 0);
-  const count = (id) => (id === "fire" ? H.hotspots.length : id === "floodarea" ? "" : id === "stand" ? standCount : roadCount(id));
+  const failed = (id) => (H.errors || {})[id === "fire" ? "hotspots" : "roads"];
+  const count = (id) => (id === "floodarea" ? "" : id === "stand" ? `${standCount} sites at ${B && B.stand ? B.stand.length : 0} map points`
+    : failed(id) ? "not read" : id === "fire" ? H.hotspots.length : roadCount(id));
   const swatch = (l) => (l.id === "fire" ? "dot" : l.area ? "area" : l.square ? "sq" : "bar");
   const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const timeEl = document.getElementById("hazard-time");
-  if (timeEl) timeEl.textContent = "Snapshot: " + fmtTime(H.generated);
+  const ageH = Math.floor((Date.now() - new Date(H.generated).getTime()) / 3.6e6);
+  const stamp = "Snapshot: " + fmtTime(H.generated) + (ageH > 6 ? ` (${ageH} hours old)` : "");
+  if (timeEl) timeEl.textContent = stamp;
 
   // ---- map, base layers ----------------------------------------------------------------------
   const map = L.map(host, { zoomSnap: 0.25, minZoom: 4, maxBounds: [[-32, 122], [-6, 144]], scrollWheelZoom: false });
@@ -91,7 +95,9 @@
   LAYERS.forEach((l) => { if (l.on) groups[l.id].addTo(map); });
 
   // ---- legend (inside the map, so the PDF carries it) ----------------------------------------
-  const warnings = H.warnings.length ? H.warnings.map((w) => w.title) : ["None current for the NT"];
+  // A failed feed is never shown as "none": say it could not be read, in the legend and in exports
+  const warnings = (H.errors || {}).warnings ? ["Could not be read at the last snapshot. Check bom.gov.au."]
+    : H.warnings.length ? H.warnings.map((w) => w.title) : ["None current for the NT"];
   const legend = L.control({ position: "bottomright" });
   legend.onAdd = () => { const d = L.DomUtil.create("div", "hz-legend"); L.DomEvent.disableClickPropagation(d); return d; };
   legend.addTo(map);
@@ -144,7 +150,7 @@
     ctx.scale(S, S);
     ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, size.x, TOP + size.y + BOT);
     ctx.fillStyle = "#16325C"; ctx.font = "bold 17px Arial"; ctx.fillText("Northern Territory hazards now", PAD, 24);
-    ctx.fillStyle = "#4F5E70"; ctx.font = "11px Arial"; ctx.fillText("Snapshot: " + fmtTime(H.generated), PAD, 42);
+    ctx.fillStyle = "#4F5E70"; ctx.font = "11px Arial"; ctx.fillText(stamp, PAD, 42);
     ctx.save(); ctx.translate(0, TOP);
     ctx.beginPath(); ctx.rect(0, 0, size.x, size.y); ctx.clip();
     ctx.fillStyle = "#EEF3F9"; ctx.fillRect(0, 0, size.x, size.y);

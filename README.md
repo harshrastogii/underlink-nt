@@ -11,11 +11,12 @@ A coverage map shows whether a remote community has a mobile signal. It does not
 
 ## Quick start
 
-If you have the submission ZIP, `data/processed/` is included and the commands below work straight away. The public GitHub repository leaves `data/processed/` out, because with the code it can rebuild the restricted relay register (see Privacy and ethics); rebuild it from the raw public downloads with `python run_all.py --prepare`.
+If you have the submission ZIP, `data/processed/` is included and the commands below work straight away. The public GitHub repository leaves `data/processed/` out, because with the code it can rebuild the restricted relay register (see Privacy and ethics); rebuild it from the raw public downloads with `python run_all.py --prepare`. `data/processed/` is in the ZIP only so judges can reproduce the results; please do not pass it on. On the public repository, pytest runs every check that needs no processed data; the rest run on the submission ZIP.
 
 ```bash
 pip install -r requirements.txt
-python run_all.py                # rebuilds numbers.json and the figures, a few seconds
+python run_all.py                # rebuilds numbers.json and Figures 1 to 5, a few seconds
+python scripts/layers_map.py     # redraws Figure I1 (needs internet for the base map)
 panel serve app/app.py           # the app, at http://localhost:5006/app
 ```
 
@@ -84,7 +85,7 @@ Besides the numbers, the app has:
 
 - **An animated pipeline** (Method): data moving from the public sources to the three outputs.
 - **Three layers when the chain breaks** (Off-grid): a seven-step animation. Layer 1 keeps the tower on air with a satellite second path (LEO backhaul, with L-band for heavy rain); layer 2 brings a network to the evacuation centre (NBN STAND satellite trucks and kits, cells on wheels); layer 3 is the community's own radios (Bluetooth apps such as Bitchat and Columba; solar LoRa radios with Meshtastic or Reticulum, legal at 915 to 928 MHz under the ACMA LIPD Class Licence 2025). A table says who owns and pays for each layer. None of the layers reaches 000 from a phone with no signal. Report Appendix H has the sources.
-- **A hazard map** (Hazards), with two planning layers: the NT Planning Scheme's published 1% AEP flood studies and the STAND satellite sites at evacuation centres and fire depots (positions only, no names; built by `scripts/hazards_snapshot.py --base`). Hazard layers: fire hotspots (Geoscience Australia DEA Hotspots), road closures, damage, flooding and roadworks (NT Road Report) and current Bureau of Meteorology warnings on a real base map: the Geoscience Australia National Base Map (CC BY 4.0, the default), Esri World Imagery or Esri World Topographic (Esri terms: attribution, non-commercial use). It uses Leaflet from cdnjs. Pick the layers, and the legend in the map follows; save it as a PNG or as a PDF through the print dialog. Without internet the base map falls back to the NT outline in `web/data/nt_base.js`. The feeds send no CORS headers, so `scripts/hazards_snapshot.py` writes a snapshot to `web/data/hazards.js`, and a GitHub Action (`.github/workflows/hazards.yml`) reruns it every three hours. Underlink adds no relay, site or community data; road names are left out because some match community names.
+- **A hazard map** (Hazards), with two planning layers: the NT Planning Scheme's published 1% AEP flood studies and the STAND satellite sites at evacuation centres and fire depots (positions only, no names; built by `scripts/hazards_snapshot.py --base`). Hazard layers: fire hotspots (Geoscience Australia DEA Hotspots), road closures, damage, flooding and roadworks (NT Road Report) and current Bureau of Meteorology warnings on a real base map: the Geoscience Australia National Base Map (CC BY 4.0, the default), Esri World Imagery or Esri World Topographic (Esri terms: attribution, non-commercial use). Leaflet 1.9.4 is bundled in `web/vendor/leaflet`, so the map works when the CDN is blocked. Pick the layers, and the legend in the map follows; save it as a PNG or as a PDF through the print dialog. Without internet the base map falls back to the NT outline in `web/data/nt_base.js`. The feeds send no CORS headers, so `scripts/hazards_snapshot.py` writes a snapshot to `web/data/hazards.js`, and a GitHub Action (`.github/workflows/hazards.yml`) reruns it every three hours. Underlink adds no relay, site or community data; road names are left out because some match community names.
 
 Every animation stops under `prefers-reduced-motion`, and the numbered steps under each one say the same thing in words.
 
@@ -129,7 +130,7 @@ A fresh `--prepare` run creates a new salt, so relay keys will differ from ours.
 - **Replays show exposure, not events.** A replay removes every relay within a distance of a track. It does not say those relays failed, and we have no relay-level outage records to check it against.
 - **Repair days are assumptions.** Crew bases, speeds and the 30 days until wet-season access reopens are our choices, shown as a breakdown, not a prediction.
 - **Power is mostly unknown.** "No published backup" means the battery hours are not public. It does not mean there is no battery.
-- **Population is 2020.** From the Bushfires NT list, matched by name and distance. 11 places have no match.
+- **Population is 2020.** From the Bushfires NT list, matched by name and distance. 11 places have no match. 298 of 782 places have no 2020 figure: 11 have no match and 287 match a row with no population.
 
 ## Repository structure
 

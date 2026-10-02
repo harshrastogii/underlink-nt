@@ -10,12 +10,15 @@ tests/test_public_outputs.py checks the exported file.
 from __future__ import annotations
 
 import csv
+import sys
 import json
 from pathlib import Path
 
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+from underlink import app_data as ad  # noqa: E402  (the six measures of Appendix F)
 PUBLIC = ROOT / "outputs" / "public"
 OUT = ROOT / "web" / "data" / "public.js"
 
@@ -32,6 +35,10 @@ def datasets() -> list[dict]:
             name = r["source"].split(" public layers")[0] if "Mapping Tool" in r["source"] else r["source"]
             if name.startswith("NTLIS"):
                 name = "NTLIS land council boundaries, counter disaster areas and flood studies"
+            if name.startswith("ACCC"):
+                name = "ACCC Mobile Infrastructure Report data release"     # the 4G KML is part of the same release
+            if "context only" in name:                                       # ADII and Census are listed below
+                continue
             if name in seen:
                 continue
             seen.add(name)
@@ -87,9 +94,10 @@ def build() -> dict:
         "sensitivity": n["sensitivity"],
         "regions": n["regions"],
         "accc_check": n["accc_check"],
-        "wide_links": n["wide_links"],
+        "wide_links": {k: v for k, v in n["wide_links"].items() if k != "named_places"},   # the web app names no community
         "co_investment_reach": n["co_investment_reach"],
         "layers": n["layers"],
+        "kpis": [{k: v for k, v in r.items() if k in ("rec", "title", "start", "target", "owner")} for r in ad.kpis(n)],
         "single_score": {"places": probe["candidate_places"], "spent_aud": probe["base"]["spent_aud"],
                          "mix": probe["base"]["mix"]},
         "datasets": datasets(),

@@ -52,7 +52,8 @@
     "all_places_ge1_spof": 88,
     "ge1_spof_inside_predicted_4g": 16,
     "radio_chain_inside_predicted_4g": 19,
-    "share_ge1_spof": 0.783
+    "share_ge1_spof": 0.783,
+    "ge1_spof_without_population": 2
   },
   "named_places": {
     "Ampilatwatja": {
@@ -83,6 +84,7 @@
   },
   "fibre_what_if": {
     "radio_chain_single_fibre_town": 18,
+    "flagged_single_fibre_town": 16,
     "larger_places_single_fibre_town": 39,
     "larger_places_with_radio_site": 71,
     "note": "Places whose licensed radio path reaches only one fibre town; a break in that town's fibre would take them down too."
@@ -99,7 +101,7 @@
     "ge5_cyclones_100km": 27,
     "far_from_sealed_road": 43,
     "on_aboriginal_land_trust": 26,
-    "graph_sites_matched_to_mnhp": 11
+    "graph_sites_matched_to_mnhp": 9
   },
   "mnhp": {
     "items": 25,
@@ -228,55 +230,64 @@
         "w_wet": 14,
         "sealed_km": 5,
         "gt14d": 18,
-        "access_dominates": 18
+        "access_dominates": 18,
+        "jan_median_days": 14.8
       },
       {
         "w_wet": 14,
         "sealed_km": 10,
         "gt14d": 17,
-        "access_dominates": 17
+        "access_dominates": 17,
+        "jan_median_days": 14.8
       },
       {
         "w_wet": 14,
         "sealed_km": 20,
         "gt14d": 16,
-        "access_dominates": 16
+        "access_dominates": 16,
+        "jan_median_days": 14.8
       },
       {
         "w_wet": 30,
         "sealed_km": 5,
         "gt14d": 18,
-        "access_dominates": 18
+        "access_dominates": 18,
+        "jan_median_days": 30.8
       },
       {
         "w_wet": 30,
         "sealed_km": 10,
         "gt14d": 17,
-        "access_dominates": 17
+        "access_dominates": 17,
+        "jan_median_days": 30.8
       },
       {
         "w_wet": 30,
         "sealed_km": 20,
         "gt14d": 16,
-        "access_dominates": 16
+        "access_dominates": 16,
+        "jan_median_days": 30.8
       },
       {
         "w_wet": 60,
         "sealed_km": 5,
         "gt14d": 18,
-        "access_dominates": 18
+        "access_dominates": 18,
+        "jan_median_days": 60.8
       },
       {
         "w_wet": 60,
         "sealed_km": 10,
         "gt14d": 17,
-        "access_dominates": 17
+        "access_dominates": 17,
+        "jan_median_days": 60.8
       },
       {
         "w_wet": 60,
         "sealed_km": 20,
         "gt14d": 16,
-        "access_dominates": 16
+        "access_dominates": 16,
+        "jan_median_days": 60.8
       }
     ]
   },
@@ -312,7 +323,11 @@
     "unmatched_min_km": 12.3,
     "telstra_mobile_sites_2026": 274,
     "telstra_sites_on_radio_graph": 85,
-    "share_on_radio_graph": 0.31
+    "share_on_radio_graph": 0.31,
+    "remote_50km": {
+      "telstra_sites": 82,
+      "on_radio_graph": 34
+    }
   },
   "wide_links": {
     "min_bw_mhz": 2.0,
@@ -323,7 +338,58 @@
     "people_ge1_spof": 3663,
     "headline_places_still_flagged": 11,
     "headline_places": 18,
-    "people_still_flagged": 3663
+    "people_still_flagged": 3663,
+    "headline_places_lost_path": 7,
+    "named_places": {
+      "Ampilatwatja": {
+        "chain_class": "radio-chain",
+        "n_spof": 5
+      },
+      "Galiwinku": {
+        "chain_class": "radio-island",
+        "n_spof": 0
+      }
+    },
+    "sweep": [
+      {
+        "min_bw_mhz": 1.0,
+        "links": 239,
+        "headline_places_still_flagged": 18
+      },
+      {
+        "min_bw_mhz": 1.99,
+        "links": 203,
+        "headline_places_still_flagged": 11
+      },
+      {
+        "min_bw_mhz": 2.0,
+        "links": 102,
+        "headline_places_still_flagged": 11
+      },
+      {
+        "min_bw_mhz": 6.9,
+        "links": 93,
+        "headline_places_still_flagged": 11
+      },
+      {
+        "min_bw_mhz": 13.9,
+        "links": 91,
+        "headline_places_still_flagged": 11
+      },
+      {
+        "min_bw_mhz": 27.9,
+        "links": 81,
+        "headline_places_still_flagged": 11
+      }
+    ]
+  },
+  "narrowband_dropped": {
+    "min_bw_mhz": 0.03,
+    "links_kept": 239,
+    "radio_chain_places": 23,
+    "with_ge1_spof": 19,
+    "people_ge1_spof": 7172,
+    "headline_places_still_flagged": 18
   },
   "co_investment_reach": {
     "telstra_sites_cofunded": 49,
@@ -361,8 +427,8 @@
   "outage_ledger": {
     "nbn_rows_including_nt": 5,
     "nbn_nt_only_rows": 3,
-    "nbn_nt_only_hours_min": 7.42,
-    "nbn_nt_only_hours_max": 28.4
+    "nbn_nt_only_hours_min": 7.7,
+    "nbn_nt_only_hours_max": 28.07
   },
   "sensitivity": {
     "runs": 9,
@@ -471,12 +537,12 @@
     "namc_tiles.csv": "b49596e164d563bce1c8c10a0a5b9a4a",
     "ntg_backhaul_2019.csv": "96a0fc473c99418cb7fc7041a5a672ce",
     "other_carriers.csv": "02c99388053137758fad00b503985660",
-    "outage_ledger.csv": "2d35ca57294edd268af739fcab61acdb",
+    "outage_ledger.csv": "21701229144cf9af57e8e7ef556809a1",
     "places.csv": "471e3416fe90890c7b08639da36093cf",
     "power.csv": "85d56c2c625d0c45651f6a3ff7f4d3dc",
     "sites.csv": "8b38105c7f7ada4628dee92dedd83404",
     "telstra_mobile_sites.csv": "9ce2bd61792c6feca1ea8dc8935042c2",
     "tracks.csv": "28574ade2c5f722a7bc7a944efe91ba3",
-    "params.yaml": "01fc19b0a9bfa26928a0be930779ef3e"
+    "params.yaml": "9e155cffd6567a320980696880803ee0"
   }
 }

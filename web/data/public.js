@@ -32,10 +32,12 @@ window.UNDERLINK = {
   "all_places_ge1_spof": 88,
   "ge1_spof_inside_predicted_4g": 16,
   "radio_chain_inside_predicted_4g": 19,
-  "share_ge1_spof": 0.783
+  "share_ge1_spof": 0.783,
+  "ge1_spof_without_population": 2
  },
  "fibre_what_if": {
   "radio_chain_single_fibre_town": 18,
+  "flagged_single_fibre_town": 16,
   "larger_places_single_fibre_town": 39,
   "larger_places_with_radio_site": 71,
   "note": "Places whose licensed radio path reaches only one fibre town; a break in that town's fibre would take them down too."
@@ -52,7 +54,7 @@ window.UNDERLINK = {
   "ge5_cyclones_100km": 27,
   "far_from_sealed_road": 43,
   "on_aboriginal_land_trust": 26,
-  "graph_sites_matched_to_mnhp": 11
+  "graph_sites_matched_to_mnhp": 9
  },
  "replay": {
   "variants": [
@@ -291,55 +293,64 @@ window.UNDERLINK = {
     "w_wet": 14,
     "sealed_km": 5,
     "gt14d": 18,
-    "access_dominates": 18
+    "access_dominates": 18,
+    "jan_median_days": 14.8
    },
    {
     "w_wet": 14,
     "sealed_km": 10,
     "gt14d": 17,
-    "access_dominates": 17
+    "access_dominates": 17,
+    "jan_median_days": 14.8
    },
    {
     "w_wet": 14,
     "sealed_km": 20,
     "gt14d": 16,
-    "access_dominates": 16
+    "access_dominates": 16,
+    "jan_median_days": 14.8
    },
    {
     "w_wet": 30,
     "sealed_km": 5,
     "gt14d": 18,
-    "access_dominates": 18
+    "access_dominates": 18,
+    "jan_median_days": 30.8
    },
    {
     "w_wet": 30,
     "sealed_km": 10,
     "gt14d": 17,
-    "access_dominates": 17
+    "access_dominates": 17,
+    "jan_median_days": 30.8
    },
    {
     "w_wet": 30,
     "sealed_km": 20,
     "gt14d": 16,
-    "access_dominates": 16
+    "access_dominates": 16,
+    "jan_median_days": 30.8
    },
    {
     "w_wet": 60,
     "sealed_km": 5,
     "gt14d": 18,
-    "access_dominates": 18
+    "access_dominates": 18,
+    "jan_median_days": 60.8
    },
    {
     "w_wet": 60,
     "sealed_km": 10,
     "gt14d": 17,
-    "access_dominates": 17
+    "access_dominates": 17,
+    "jan_median_days": 60.8
    },
    {
     "w_wet": 60,
     "sealed_km": 20,
     "gt14d": 16,
-    "access_dominates": 16
+    "access_dominates": 16,
+    "jan_median_days": 60.8
    }
   ]
  },
@@ -468,7 +479,11 @@ window.UNDERLINK = {
   "unmatched_min_km": 12.3,
   "telstra_mobile_sites_2026": 274,
   "telstra_sites_on_radio_graph": 85,
-  "share_on_radio_graph": 0.31
+  "share_on_radio_graph": 0.31,
+  "remote_50km": {
+   "telstra_sites": 82,
+   "on_radio_graph": 34
+  }
  },
  "wide_links": {
   "min_bw_mhz": 2.0,
@@ -479,7 +494,40 @@ window.UNDERLINK = {
   "people_ge1_spof": 3663,
   "headline_places_still_flagged": 11,
   "headline_places": 18,
-  "people_still_flagged": 3663
+  "people_still_flagged": 3663,
+  "headline_places_lost_path": 7,
+  "sweep": [
+   {
+    "min_bw_mhz": 1.0,
+    "links": 239,
+    "headline_places_still_flagged": 18
+   },
+   {
+    "min_bw_mhz": 1.99,
+    "links": 203,
+    "headline_places_still_flagged": 11
+   },
+   {
+    "min_bw_mhz": 2.0,
+    "links": 102,
+    "headline_places_still_flagged": 11
+   },
+   {
+    "min_bw_mhz": 6.9,
+    "links": 93,
+    "headline_places_still_flagged": 11
+   },
+   {
+    "min_bw_mhz": 13.9,
+    "links": 91,
+    "headline_places_still_flagged": 11
+   },
+   {
+    "min_bw_mhz": 27.9,
+    "links": 81,
+    "headline_places_still_flagged": 11
+   }
+  ]
  },
  "co_investment_reach": {
   "telstra_sites_cofunded": 49,
@@ -507,6 +555,50 @@ window.UNDERLINK = {
   "radio_chain_with_flood_study": 0,
   "flagged_with_flood_study": 0
  },
+ "kpis": [
+  {
+   "rec": "1. Carrier data as a condition of co-investment",
+   "title": "Single-path relays with backhaul type, battery hours and a three-year outage log held by DCDD",
+   "start": "0 of 68 in public data",
+   "target": "The 9 relays on chains ending at NT co-funded sites, before the 2027-28 wet season. For the other 59, Rec 2 asks Telstra for backhaul type and battery hours",
+   "owner": "DCDD"
+  },
+  {
+   "rec": "2. Battery check before each wet season",
+   "title": "Share of the 43 single-path relays more than 10 km from a sealed road with confirmed battery hours",
+   "start": "0 of 43 public",
+   "target": "First list October 2026, hours by 1 December 2026; then by 1 November each year",
+   "owner": "DCDD with Telstra"
+  },
+  {
+   "rec": "3. Outage KPI in the DCDD warehouse",
+   "title": "Outage hours per radio-chain place per wet season (view v_outage_hours_per_place)",
+   "start": "Not published per place",
+   "target": "Hours reported for all 23 places after the 2026-27 wet season (restricted tier)",
+   "owner": "DCDD"
+  },
+  {
+   "rec": "4. Refresh NT connectivity registers",
+   "title": "Places in the 2021 register with no recorded mobile status",
+   "start": "698 of 782",
+   "target": "Every place has a recorded status and an \"as at\" date",
+   "owner": "NT Government (DCDD)"
+  },
+  {
+   "rec": "5. Keep and document payphones",
+   "title": "Radio-chain places with a payphone within 3 km whose backhaul is public",
+   "start": "0 of 21",
+   "target": "Published for each payphone the card lists",
+   "owner": "Commonwealth with Telstra"
+  },
+  {
+   "rec": "6. Co-design the card with one community",
+   "title": "Communities that have shaped and control their own card",
+   "start": "0",
+   "target": "One community that chooses to take part, starting from its own questions, after the 2026-27 wet season",
+   "owner": "CDU and DCDD, led by the community's custodian"
+  }
+ ],
  "single_score": {
   "places": 394,
   "spent_aud": 9818928,

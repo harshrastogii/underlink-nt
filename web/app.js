@@ -74,12 +74,12 @@
         if (i > 0) seg_(xs[i - 1] + 15, x - 15);
         const isOff = off.has(i);
         const [cx, cy] = P(x, y);
-        const g = el("g", { class: "relay", tabindex: 0, role: "button", "aria-pressed": String(isOff),
+        const g = el("g", { class: "relay", tabindex: 0, role: "button", "aria-pressed": String(isOff), "data-i": i,
           "aria-label": `Relay ${i + 1}, ${isOff ? "switched off" : "working"}` });
         g.append(el("circle", { cx, cy, r: 15, fill: isOff ? "none" : "#F6A15E", stroke: isOff ? "#fff" : "none",
           "stroke-width": 2.5, "stroke-dasharray": isOff ? "4 3" : null }));
         if (isOff) g.append(el("path", { d: `M${cx - 6} ${cy - 6} L${cx + 6} ${cy + 6} M${cx + 6} ${cy - 6} L${cx - 6} ${cy + 6}`, stroke: "#fff", "stroke-width": 2.5 }));
-        const toggle = () => { off.has(i) ? off.delete(i) : off.add(i); draw(); };
+        const toggle = () => { off.has(i) ? off.delete(i) : off.add(i); draw(); const f = $("chain").querySelector(`[data-i="${i}"]`); if (f) f.focus(); };
         g.addEventListener("click", toggle);
         g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
         svg.append(g);
@@ -201,14 +201,14 @@
           svg.append(el("text", { x: n.x, y: n.y + 38, "text-anchor": "middle", "font-weight": 700 }, n.name));
         } else if (n.t === "relay") {
           const isOff = off.has(k), isSpof = showSpof && spofSet.has(k);
-          const g = el("g", { class: "node", tabindex: 0, role: "button", "aria-pressed": String(isOff),
+          const g = el("g", { "data-k": k, class: "node", tabindex: 0, role: "button", "aria-pressed": String(isOff),
             "aria-label": `Relay ${k.slice(1)}, ${isOff ? "switched off" : isSpof ? "single-path relay" : "working"}` });
           g.append(el("title", {}, `Relay ${k.slice(1)}: click to switch ${isOff ? "on" : "off"}`));
           g.append(el("circle", { cx: n.x, cy: n.y, r: 13, fill: isOff ? "var(--line)" : isSpof ? "var(--orange)" : "var(--panel)",
             stroke: isOff ? "var(--faint)" : isSpof ? "var(--orange)" : "var(--ink)", "stroke-width": 2.5, "stroke-dasharray": isOff ? "4 3" : null }));
           g.append(el("text", { x: n.x, y: n.y + 4, "text-anchor": "middle", "font-size": 11, "font-weight": 700,
             fill: isSpof && !isOff ? "#1a1a1a" : "var(--ink)" }, k));
-          const toggle = () => { off.has(k) ? off.delete(k) : off.add(k); draw(); };
+          const toggle = () => { off.has(k) ? off.delete(k) : off.add(k); draw(); const f = $("sandbox").querySelector(`[data-k="${k}"]`); if (f) f.focus(); };
           g.addEventListener("click", toggle);
           g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
           svg.append(g);
@@ -357,8 +357,10 @@
     const out = $("rep-out");
     const show = () => {
       const s = rep.sweep.find((x) => x.w_wet === w && x.sealed_km === km);
-      out.replaceChildren(el("strong", {}, String(s.gt14d)), ` of ${n} places could wait more than 14 days in January`,
-        (w === 30 && km === 10) ? el("span", { class: "note" }, " (main run)") : null);
+      out.replaceChildren(el("strong", {}, String(s.gt14d)), ` of ${n} places could wait more than 14 days in January; the median January wait is `,
+        el("strong", {}, `${Math.round(s.jan_median_days)} days`), ".",
+        (w === 30 && km === 10) ? el("span", { class: "note" }, " (main run)") : null,
+        el("span", { class: "note", style: "display:block" }, "The delay changes how long the wait is. Which places wait depends on road distance."));
     };
     seg($("rep-wet"), "Delay", [[14, "14 days"], [30, "30 days"], [60, "60 days"]], 30, (v) => { w = v; show(); });
     seg($("rep-km"), "Distance", [[5, "5 km"], [10, "10 km"], [20, "20 km"]], 10, (v) => { km = v; show(); });
@@ -387,21 +389,8 @@
 
   // ---- Government measures ------------------------------------------------------------
   (function kpi() {
-    const cr = D.co_investment_reach, rest = r.spof_relays - cr.spof_relays_on_nt_program_chains;
-    const rows = [
-      ["1. Carrier data as a condition of co-investment", "Single-path relays with backhaul type, battery hours and a three-year outage log held by DCDD", `0 of ${r.spof_relays} in public data`,
-       `The ${cr.spof_relays_on_nt_program_chains} relays on chains ending at NT co-funded sites before the 2027-28 wet season; the other ${rest} through Rec 2`, "DCDD"],
-      ["2. Battery check before each wet season", `Share of the ${r.far_from_sealed_road} single-path relays more than 10 km from a sealed road with confirmed battery hours`, `0 of ${r.far_from_sealed_road} public`,
-       "First list October 2026, hours confirmed by 1 December 2026; then by 1 November each year", "DCDD with Telstra"],
-      ["3. Outage KPI in the DCDD warehouse", "Outage hours per radio-chain place per wet season (view v_outage_hours_per_place)", "Not published per place",
-       "Hours reported for all 23 places after the 2026-27 wet season (restricted tier)", "DCDD"],
-      ["4. Refresh NT connectivity registers", "Places in the 2021 register with no recorded mobile status", `${D.coverage_flags.register_not_recorded} of ${D.coverage_flags.all}`,
-       "Every place has a recorded status and an \"as at\" date", "NT Government (DCDD)"],
-      ["5. Keep and document payphones", "Radio-chain places with a payphone within 3 km whose backhaul is public", `0 of ${fb.radio_chain_with_payphone_3km}`,
-       "Published for each payphone the card lists", "Commonwealth with Telstra"],
-      ["6. Co-design the card with one community", "Communities that have shaped and control their own card", "0",
-       "One community that chooses to take part, starting from its own questions, after the 2026-27 wet season", "CDU and DCDD, led by the community's custodian"],
-    ];
+    // the same six measures as Appendix F, written by scripts/export_web_data.py from app_data.kpis()
+    const rows = D.kpis.map((k) => [k.rec, k.title, k.start, k.target, k.owner]);
     const t = $("kpi");
     t.append(el("thead", {}, el("tr", {}, ...["Recommendation", "Measure", "Starting value", "Target", "Owner"].map((h) => el("th", {}, h)))));
     t.append(el("tbody", {}, ...rows.map((row) => el("tr", {}, ...row.map((x, i) => el("td", i === 2 ? { style: "font-weight:700" } : {}, x))))));
@@ -466,8 +455,8 @@
     const box = $("og-facts");
     if (!box) return;
     box.append(
-      fact(`${c.with_ge1_spof} of ${c.radio_chain_places}`, "radio-chain places lose service when one weak link fails. A satellite second path at their tower (layer 1) keeps them on air", "orange"),
-      fact(`${D.layers.flagged_and_wet_slow} of ${D.layers.flagged_places}`, "of those also wait more than two weeks for a wet-season repair. There, layer 1 saves the most days without service", "orange"),
+      fact(`${c.with_ge1_spof} of ${c.radio_chain_places}`, "radio-chain places would lose service if one of their weak links failed. A satellite second path at their tower (layer 1) could keep them on air, if the tower has power", "orange"),
+      fact(`${D.layers.flagged_and_wet_slow} of ${D.layers.flagged_places}`, "of those also wait more than two weeks for a wet-season repair. There, layer 1 could save weeks without service", "orange"),
       fact(`${D.layers.flagged_with_stand_3km} of ${D.layers.flagged_places}`, "have a STAND satellite site (evacuation centre or fire depot) within 3 km: layer 2 is already there", "blue"),
       fact(`${fb.radio_chain_with_independent_fallback} of ${rep.radio_chain_places}`, "already have a satellite Wi-Fi phone or a Sky Muster service within 3 km, where a layer 3 pilot could start", "blue"),
       fact(`${fb.radio_chain_with_other_carrier} of ${rep.radio_chain_places}`, "has another company's mobile site within 10 km, so 000 by mobile mostly depends on the one chain"),

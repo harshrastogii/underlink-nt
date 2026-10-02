@@ -1,0 +1,16 @@
+# Runs every check that needs no processed data (data/processed/ ships only in the submission ZIP).
+name: Tests
+on:
+  push:
+    paths-ignore: ["web/data/hazards.js"]
+  workflow_dispatch:
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python -m pytest -q tests/

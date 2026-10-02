@@ -39,6 +39,10 @@ terms with the publisher before any wider release.
 
 **National Audit of Mobile Coverage non-alignment data, September 2026.** Department of Infrastructure, Transport, Regional Development, Communications, Sport and the Arts. *Licence to be confirmed.* https://www.infrastructure.gov.au/sites/default/files/documents/national_audit_of_mobile_coverage_non-alignment_data_september_2026.csv
 
+**Australian Digital Inclusion Index 2025 and ABS Census (TableBuilder).** RMIT University and partners; Australian Bureau of Statistics (CC BY 4.0). Context only: neither feeds a table. https://digitalinclusionindex.org.au/ and https://www.abs.gov.au/statistics/microdata-tablebuilder/tablebuilder
+
+**Leaflet 1.9.4** (web map library, bundled in web/vendor/leaflet). BSD-2-Clause, (c) Volodymyr Agafonkin and contributors. https://leafletjs.com/
+
 ## What we changed
 
 - Radio site ids are replaced by salted hashes.

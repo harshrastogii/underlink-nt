@@ -86,3 +86,14 @@ def test_web_app_names_no_community():
         text += " " + _json.dumps({k: v for k, v in d.items() if k not in ("warnings", "errors")}).lower()
     found = {n for n in names if re.search(r"\b" + re.escape(n) + r"\b", text)}
     assert found <= ALLOWED_WEB_NAMES, f"web app names communities: {sorted(found - ALLOWED_WEB_NAMES)}"
+
+
+def test_one_kpi_set_everywhere():
+    # Appendix F, the Panel app, the offline dashboard and the web app all use the same six measures.
+    import json
+    from underlink import app_data as ad
+    k = ad.kpis()
+    assert len(k) == 6 and [r["rec"][0] for r in k] == list("123456")
+    js = (ROOT / "web" / "data" / "public.js").read_text()
+    D = json.loads(js[js.index("{"): js.rindex("}") + 1])
+    assert D["kpis"] == [{f: r[f] for f in ("rec", "title", "start", "target", "owner")} for r in k]

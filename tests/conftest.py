@@ -18,5 +18,5 @@ def pytest_collection_modifyitems(config, items):
         return
     skip = pytest.mark.skip(reason="data/processed/ is not in the public repository; it ships in the submission ZIP")
     for item in items:
-        if "processed" in item.nodeid or item.module.__name__.split(".")[-1] in {"test_integrity", "test_suppression", "test_backhaul_toy"}:
+        if "processed" in item.nodeid or item.module.__name__.split(".")[-1] in {"test_integrity"}:
             item.add_marker(skip)

@@ -23,8 +23,8 @@
 
   function draw() {
     const v = phone.matches;
-    const W = v ? 340 : 1000, H = v ? 640 : 170, step = v ? 104 : 190;
-    const pos = (i) => (v ? [70, 46 + i * step] : [80 + i * step, 70]);
+    const W = v ? 340 : 1080, H = v ? 640 : 170, step = v ? 104 : 178;
+    const pos = (i) => (v ? [70, 46 + i * step] : [110 + i * step, 70]);
     const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "How Underlink works, step by step", "font-family": "Arial, Helvetica, sans-serif" });
     const d = "M" + STAGES.map((_, i) => pos(i).join(",")).join("L");
     svg.append(el("path", { d, fill: "none", stroke: "#D6DEE8", "stroke-width": 4, "stroke-linecap": "round" }));

@@ -110,26 +110,39 @@ def knockout(site_key: str, month: int) -> dict:
 # Government: KPI tiles, all read from numbers.json
 # ---------------------------------------------------------------------------
 def kpis(N: dict | None = None) -> list[dict]:
-    """The measures and targets of the report's Appendix F (and the web app), so every surface agrees."""
+    """The six measures of the report's Appendix F (Table F1). The Panel app, the offline dashboard and the web
+    app all read this list, so every surface shows the same measures, baselines, targets and owners."""
     N = N or numbers()
-    rl, cf, fb = N["relays"], N["coverage_flags"], N["fallbacks"]
+    rl, cf, fb, ci = N["relays"], N["coverage_flags"], N["fallbacks"], N["co_investment_reach"]
+    nt = ci["spof_relays_on_nt_program_chains"]
     return [
-        {"title": "Single-path relays with backhaul type, battery hours and a three-year outage log held by DCDD (Rec 1)",
-         "value": 0, "of": rl["spof_relays"], "unit": "single-path relays, in public data",
-         "target": "All on chains ending at NT co-funded sites before the 2027-28 wet season, then all 68",
-         "owner": "DCDD, as a condition of NT co-investment", "refresh": "Each co-investment round"},
-        {"title": "Remote single-path relays with confirmed battery hours (Rec 2)",
-         "value": 0, "of": rl["far_from_sealed_road"], "unit": "relays more than 10 km from a sealed road, public",
-         "target": "First list sent October 2026; hours confirmed by 1 December 2026, then by 1 November each year",
+        {"rec": "1. Carrier data as a condition of co-investment",
+         "title": "Single-path relays with backhaul type, battery hours and a three-year outage log held by DCDD",
+         "value": 0, "of": rl["spof_relays"], "unit": "single-path relays, in public data", "start": f"0 of {rl['spof_relays']} in public data",
+         "target": f"The {nt} relays on chains ending at NT co-funded sites, before the 2027-28 wet season. For the other "
+                   f"{rl['spof_relays'] - nt}, Rec 2 asks Telstra for backhaul type and battery hours",
+         "owner": "DCDD", "refresh": "Each co-investment round"},
+        {"rec": "2. Battery check before each wet season",
+         "title": f"Share of the {rl['far_from_sealed_road']} single-path relays more than 10 km from a sealed road with confirmed battery hours",
+         "value": 0, "of": rl["far_from_sealed_road"], "unit": "relays, public", "start": f"0 of {rl['far_from_sealed_road']} public",
+         "target": "First list October 2026, hours by 1 December 2026; then by 1 November each year",
          "owner": "DCDD with Telstra", "refresh": "Yearly, before the wet season"},
-        {"title": "Places in the NTG 2021 register with no recorded mobile status (Rec 4)",
-         "value": cf["register_not_recorded"], "of": cf["all"], "unit": "places",
-         "target": "Every place has a recorded status and an 'as at' date",
+        {"rec": "3. Outage KPI in the DCDD warehouse",
+         "title": "Outage hours per radio-chain place per wet season (view v_outage_hours_per_place)",
+         "value": "Not published per place", "of": None, "unit": "", "start": "Not published per place",
+         "target": f"Hours reported for all {N['chains']['radio_chain_places']} places after the 2026-27 wet season (restricted tier)",
+         "owner": "DCDD", "refresh": "Monthly"},
+        {"rec": "4. Refresh NT connectivity registers", "title": "Places in the 2021 register with no recorded mobile status",
+         "value": cf["register_not_recorded"], "of": cf["all"], "unit": "places", "start": f"{cf['register_not_recorded']} of {cf['all']}",
+         "target": 'Every place has a recorded status and an "as at" date',
          "owner": "NT Government (DCDD)", "refresh": "Yearly register update"},
-        {"title": "Radio-chain places with a payphone within 3 km whose backhaul is public (Rec 5)",
-         "value": 0, "of": fb["radio_chain_with_payphone_3km"], "unit": "places",
-         "target": "Published for each payphone the community card lists",
-         "owner": "Commonwealth with Telstra", "refresh": "Yearly"},
+        {"rec": "5. Keep and document payphones", "title": "Radio-chain places with a payphone within 3 km whose backhaul is public",
+         "value": 0, "of": fb["radio_chain_with_payphone_3km"], "unit": "places", "start": f"0 of {fb['radio_chain_with_payphone_3km']}",
+         "target": "Published for each payphone the card lists", "owner": "Commonwealth with Telstra", "refresh": "Yearly"},
+        {"rec": "6. Co-design the card with one community", "title": "Communities that have shaped and control their own card",
+         "value": 0, "of": None, "unit": "", "start": "0",
+         "target": "One community that chooses to take part, starting from its own questions, after the 2026-27 wet season",
+         "owner": "CDU and DCDD, led by the community's custodian", "refresh": "After each wet season"},
     ]
 
 
@@ -197,10 +210,14 @@ table.dataframe td, table.dataframe th {text-align:left !important;}
 """
 
 
+def of_text(k: dict) -> str:
+    return k["unit"] if k["of"] is None else f"of {k['of']} {k['unit']}"
+
+
 def tile_html(k: dict) -> str:
     return (f"<div class='ul-tile'><h4>{k['title']}</h4>"
-            f"<div><span class='v'>{k['value']}</span> <span class='of'>of {k['of']} {k['unit']}</span></div>"
-            f"<dl><dt>Baseline</dt><dd>{k['value']} of {k['of']}, as at {BASELINE_DATE}</dd>"
+            f"<div><span class='v'>{k['value']}</span> <span class='of'>{of_text(k)}</span></div>"
+            f"<dl><dt>Baseline</dt><dd>{k['start']}, as at {BASELINE_DATE}</dd>"
             f"<dt>Proposed target</dt><dd>{k['target']}</dd>"
             f"<dt>Owner</dt><dd>{k['owner']}</dd><dt>Refresh</dt><dd>{k['refresh']}</dd></dl></div>")
 
@@ -240,7 +257,7 @@ def government_view():
              "radio-island": "Radio island", "no-radio-site": "No licensed radio site nearby"}
     reg = region_classes().rename(columns=plain)[list(plain.values())]
     return pn.Column(
-        pn.pane.HTML(f"<div class='ul-note'>Four measures DCDD could track. Baselines are as at {BASELINE_DATE} "
+        pn.pane.HTML(f"<div class='ul-note'>Six measures DCDD could track (Appendix F). Baselines are as at {BASELINE_DATE} "
                      "and come from outputs/public/numbers.json. Targets are our proposals, not agreed policy. "
                      "Larger places are the 116 NTG towns, major and minor communities and villages.</div>",
                      sizing_mode="stretch_width"),

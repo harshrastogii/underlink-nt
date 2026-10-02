@@ -295,10 +295,16 @@ def build_funded() -> pd.DataFrame:
 def build_outage_ledger() -> pd.DataFrame:
     O = pd.read_csv(RAW / "nt-connectivity-landscape/nbn_outage_register.csv")
     nt = O[O["Affected State(s)/Territories"].astype(str).str.contains("NT|Northern Territory", regex=True)]
+    # The register's Duration is hours.minutes and sometimes drops the minutes' leading zero
+    # (28.4 means 28 h 04 min), so hours are computed from the start and end times instead.
+    ts = lambda d, t: pd.to_datetime(nt[d].astype(str) + " " + nt[t].astype(str).str.extract(r"(\d{1,2}:\d{2})")[0],
+                                     format="%d/%m/%Y %H:%M")
+    start, end = ts("Start date of outage", "Start time of outage"), ts("End date of outage", "End time of outage")
     return pd.DataFrame({
-        "source": "nbn register",
-        "title": nt["Outage title"], "start": nt["Start date of outage"], "end": nt["End date of outage"],
-        "duration": nt["Duration of outage"], "states": nt["Affected State(s)/Territories"],
+        "source": "nbn register", "reference": nt["Reference"],
+        "title": nt["Outage title"], "start": start.dt.strftime("%Y-%m-%d %H:%M"), "end": end.dt.strftime("%Y-%m-%d %H:%M"),
+        "duration_hours": ((end - start).dt.total_seconds() / 3600).round(2), "duration_published": nt["Duration of outage"],
+        "states": nt["Affected State(s)/Territories"],
         "towns": nt["Affected suburb(s)/towns"], "cause": nt["Cause (high-level)"],
         "nt_only": nt["Affected State(s)/Territories"].astype(str).str.strip().isin(["NT", "Northern Territory"]),
     })

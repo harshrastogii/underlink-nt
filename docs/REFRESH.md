@@ -29,7 +29,8 @@ Every number comes from `outputs/public/numbers.json`, which `python run_all.py`
    18 of 23) will fail on new data by design: read the diff in `numbers.json`, then update the pinned
    values in `tests/test_integrity.py` in the same change.
 5. `python -m underlink.schema` writes the star schema; load it with `docs/schema.sql`
-   (DuckDB or PostgreSQL).
+   (DuckDB or PostgreSQL). Load a new month by appending fact rows for the new snapshot_date and upserting
+   the dimensions and fact_outage_event; do not re-run the DDL on a loaded warehouse.
 6. `python scripts/hazards_snapshot.py --base` rebuilds the web map's NT outline, highways, flood study areas and
    STAND sites (`web/data/nt_base.js`); `python scripts/layers_map.py` redraws Figure I1 on the Geoscience
    Australia National Base Map (needs internet).

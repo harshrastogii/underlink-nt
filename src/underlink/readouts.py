@@ -45,13 +45,14 @@ def replay(classified: pd.DataFrame, net: nw.Network, tracks: pd.DataFrame,
 # Power: published backup at relays, and everything we cannot see
 # --------------------------------------------------------------------------
 def power_classes(net: nw.Network) -> pd.Series:
-    """P1-P3: a Mobile Network Hardening Program item within 3 km of the relay.
+    """P1-P3: a Telstra Mobile Network Hardening Program item within 3 km of the site
+    (the graph is Telstra-only, so other carriers' items do not count).
     P4: within 150 km of a Telstra portable-generator depot. P0: unknown.
     P0 means the battery hours are not published, not that there is no battery.
     """
     M = pd.read_csv(PROCESSED / "power.csv")
     k = P["power"]["mnhp_match_km"]
-    items = M[M.power_class != "P4_depot"]
+    items = M[(M.power_class != "P4_depot") & (M.grantee == "Telstra")]
     depots = M[(M.power_class == "P4_depot")]
     out = {}
     for s in net.sites.itertuples():

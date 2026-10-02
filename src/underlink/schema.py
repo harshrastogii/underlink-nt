@@ -97,7 +97,7 @@ def fact_replay_result(c: pd.DataFrame, net: nw.Network, events: pd.DataFrame) -
                 out.append(pd.DataFrame({"event_key": e.event_key, "radius_km": r_km,
                                          "track_variant": "cyclone_only" if cyc_only else "system",
                                          "place_key": R.place_key.values, "status": status}))
-    return pd.concat(out, ignore_index=True)
+    return pd.concat(out, ignore_index=True).assign(variant=VARIANT, snapshot_date=SNAPSHOT)
 
 
 def fact_fallback(c: pd.DataFrame) -> pd.DataFrame:
@@ -109,18 +109,17 @@ def fact_fallback(c: pd.DataFrame) -> pd.DataFrame:
     long = fb.melt(id_vars="place_key", value_vars=kinds, var_name="channel_type", value_name="count_within_km")
     long["radius_km"] = np.where(long.channel_type == "other_carrier_site", oc, walk)
     long["independence"] = long.channel_type.map(indep).fillna("separate network: other carrier")
-    return long[["place_key", "channel_type", "count_within_km", "radius_km", "independence"]]
+    return long[["place_key", "channel_type", "count_within_km", "radius_km", "independence"]].assign(variant=VARIANT, snapshot_date=SNAPSHOT)
 
 
 def fact_outage_event() -> pd.DataFrame:
     o = pd.read_csv(PROCESSED / "outage_ledger.csv")
     return pd.DataFrame({
-        "outage_key": [f"O{i + 1:03d}" for i in range(len(o))],
+        "outage_key": o.reference,             # the register's own Reference, so monthly pulls upsert, not duplicate
         "source": o.source, "title": o.title,
-        # the nbn register writes dates as dd/mm/yyyy; store ISO dates
-        "start_date": pd.to_datetime(o.start, dayfirst=True).dt.date.astype(str),
-        "end_date": pd.to_datetime(o.end, dayfirst=True).dt.date.astype(str),
-        "duration_hours": o.duration, "states": o.states, "cause": o.cause, "nt_only": o.nt_only,
+        "start_date": pd.to_datetime(o.start).dt.date.astype(str),
+        "end_date": pd.to_datetime(o.end).dt.date.astype(str),
+        "duration_hours": o.duration_hours, "duration_published": o.duration_published, "states": o.states, "cause": o.cause, "nt_only": o.nt_only,
         # the nbn register names towns, not sites; carriers (Rec 3) or communities (Rec 6) fill this in
         "place_key": pd.Series([None] * len(o), dtype="object"),
         "recorded_by": o.source,

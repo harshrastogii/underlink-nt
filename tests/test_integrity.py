@@ -119,3 +119,64 @@ def test_where_the_three_layers_stand(numbers):
     assert (L["flagged_and_wet_slow"], L["flagged_places"]) == (16, 18)
     assert (L["flagged_with_stand_3km"], L["radio_chain_with_stand_3km"], L["stand_sites_nt"]) == (7, 8, 88)
     assert (L["radio_chain_with_flood_study"], L["radio_sites_in_mapped_flood"], L["spof_relays_in_mapped_flood"]) == (0, 9, 1)
+
+
+def test_mnhp_match_counts_telstra_items_only(numbers):
+    # The graph is Telstra-only, so the two Optus generators at Katherine must not count as power at a Telstra site.
+    assert numbers["relays"]["graph_sites_matched_to_mnhp"] == 9
+    assert numbers["relays"]["published_autonomy"] == 0
+    assert numbers["relays"]["power_classes"]["P4_depot_within_150km"] == 19
+
+
+def test_link_cleaning_choices_bracket_the_headline(numbers):
+    # Dropping the 25 kHz VHF/UHF links: 19 of the same 23, and every one of the 18 headline places stays flagged.
+    n = numbers["narrowband_dropped"]
+    assert (n["links_kept"], n["radio_chain_places"], n["with_ge1_spof"], n["headline_places_still_flagged"]) == (239, 23, 19, 18)
+    # The stricter 4G test keeps 11 at every cut from just under 2 MHz to 28 MHz.
+    sweep = {round(s["min_bw_mhz"], 2): (s["links"], s["headline_places_still_flagged"]) for s in numbers["wide_links"]["sweep"]}
+    assert sweep == {1.0: (239, 18), 1.99: (203, 11), 2.0: (102, 11), 6.9: (93, 11), 13.9: (91, 11), 27.9: (81, 11)}
+    w = numbers["wide_links"]
+    assert w["headline_places_still_flagged"] + w["headline_places_lost_path"] == w["headline_places"]
+    assert w["named_places"]["Ampilatwatja"] == {"chain_class": "radio-chain", "n_spof": 5}
+    assert w["named_places"]["Galiwinku"] == {"chain_class": "radio-island", "n_spof": 0}
+
+
+def test_printed_counts_are_in_numbers_json(numbers):
+    assert numbers["fibre_what_if"]["flagged_single_fibre_town"] == 16
+    assert numbers["chains"]["ge1_spof_without_population"] == 2
+    assert numbers["accc_check"]["remote_50km"] == {"telstra_sites": 82, "on_radio_graph": 34}
+
+
+def test_outage_hours_come_from_timestamps():
+    import pandas as pd
+    from underlink.config import PROCESSED
+    o = pd.read_csv(PROCESSED / "outage_ledger.csv")
+    assert o.reference.is_unique
+    # the register prints 22.36 (22 h 36 min) and 28.4 (28 h 04 min): hours come from start and end times
+    raw = pd.read_csv(PROCESSED.parents[1] / "data_probe/nt-connectivity-landscape/nbn_outage_register.csv") \
+        if (PROCESSED.parents[1] / "data_probe").exists() else None
+    if raw is not None:
+        from underlink.prepare import build_outage_ledger
+        led = build_outage_ledger().set_index("reference")
+        assert led.loc["ACM000000000071", "duration_hours"] == 22.6
+        assert led.loc["ACM000000000068", "duration_hours"] == 28.07
+
+
+def test_fact_tables_key_on_snapshot_date(warehouse):
+    # a second monthly load adds rows instead of failing: every fact table but the outage table keys on snapshot_date
+    rows = warehouse.execute("SELECT table_name, constraint_column_names FROM duckdb_constraints() "
+                             "WHERE constraint_type = 'PRIMARY KEY' AND table_name LIKE 'fact_%'").fetchall()
+    keys = {t: list(c) for t, c in rows}
+    for t, cols in keys.items():
+        if t != "fact_outage_event":
+            assert "snapshot_date" in cols, t
+
+
+def test_wet_season_delay_moves_the_wait(numbers):
+    # The delay control changes how long places wait, not which places wait (that comes from road distance).
+    rep = numbers["repair"]
+    main = next(s for s in rep["sweep"] if s["w_wet"] == 30 and s["sealed_km"] == 10)
+    assert main["jan_median_days"] == round(rep["jan_median_days"], 1)
+    for km in {s["sealed_km"] for s in rep["sweep"]}:
+        med = [s["jan_median_days"] for s in sorted((s for s in rep["sweep"] if s["sealed_km"] == km), key=lambda s: s["w_wet"])]
+        assert med == sorted(med) and len(set(med)) == len(med)

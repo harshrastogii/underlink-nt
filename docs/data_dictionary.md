@@ -10,8 +10,11 @@ cannot be matched back to the ACMA register without the salt, which also stays
 in the restricted folder. No table holds a community name or a coordinate.
 
 One snapshot is loaded: 2026-09-29, variant V1 (fibre-connected sites are
-treated as sound). Dimensions carry `valid_from` and `valid_to` so a later
-snapshot can be added as new rows.
+treated as sound). Every fact table except fact_outage_event carries
+`snapshot_date` in its primary key, so a new month adds rows. dim_place and
+dim_site hold the current row per key; a place or site that leaves the source
+keeps its row with `valid_to` set. dim_event and fact_outage_event are upserted
+on their keys.
 
 ## Shape
 
@@ -108,7 +111,7 @@ When a place has more than one shortest path, one is stored. The relays with
 
 ## fact_replay_result
 
-Primary key: `(event_key, radius_km, track_variant, place_key)`. Foreign keys: `event_key` to dim_event, `place_key` to dim_place.
+Primary key: `(event_key, radius_km, track_variant, place_key, variant, snapshot_date)`. Foreign keys: `event_key` to dim_event, `place_key` to dim_place.
 
 A replay removes every non-fibre radio site within `radius_km` of the track and
 re-traces each place. It shows exposure. It does not say what happened during the event.
@@ -120,10 +123,11 @@ re-traces each place. It shows exposure. It does not say what happened during th
 | track_variant | text | `system`: every fix, including the tropical low and ex-cyclone stages. `cyclone_only`: segments at gale strength (17.5 m/s) or more. |
 | place_key | text | The place |
 | status | text | `not_affected`: kept its path, or never had one. `direct`: lost its path and the place or its own site was in the footprint. `upstream_only`: lost its path although the storm did not reach the place or its site; a relay it depends on was in the footprint. |
+| variant, snapshot_date | text, date | The run variant (`V1`) and the data pull date; part of the primary key so a new month adds rows |
 
 ## fact_fallback
 
-Primary key: `(place_key, channel_type)`. Foreign key: `place_key` to dim_place.
+Primary key: `(place_key, channel_type, variant, snapshot_date)`. Foreign key: `place_key` to dim_place.
 
 | Column | Type | Meaning |
 |---|---|---|
@@ -132,6 +136,7 @@ Primary key: `(place_key, channel_type)`. Foreign key: `place_key` to dim_place.
 | count_within_km | integer | How many of this channel lie within `radius_km` of the place |
 | radius_km | integer | 3 km for channels people walk to; 10 km for another carrier's mobile site |
 | independence | text | Whether the channel uses a path separate from the Telstra mobile network. Wi-Fi phones and STAND Sky Muster run over satellite. For payphones we do not know, so the value says to ask locally. |
+| variant, snapshot_date | text, date | The run variant (`V1`) and the data pull date; part of the primary key so a new month adds rows |
 
 ## fact_outage_event
 
@@ -141,11 +146,12 @@ registers name towns, not sites, so published rows stay unlinked.
 
 | Column | Type | Meaning |
 |---|---|---|
-| outage_key | text | `O001` onwards |
+| outage_key | text | The register's Reference, for example `ACM000000000071`, so monthly pulls upsert rather than duplicate |
 | source | text | `nbn register` |
 | title | text | Title as published |
 | start_date, end_date | date | Converted from the register's dd/mm/yyyy |
-| duration_hours | double | Duration as published. The register does not label the unit; the values read as hours. |
+| duration_hours | double | End minus start, in hours. The register's Duration column is hours and minutes and sometimes drops the minutes' leading zero (22.36 = 22 h 36 min; 28.4 = 28 h 04 min), so hours are computed from the timestamps. |
+| duration_published | text | The register's Duration value, as published |
 | states | text | States and territories affected, as published |
 | cause | text | High-level cause, as published |
 | nt_only | boolean | True when the NT is the only territory listed |

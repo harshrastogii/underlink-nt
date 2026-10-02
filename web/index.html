@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,600;9..40,700;9..40,800&display=swap">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="vendor/leaflet/leaflet.min.css">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -58,7 +58,7 @@
         <span class="chip">Tap a relay to switch it off</span>
         <button class="btn-ghost" id="chain-reset" type="button">Reset</button>
       </div>
-      <div class="chain-scroll"><svg id="chain" viewBox="0 0 760 170" role="img" aria-label="A radio chain from a fibre town through five relays to a community mobile site"></svg></div>
+      <div class="chain-scroll"><svg id="chain" viewBox="0 0 760 170" role="group" aria-label="A radio chain from a fibre town through five relays to a community mobile site"></svg></div>
       <p id="chain-status" class="chain-status" aria-live="polite">Every relay on this chain is working. The community has service.</p>
       <figcaption id="chain-cap">The shape of one community's licensed radio path to fibre, from a reported outage, drawn without locations. All five relays are single-path relays: there is no other licensed path around any of them.</figcaption>
     </figure>
@@ -89,7 +89,7 @@
           <label class="toggle"><input type="checkbox" id="sb-link"> Add a second path (dashed link)</label>
           <button class="btn-ghost" id="sb-reset" type="button">Reset</button>
         </div>
-        <div class="sandbox-scroll"><svg id="sandbox" viewBox="0 0 720 420" role="img" aria-label="Illustrative network of fibre towns, relays and communities"></svg></div>
+        <div class="sandbox-scroll"><svg id="sandbox" viewBox="0 0 720 420" role="group" aria-label="Illustrative network of fibre towns, relays and communities"></svg></div>
         <p class="swipe-hint">Swipe the network sideways to see all of it.</p>
         <div class="legend">
           <span><i class="lg lg-fibre"></i>Fibre town</span>
@@ -238,7 +238,7 @@
         <tbody>
           <tr><td data-label="Layer"><span><b>1. A second path for the tower</b><br>Satellite dish at the tower; L-band for rain</span></td><td data-label="Owner">Carrier</td><td data-label="Existing way to pay">Mobile Network Hardening Program (backhaul redundancy); NT co-investment conditions (Rec 1)</td><td data-label="Limits">Monthly fees, not one-off cost, so 7 to 10-year grant rules fit badly. Rain can fade Ku/Ka for minutes. Needs power at the tower.</td></tr>
           <tr><td data-label="Layer"><span><b>2. A network at the evacuation centre</b><br>Satellite truck, fly-in kit, cell on wheels</span></td><td data-label="Owner">NBN Co, carriers, NTES</td><td data-label="Existing way to pay">STAND satellite services, funded to 31 December 2027</td><td data-label="Limits">Few vehicles for the whole country; they must reach the place, and roads may be cut.</td></tr>
-          <tr><td data-label="Layer"><span><b>3. The community's own radios</b><br>Bluetooth phones, solar LoRa radios</span></td><td data-label="Owner">The community</td><td data-label="Existing way to pay">None yet; a pilot (Appendix H)</td><td data-label="Limits">Messages, photos and voice notes only, slowly. Cannot reach 000. Someone local must look after the radios. Software is not security-audited.</td></tr>
+          <tr><td data-label="Layer"><span><b>3. The community's own radios</b><br>Bluetooth phones, solar LoRa radios</span></td><td data-label="Owner">The community</td><td data-label="Existing way to pay">None yet; a pilot (Appendix H)</td><td data-label="Limits">Messages, photos and voice notes only, slowly. Cannot reach 000. Someone local must look after the radios. Software is not security-audited. Start from the local radio station if there is one. The community sets its own channel keys; default keys are public.</td></tr>
         </tbody>
       </table></div>
       <p class="note">None of the three layers reaches 000 for a phone with no signal. For 000, use a payphone, a satellite phone, or another company's mobile network if one is in range. A radio can list itself on public maps such as rmap.world; that shows where it is, so listing is the community's call.</p>
@@ -261,7 +261,7 @@
       <h3>Already working elsewhere</h3>
       <div class="og-proven">
         <a class="og-card" href="https://www.itnews.com.au/news/telstra-quietly-stops-leosat-rollout-across-remote-mobile-sites-623838" rel="noopener"><b>Telstra and OneWeb</b><span>LEO satellite backhaul for remote towers. More than 300 sites were planned from 2024; Telstra paused in 2026 after voice problems.</span></a>
-        <a class="og-card" href="https://www.infrastructure.gov.au/media-communications/internet/provision-satellite-connections-emergency-services-and-evacuation-centres" rel="noopener"><b>STAND</b><span>NBN satellite services at fire depots and evacuation centres, plus Road Muster trucks and fly-in kits.</span></a>
+        <a class="og-card" href="https://www.infrastructure.gov.au/media-communications/internet/provision-satellite-connections-emergency-services-and-evacuation-centres" rel="noopener"><b>STAND</b><span>NBN satellite services at emergency service sites and evacuation centres; Community Wi-Fi to the end of 2027.</span></a>
         <a class="og-card" href="https://www.iridium.com/services/iridium-certus-700" rel="noopener"><b>Iridium Certus</b><span>L-band satellite data up to 704 kbps that rain barely affects. Slow, but it stays up.</span></a>
         <a class="og-card" href="https://meshtastic.org/" rel="noopener"><b>Meshtastic</b><span>Short text messages and map positions over solar LoRa radios, kilometres a hop.</span></a>
         <a class="og-card" href="https://reticulum.network/" rel="noopener"><b>Reticulum and LXMF</b><span>One network over LoRa, Wi-Fi, Bluetooth and satellite. Apps such as Sideband, Columba and MeshChatX send messages, photos and voice messages, and hold them for people who are offline.</span></a>
@@ -392,7 +392,7 @@
 
     <article class="panel">
       <h3>Against reported outages</h3>
-      <p>The report tests the model against six outages that news reports described (Table 2). Two happened at places the model puts on chains of five single-path relays. It misses four, and each miss traces to data carriers hold and do not publish: battery hours, fibre routes and which sites serve which places.</p>
+      <p>The report tests the model against six outages that news reports described (Table 2). One fits in part. One was planned work on the community's own tower, so it does not test the chain. It misses four, and each miss traces to data carriers hold and do not publish: battery hours, fibre routes and which sites serve which places.</p>
       <p class="note">This site names no community. The report names them only because news reports did, and only to test the model.</p>
     </article>
 
@@ -418,7 +418,7 @@
 <section id="ethics">
   <div class="wrap">
     <h2>Data rules</h2>
-    <p class="section-lead">Underlink studies a carrier's network, so every finding describes equipment, links and missing data. We follow the CARE principles and the Maiam nayri Wingara principles of Indigenous data sovereignty, and we avoid data that is blaming, aggregate, decontextualised, deficit-based and restricted (Walter's BADDR critique).</p>
+    <p class="section-lead">Underlink studies a carrier's network, so every finding describes equipment, links and missing data. We follow the CARE principles and the Maiam nayri Wingara principles of Indigenous data sovereignty, and take note of Walter's BADDR critique, which warns against data that is blaming, aggregate, decontextualised, deficit-based and restricted.</p>
     <div class="tiers">
       <article class="tier"><p class="tier-name">Public (this site)</p><p>Aggregate counts, two land council groups, the made-up network above. No relay locations, no site identifiers, no community rankings.</p></article>
       <article class="tier"><p class="tier-name">Government and carriers</p><p>The relay register with hashed identifiers, for DCDD and carrier field teams only.</p></article>
@@ -447,7 +447,7 @@
 <script src="data/nt_base.js"></script>
 <script src="data/hazards.js"></script>
 <script src="app.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="vendor/leaflet/leaflet.min.js"></script>
 <script src="maps.js"></script>
 <script src="offgrid.js"></script>
 <script src="pipeline.js"></script>

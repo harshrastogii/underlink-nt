@@ -61,6 +61,7 @@ def run() -> dict:
         "ge1_spof_inside_predicted_4g": int(((rc.n_spof >= 1) & rc.claimed_4g_2026).sum()),
         "radio_chain_inside_predicted_4g": int(rc.claimed_4g_2026.sum()),
         "share_ge1_spof": round(float((rc.n_spof >= 1).mean()), 3),
+        "ge1_spof_without_population": int(((rc.n_spof >= 1) & rc.population_2020.isna()).sum()),
     }
     # Publicly reported places we are allowed to name (their outages were in the news).
     named = ["Ampilatwatja", "Galiwinku", "Milingimbi", "Wadeye", "Borroloola"]   # the five reported outages (Table 2)
@@ -72,6 +73,7 @@ def run() -> dict:
                                              if (c.name.str.lower() == n.lower()).any() and not pd.isna(c[c.name.str.lower() == n.lower()].population_2020.iloc[0])}
     N["fibre_what_if"] = {
         "radio_chain_single_fibre_town": int(rc.single_fibre_town.notna().sum()),
+        "flagged_single_fibre_town": int((rc.single_fibre_town.notna() & (rc.n_spof >= 1)).sum()),
         "larger_places_single_fibre_town": int(lwr.single_fibre_town.notna().sum()),
         "larger_places_with_radio_site": int(len(lwr)),
         "note": "Places whose licensed radio path reaches only one fibre town; a break in that town's fibre would take them down too.",
@@ -149,7 +151,8 @@ def run() -> dict:
     for w, s in itertools.product(P["restore"]["w_wet_days_sweep"], P["restore"]["wet_sealed_distance_sweep_km"]):
         t = ro.place_repair(c, net, 1, w_wet=w, sealed_threshold=s).merge(c[["place_key", "larger"]], on="place_key")
         t = t[t.larger]
-        sweep.append({"w_wet": w, "sealed_km": s, "gt14d": int((t.total > 14).sum()), "access_dominates": int((t.access > t.travel + t.base).sum())})
+        sweep.append({"w_wet": w, "sealed_km": s, "gt14d": int((t.total > 14).sum()), "access_dominates": int((t.access > t.travel + t.base).sum()),
+                      "jan_median_days": round(float(t.total.median()), 1)})
     N["repair"]["sweep"] = sweep
 
     # --- 5. What still works, funded work, coverage flags ------------------------
@@ -196,6 +199,12 @@ def run() -> dict:
         "telstra_sites_on_radio_graph": int((d_ts <= km).sum()),
         "share_on_radio_graph": round(float((d_ts <= km).mean()), 3),
     }
+    # Scope away from the fibre towns: Telstra sites more than 50 km from any fibre town
+    anc = pd.read_csv(PROCESSED / "anchors.csv")
+    far = np.array([haversine_km(a, b, anc.lat.values, anc.lon.values).min() > 50 for a, b in zip(ts.lat, ts.lon)])
+    N["accc_check"]["remote_50km"] = {
+        "telstra_sites": int(far.sum()), "on_radio_graph": int((far & (d_ts <= km)).sum()),
+    }
     # --- 5c. Stricter test: only links wide enough to carry a 4G site's traffic -----
     # 25 kHz VHF/UHF and 1-2 MHz thin-route channels are licensed point-to-point links,
     # but too narrow for 4G backhaul. Rebuild the chains with wider links only.
@@ -212,6 +221,28 @@ def run() -> dict:
         "people_ge1_spof": int(rw[rw.n_spof >= 1].population_2020.sum()),
         "headline_places_still_flagged": int(len(both)), "headline_places": int(len(head)),
         "people_still_flagged": int(both.population_2020.sum()),
+        "headline_places_lost_path": int(len(head - set(rw.place_key))),
+        "named_places": {n: {"chain_class": r.chain_class, "n_spof": int(r.n_spof)}
+                         for n in ("Ampilatwatja", "Galiwinku") for r in cw[cw.name.str.lower() == n.lower()].itertuples()},
+    }
+    # The threshold does not drive the 11: rerun at cuts either side of 2 MHz (links strictly wider are kept)
+    sweep = []
+    for cut in (1.0, 1.99, 2.0, 6.9, 13.9, 27.9):
+        n_ = nw.load(min_bw_mhz=cut)
+        c_ = nw.classify(nw.assign_end_sites(pd.read_csv(PROCESSED / "places.csv"), n_), n_)
+        r_ = c_[c_.larger & (c_.chain_class == "radio-chain")]
+        sweep.append({"min_bw_mhz": cut, "links": int(n_.G.number_of_edges()),
+                      "headline_places_still_flagged": int(((r_.n_spof >= 1) & r_.place_key.isin(head)).sum())})
+    N["wide_links"]["sweep"] = sweep
+    # --- 5f. The other direction: do not count 25 kHz VHF/UHF links as a second path -------
+    nb = P["checks"]["narrowband_mhz"]
+    net_n = nw.load(min_bw_mhz=nb)
+    cn = nw.classify(nw.assign_end_sites(pd.read_csv(PROCESSED / "places.csv"), net_n), net_n)
+    rn = cn[cn.larger & (cn.chain_class == "radio-chain")]
+    N["narrowband_dropped"] = {
+        "min_bw_mhz": nb, "links_kept": int(net_n.G.number_of_edges()), "radio_chain_places": int(len(rn)),
+        "with_ge1_spof": int((rn.n_spof >= 1).sum()), "people_ge1_spof": int(rn[rn.n_spof >= 1].population_2020.sum()),
+        "headline_places_still_flagged": int(((rn.n_spof >= 1) & rn.place_key.isin(head)).sum()),
     }
 
     # --- 5d. Reach of Recommendation 1: chains that end at a co-funded Telstra site ---
@@ -260,7 +291,7 @@ def run() -> dict:
     namc = pd.read_csv(PROCESSED / "namc_tiles.csv")
     N["namc"] = {"tiles": int(len(namc)), "feedback": namc.feedback.value_counts().to_dict()}
     led = pd.read_csv(PROCESSED / "outage_ledger.csv")
-    hrs = pd.to_numeric(led[led.nt_only].duration.astype(str).str.extract(r"([\d.]+)")[0], errors="coerce")
+    hrs = led[led.nt_only].duration_hours
     N["outage_ledger"] = {"nbn_rows_including_nt": int(len(led)), "nbn_nt_only_rows": int(led.nt_only.sum()),
                           "nbn_nt_only_hours_min": float(hrs.min()), "nbn_nt_only_hours_max": float(hrs.max())}
     N["network"]["p2p_link_records"] = json.loads((PROCESSED / "prepare_meta.json").read_text())["p2p_rows"]

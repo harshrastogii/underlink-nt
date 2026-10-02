@@ -26,13 +26,14 @@
   const STEPS = [
     { t: "A normal day", d: "Phone traffic runs from the fibre town over a chain of radio relays to the community's tower, and from the tower to every phone in range.", uses: ["Licensed radio chain", "Mobile tower"] },
     { t: "A weak link fails", d: "One relay on the chain has no way around it. When its battery runs flat or a storm takes it down, the tower loses its path. Every phone loses service, although the tower itself works and the coverage map still says covered.", uses: ["What Underlink finds: 18 of 23 radio-chain places"] },
-    { t: "Layer 1: a second path for the tower", d: "A satellite dish at the tower carries its traffic when the radio chain breaks, so phones keep working. Telstra already backhauls remote towers by satellite and planned to move more than 300 of them to OneWeb LEO, but paused in 2026 after voice problems. A second path adds resilience; a straight swap has not been reliable yet. The Hardening Program can fund backhaul redundancy.", uses: ["Layer 1", "LEO backhaul", "Mobile Network Hardening Program", "Rec 2: satellite failover"] },
+    { t: "Layer 1: a second path for the tower", d: "A satellite dish at the tower carries its traffic when the radio chain breaks, so phones keep working. Telstra already links some remote towers by satellite and planned to move more than 300 of them to OneWeb LEO, but paused in 2026 after voice problems. A second path adds resilience; a straight swap has not been reliable yet. The Hardening Program can fund a satellite second path.", uses: ["Layer 1", "LEO satellite link", "Mobile Network Hardening Program", "Rec 2: satellite failover"] },
     { t: "Heavy rain: the slow lane stays open", d: "LEO broadband uses Ku and Ka bands, which tropical downpours can fade for minutes. The government's LEO working group notes that bands above 5 GHz fade most. L-band satellites such as Iridium Certus (up to 704 kbps) barely fade, so police, clinic and NTES staff can keep a slower link for messages and calls.", uses: ["Layer 1", "Iridium Certus (L-band)", "Rain fade"] },
-    { t: "Layer 2: bring a network to the evacuation centre", d: "If a cyclone takes the tower itself down, emergency teams bring the network. Under the STAND program, NBN Road Muster trucks and fly-in satellite kits give Wi-Fi around the vehicle, and fixed satellite services at fire depots and evacuation centres are funded to the end of 2027. Telstra can also bring a satellite cell on wheels.", uses: ["Layer 2", "NBN Road Muster (STAND)", "Satellite cell on wheels"] },
-    { t: "Layer 3: the community's own radios", d: "Phones pass messages, photos and voice notes to each other over Bluetooth (Bitchat, Columba). Solar LoRa radios on the clinic, store, school and a hill link the whole community, about 3 to 15 km a hop, with no licence at 915 to 928 MHz under the ACMA LIPD Class Licence 2025. Meshtastic carries short text and positions; Reticulum apps also carry small photos and voice messages, slowly. NTES can join with ATAK and LANCE.", uses: ["Layer 3", "Bitchat", "Meshtastic", "Reticulum", "ATAK + LANCE"] },
-    { t: "Out, or wait", d: "One radio at the clinic also uses the clinic's satellite service, so mesh messages reach the outside world. When no link is up, a propagation node holds them, and a radio on the bush bus or clinic car carries them to town.", uses: ["Layer 3", "Reticulum bridge", "LXMF store and forward"] },
+    { t: "Layer 2: bring a network to the evacuation centre", d: "If a cyclone takes the tower itself down, emergency teams bring the network. Under the STAND program, NBN satellite services at emergency service sites and evacuation centres, and Community Wi-Fi, are funded to the end of 2027. Telstra can also bring a satellite cell on wheels.", uses: ["Layer 2", "NBN satellite services (STAND)", "Satellite cell on wheels"] },
+    { t: "Layer 3: the community's own radios", d: "Phones pass text to each other over Bluetooth (Bitchat); Reticulum apps such as Columba also carry small photos and voice notes, slowly. Solar LoRa radios on the clinic, store, school and a hill link the whole community; one private rural Australian network reports 5 to 10 km a hop through bushland, though its author says the hardware is not ready for serious emergency use. No individual licence is needed at 915 to 928 MHz under ACMA's LIPD Class Licence 2025. Meshtastic carries short text and positions.", uses: ["Layer 3", "Bitchat", "Meshtastic", "Reticulum"] },
+    { t: "Out, or wait", d: "One radio at the clinic also uses the clinic's satellite service, so mesh messages reach the outside world. When no link is up, a radio that stays on holds them, and a radio on the bush bus or clinic car carries them to town.", uses: ["Layer 3", "Satellite bridge", "Store and forward"] },
   ];
-  let step = 0, playing = !reduce.matches, timer = null;
+  const phoneView = window.matchMedia("(max-width: 720px)");
+  let step = 0, playing = !reduce.matches && !phoneView.matches, timer = null;
 
   function scene() {
     const svg = el("svg", { viewBox: "0 0 760 340", role: "img", "aria-labelledby": "offgrid-title", "font-family": "Arial, Helvetica, sans-serif" });
@@ -182,7 +183,7 @@
       flow(arc(NTES, LSAT, 60), C.lband, { dur: 2.6, n: 1 });
       flow(arc(LSAT, TOWN, 30), C.lband, { dur: 2.2, begin: 1.2, n: 1 });
       flow(arc(CLINIC, LSAT, 50), C.lband, { dur: 2.8, begin: 0.6, n: 1 });
-      dyn.append(el("text", { x: 600, y: 160, "text-anchor": "middle", "font-size": 13, "font-weight": 700, fill: C.sat }, "LEO fading in rain"));
+      dyn.append(el("text", { x: 600, y: 160, "text-anchor": "middle", "font-size": 13, "font-weight": 700, fill: "#0B6E85" }, "LEO fading in rain"));
     }
     if (i === 4) {                                         // layer 2: the truck's Wi-Fi at the evacuation centre
       if (!reduce.matches) dyn.append(el("text", { x: TOWER[0], y: TOWER[1] - 22, "text-anchor": "middle", "font-size": 16, "font-weight": 700, fill: C.msg }, "×"));
@@ -222,14 +223,18 @@
   const dots = document.getElementById("og-dots");
   STEPS.forEach((s, k) => { const b = document.createElement("button"); b.type = "button"; b.setAttribute("aria-label", `Step ${k + 1}: ${s.t}`); b.addEventListener("click", () => { pause(); show(k); }); dots.append(b); });
   const playBtn = document.getElementById("og-play");
-  function tick() { show((step + 1) % STEPS.length); }
-  function play() { playing = true; playBtn.textContent = "Pause"; clearInterval(timer); timer = setInterval(tick, 7000); }
-  function pause() { playing = false; playBtn.textContent = "Play"; clearInterval(timer); }
+  // each step stays long enough to read its caption (about 260 ms a word, at least 8 s);
+  // the caption is announced only when the reader steps by hand, not every few seconds while playing
+  const caption = document.querySelector(".og-caption");
+  const dwell = () => Math.max(8000, STEPS[step].d.split(/\s+/).length * 260);
+  function schedule() { clearTimeout(timer); timer = setTimeout(() => { show((step + 1) % STEPS.length); if (playing) schedule(); }, dwell()); }
+  function play() { playing = true; playBtn.textContent = "Pause"; if (caption) caption.setAttribute("aria-live", "off"); schedule(); }
+  function pause() { playing = false; playBtn.textContent = "Play"; if (caption) caption.setAttribute("aria-live", "polite"); clearTimeout(timer); }
   playBtn.addEventListener("click", () => (playing ? pause() : play()));
   document.getElementById("og-prev").addEventListener("click", () => { pause(); show((step + STEPS.length - 1) % STEPS.length); });
   document.getElementById("og-next").addEventListener("click", () => { pause(); show((step + 1) % STEPS.length); });
   // only run while the scene is on screen
-  new IntersectionObserver(([e]) => { if (!e.isIntersecting) clearInterval(timer); else if (playing) play(); }, { threshold: 0.3 }).observe(host);
+  new IntersectionObserver(([e]) => { if (!e.isIntersecting) clearTimeout(timer); else if (playing) play(); }, { threshold: 0.3 }).observe(host);
   show(0);
   if (!playing) playBtn.textContent = "Play";
   // phones: the scene scrolls sideways; start in the middle so the chain and the community both show
