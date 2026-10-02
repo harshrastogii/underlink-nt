@@ -13,6 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,600;9..40,700;9..40,800&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -210,8 +211,8 @@
 <!-- OFF-GRID ---------------------------------------------------------------->
 <section id="offgrid">
   <div class="wrap">
-    <h2 id="offgrid-title">When the tower is down: keep the community talking</h2>
-    <p class="plain"><strong>In plain words:</strong> a broken weak link cuts the phone network, but people can still send messages, photos and voice notes if the community has its own small radios. Step through it below.</p>
+    <h2 id="offgrid-title">When the chain breaks: three layers</h2>
+    <p class="plain"><strong>In plain words:</strong> a broken weak link cuts the phone network. Three layers can keep people in touch: a satellite dish that keeps the tower on air, a satellite truck at the evacuation centre, and the community's own small radios. Each layer has a different owner. Step through it below.</p>
     <div class="og-wrap">
       <div class="og-stage panel">
         <div class="og-scroll"><div id="offgrid-scene"></div></div>
@@ -230,29 +231,41 @@
         <div class="og-uses" id="og-step-uses"></div>
       </aside>
     </div>
+    <article class="panel">
+      <h3>Who owns each layer, who pays, what limits it</h3>
+      <div class="table-wrap"><table class="data og-layers">
+        <thead><tr><th>Layer</th><th>Owner</th><th>Existing way to pay</th><th>Limits</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Layer"><span><b>1. A second path for the tower</b><br>Satellite dish at the tower; L-band for rain</span></td><td data-label="Owner">Carrier</td><td data-label="Existing way to pay">Mobile Network Hardening Program (backhaul redundancy); NT co-investment conditions (Rec 1)</td><td data-label="Limits">Monthly fees, not one-off cost, so 7 to 10-year grant rules fit badly. Rain can fade Ku/Ka for minutes. Needs power at the tower.</td></tr>
+          <tr><td data-label="Layer"><span><b>2. A network at the evacuation centre</b><br>Satellite truck, fly-in kit, cell on wheels</span></td><td data-label="Owner">NBN Co, carriers, NTES</td><td data-label="Existing way to pay">STAND satellite services, funded to 31 December 2027</td><td data-label="Limits">Few vehicles for the whole country; they must reach the place, and roads may be cut.</td></tr>
+          <tr><td data-label="Layer"><span><b>3. The community's own radios</b><br>Bluetooth phones, solar LoRa radios</span></td><td data-label="Owner">The community</td><td data-label="Existing way to pay">None yet; a pilot (Appendix H)</td><td data-label="Limits">Messages, photos and voice notes only, slowly. Cannot reach 000. Someone local must look after the radios. Software is not security-audited.</td></tr>
+        </tbody>
+      </table></div>
+      <p class="note">None of the three layers reaches 000 for a phone with no signal. For 000, use a payphone, a satellite phone, or another company's mobile network if one is in range. A radio can list itself on public maps such as rmap.world; that shows where it is, so listing is the community's call.</p>
+    </article>
     <div class="grid-2">
-      <article class="panel">
-        <h3>What it can and cannot do</h3>
-        <ul class="plain-list">
-          <li>It carries messages, photos and voice notes. Photos and voice notes travel slowly over the radios. It does not carry the internet, card payments or power top-ups.</li>
-          <li>It cannot reach 000. For 000, use a payphone, a satellite phone, or another company's mobile network if one is in range.</li>
-          <li>Radios need sun or power, a high place and someone to look after them. The community decides where nodes go and who runs them.</li>
-          <li>A node can list itself on public maps such as rmap.world. That shows where it is, so whether to list it is the community's call.</li>
-        </ul>
-      </article>
       <article class="panel">
         <h3>Where a pilot could start</h3>
         <div class="factlist" id="og-facts"></div>
+      </article>
+      <article class="panel">
+        <h3>What government already funds</h3>
+        <ul class="plain-list">
+          <li>The Hardening Program's second round lets carriers claim satellite backhaul and scores the extra redundancy it adds.</li>
+          <li>STAND put NBN satellite services at fire depots and evacuation centres; they are extended to the end of 2027, with up to 500 more sites.</li>
+          <li>The government's LEO working group recommended trialling LEO in First Nations communities (2024), and LEO voice trials ran at 50 sites, four of them in the NT, through the 2024–25 wet season.</li>
+        </ul>
       </article>
     </div>
     <article class="panel">
       <h3>Already working elsewhere</h3>
       <div class="og-proven">
-        <a class="og-card" href="https://meshtastic.org/" rel="noopener"><b>Meshtastic</b><span>Short text messages and map positions over LoRa radios. Your phone pairs with a small radio by Bluetooth, and solar nodes on high places pass messages for kilometres.</span></a>
-        <a class="og-card" href="https://reticulum.network/" rel="noopener"><b>Reticulum and LXMF</b><span>One network over LoRa, Wi-Fi, Bluetooth and satellite links. Apps such as Sideband, Columba and MeshChatX send messages, photos, files and voice messages, and LXMF holds them for people who are offline.</span></a>
-        <a class="og-card" href="https://rmap.world/" rel="noopener"><b>rmap.world</b><span>A live map of more than 800 Reticulum nodes whose owners chose to list them.</span></a>
-        <a class="og-card" href="https://bitchat.free/" rel="noopener"><b>Bitchat</b><span>Messages, photos and voice notes from phone to phone over Bluetooth, with no internet, tower or account. Each hop reaches tens of metres.</span></a>
-        <a class="og-card" href="https://lanceplugin.com/" rel="noopener"><b>ATAK with LANCE</b><span>Emergency teams share positions, markers, routes and chat over Meshtastic or MeshCore radios, with no tower or server.</span></a>
+        <a class="og-card" href="https://www.itnews.com.au/news/telstra-quietly-stops-leosat-rollout-across-remote-mobile-sites-623838" rel="noopener"><b>Telstra and OneWeb</b><span>LEO satellite backhaul for remote towers. More than 300 sites were planned from 2024; Telstra paused in 2026 after voice problems.</span></a>
+        <a class="og-card" href="https://www.infrastructure.gov.au/media-communications/internet/provision-satellite-connections-emergency-services-and-evacuation-centres" rel="noopener"><b>STAND</b><span>NBN satellite services at fire depots and evacuation centres, plus Road Muster trucks and fly-in kits.</span></a>
+        <a class="og-card" href="https://www.iridium.com/services/iridium-certus-700" rel="noopener"><b>Iridium Certus</b><span>L-band satellite data up to 704 kbps that rain barely affects. Slow, but it stays up.</span></a>
+        <a class="og-card" href="https://meshtastic.org/" rel="noopener"><b>Meshtastic</b><span>Short text messages and map positions over solar LoRa radios, kilometres a hop.</span></a>
+        <a class="og-card" href="https://reticulum.network/" rel="noopener"><b>Reticulum and LXMF</b><span>One network over LoRa, Wi-Fi, Bluetooth and satellite. Apps such as Sideband, Columba and MeshChatX send messages, photos and voice messages, and hold them for people who are offline.</span></a>
+        <a class="og-card" href="https://bitchat.free/" rel="noopener"><b>Bitchat</b><span>Messages, photos and voice notes from phone to phone over Bluetooth, with no tower or account.</span></a>
       </div>
     </article>
   </div>
@@ -264,8 +277,13 @@
     <h2>Hazards now: fire, flood and closed roads</h2>
     <p class="plain"><strong>In plain words:</strong> fires and floods take relays down, and closed roads keep repair crews away. This map puts the current public feeds together. Pick the layers you need, then save it as a picture or a PDF.</p>
     <div class="hz-wrap">
-      <div class="panel hz-map" id="hazard-sheet"><div class="hz-scroll"><div id="hazard-map"></div></div></div>
+      <div class="panel hz-map" id="hazard-sheet">
+        <div class="hz-head"><b>Northern Territory hazards now</b><span id="hazard-time"></span></div>
+        <div id="hazard-map" role="region" aria-label="Map of current fire hotspots and road problems in the Northern Territory"></div>
+      </div>
       <aside class="panel hz-side">
+        <h3>Base map</h3>
+        <div class="hz-layers" id="hazard-base"></div>
         <h3>Layers</h3>
         <div class="hz-layers" id="hazard-layers"></div>
         <div class="hz-actions">
@@ -273,7 +291,7 @@
           <button class="btn-ghost" id="hazard-pdf" type="button">Save as PDF</button>
         </div>
         <p class="note" id="hazard-note"></p>
-        <p class="note">The map shows no relay, site or community. Warning titles are quoted from the Bureau of Meteorology. Satellite fire points can include planned burns. Check the NT Road Report and the Bureau of Meteorology before travelling.</p>
+        <p class="note">Underlink adds no relay, site or community data to this map; place names come from the base map. Base maps: Geoscience Australia National Base Map (CC BY 4.0) or Esri, and they need internet. Tap a point or road for details. Warning titles are quoted from the Bureau of Meteorology. Satellite fire points can include planned burns. Check the NT Road Report and the Bureau of Meteorology before travelling.</p>
       </aside>
     </div>
   </div>
@@ -429,6 +447,7 @@
 <script src="data/nt_base.js"></script>
 <script src="data/hazards.js"></script>
 <script src="app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="maps.js"></script>
 <script src="offgrid.js"></script>
 <script src="pipeline.js"></script>

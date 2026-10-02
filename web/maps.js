@@ -1,21 +1,28 @@
-// Hazard map: fires, road problems and BoM warnings on one NT map, with layers you choose,
-// a legend drawn into the map itself, and PNG / PDF export. Data: data/hazards.js (snapshot of
-// public feeds, refreshed by scripts/hazards_snapshot.py) and data/nt_base.js (outline, highways).
-// The map is plain SVG with no tiles, so it works offline and exports cleanly.
+// Hazard map: fires, road problems and BoM warnings on a real NT base map, with layers you choose,
+// a legend that follows them, and PNG / PDF export.
+// Base maps (tiles, needs internet): Geoscience Australia National Base Map (CC BY 4.0, the default),
+// Esri World Imagery and Esri World Topographic (Esri terms: attribution, non-commercial use).
+// Hazard data: data/hazards.js, a snapshot of public feeds refreshed by scripts/hazards_snapshot.py.
+// If the tiles cannot load (offline), the NT outline from data/nt_base.js is drawn instead.
 (function () {
   "use strict";
-  const H = window.HAZARDS, B = window.NT_BASE;
+  const H = window.HAZARDS, B = window.NT_BASE, L = window.L;
   const host = document.getElementById("hazard-map");
-  if (!H || !B || !host) return;
-  const NS = "http://www.w3.org/2000/svg";
-  const el = (t, a = {}, txt) => { const e = document.createElementNS(NS, t); for (const [k, v] of Object.entries(a)) e.setAttribute(k, v); if (txt != null) e.textContent = txt; return e; };
+  if (!H || !host) return;
+  const note = document.getElementById("hazard-note");
+  if (!L) { if (note) note.textContent = "The map library could not load. Check the internet connection and reload."; return; }
 
-  // Equirectangular projection, x scaled by cos(18 S) so the NT keeps its shape.
-  const LON0 = 128.9, LAT0 = -10.8, S = 58, KX = Math.cos((18 * Math.PI) / 180);
-  const X = (lon) => (lon - LON0) * S * KX, Y = (lat) => (LAT0 - lat) * S;
-  const MAP_W = Math.ceil(X(138.1)), MAP_H = Math.ceil(Y(-26.1));
-  const PANEL = 210, W = MAP_W + PANEL, TOP = 54, Hh = MAP_H + TOP + 34;
-
+  const BASES = [
+    { id: "ga", label: "Topographic (Geoscience Australia)", max: 16,
+      url: "https://services.ga.gov.au/gis/rest/services/NationalBaseMap/MapServer/tile/{z}/{y}/{x}",
+      attr: "Base map © Commonwealth of Australia (Geoscience Australia), CC BY 4.0" },
+    { id: "img", label: "Satellite imagery (Esri)", max: 17,
+      url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      attr: "Tiles © Esri. Source: Esri, Vantor, Earthstar Geographics, and the GIS User Community" },
+    { id: "topo", label: "Topographic (Esri)", max: 16,
+      url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
+      attr: "Tiles © Esri. Sources: Esri, HERE, Garmin, Intermap, USGS, FAO, NPS, NRCAN, GeoBase, IGN, (c) OpenStreetMap contributors, and the GIS User Community" },
+  ];
   const LAYERS = [
     { id: "fire", label: "Fire hotspots, last 3 days", color: "#E4602E", on: true },
     { id: "flood", label: "Flooding on a road", color: "#1E6FD9", on: true },
@@ -25,81 +32,173 @@
     { id: "smoke", label: "Smoke on a road", color: "#5B6878", on: false },
     { id: "other", label: "Other road restrictions", color: "#8A96A3", on: false },
   ];
-  const state = Object.fromEntries(LAYERS.map((l) => [l.id, l.on]));
+  const NT = [[-26.1, 128.9], [-10.8, 138.1]];
+  const SOURCES = "Hazards: Geoscience Australia DEA Hotspots; NT Government Road Report; Bureau of Meteorology. Fire points are grouped into cells of about 5 km and can include planned burns. Check the source before travelling.";
   const fmtTime = (iso) => { try { return new Date(iso).toLocaleString("en-AU", { timeZone: "Australia/Darwin", day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" }) + " (Darwin time)"; } catch (e) { return iso; } };
   const roadCount = (k) => H.roads.filter((r) => r.kind === k).length;
   const count = (id) => (id === "fire" ? H.hotspots.length : roadCount(id));
+  const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const timeEl = document.getElementById("hazard-time");
+  if (timeEl) timeEl.textContent = "Snapshot: " + fmtTime(H.generated);
 
-  function draw() {
-    const svg = el("svg", { viewBox: `0 0 ${W} ${Hh}`, role: "img", "aria-label": "Map of current fire hotspots and road problems in the Northern Territory", "font-family": "Arial, Helvetica, sans-serif" });
-    svg.append(el("rect", { x: 0, y: 0, width: W, height: Hh, fill: "#FFFFFF" }));
-    svg.append(el("text", { x: 14, y: 24, "font-size": 17, "font-weight": 700, fill: "#16325C" }, "Northern Territory hazards now"));
-    svg.append(el("text", { x: 14, y: 42, "font-size": 11, fill: "#4F5E70" }, "Snapshot: " + fmtTime(H.generated)));
-    const g = el("g", { transform: `translate(10 ${TOP})` });
-    B.outline.forEach((ring) => g.append(el("path", { d: "M" + ring.map(([lo, la]) => `${X(lo).toFixed(1)},${Y(la).toFixed(1)}`).join("L") + "Z", fill: "#EEF3F9", stroke: "#16325C", "stroke-width": 1.2 })));
-    B.highways.forEach((line) => g.append(el("path", { d: "M" + line.map(([lo, la]) => `${X(lo).toFixed(1)},${Y(la).toFixed(1)}`).join("L"), fill: "none", stroke: "#B9C6D6", "stroke-width": 1.4 })));
-    // Darwin for orientation only (a capital city, not a remote community)
-    g.append(el("circle", { cx: X(130.84), cy: Y(-12.46), r: 3.2, fill: "#16325C" }));
-    g.append(el("text", { x: X(130.84) + 6, y: Y(-12.46) - 5, "font-size": 11, fill: "#16325C", "font-weight": 700 }, "Darwin"));
-    if (state.fire) H.hotspots.forEach((h) => g.append(el("circle", { cx: X(h.lon).toFixed(1), cy: Y(h.lat).toFixed(1), r: Math.min(5, 2 + Math.log2(h.n + 1) / 2).toFixed(1), fill: "#E4602E", "fill-opacity": 0.55 })));
-    LAYERS.filter((l) => l.id !== "fire" && state[l.id]).forEach((l) => {
-      H.roads.filter((r) => r.kind === l.id).forEach((r) => {
-        const [x1, y1, x2, y2] = [X(r.from[0]), Y(r.from[1]), X(r.to[0]), Y(r.to[1])];
-        g.append(el("line", { x1, y1, x2, y2, stroke: l.color, "stroke-width": 3.2, "stroke-linecap": "round" }));
-        g.append(el("circle", { cx: x1, cy: y1, r: 3.6, fill: l.color, stroke: "#fff", "stroke-width": 1 }));
-      });
-    });
-    svg.append(g);
-    // Legend, inside the map so a PNG or PDF carries it
-    const lx = MAP_W + 22; let ly = TOP + 6;
-    svg.append(el("text", { x: lx, y: ly, "font-size": 12, "font-weight": 700, fill: "#16325C" }, "Legend"));
-    ly += 18;
-    LAYERS.filter((l) => state[l.id]).forEach((l) => {
-      if (l.id === "fire") svg.append(el("circle", { cx: lx + 6, cy: ly - 4, r: 5, fill: l.color, "fill-opacity": 0.6 }));
-      else svg.append(el("line", { x1: lx, y1: ly - 4, x2: lx + 14, y2: ly - 4, stroke: l.color, "stroke-width": 3.2, "stroke-linecap": "round" }));
-      svg.append(el("text", { x: lx + 22, y: ly, "font-size": 11, fill: "#14243B" }, `${l.label} (${count(l.id)})`));
-      ly += 19;
-    });
-    svg.append(el("line", { x1: lx, y1: ly - 4, x2: lx + 14, y2: ly - 4, stroke: "#B9C6D6", "stroke-width": 1.4 }));
-    svg.append(el("text", { x: lx + 22, y: ly, "font-size": 11, fill: "#14243B" }, "Highway"));
-    ly += 30;
-    svg.append(el("text", { x: lx, y: ly, "font-size": 12, "font-weight": 700, fill: "#16325C" }, "BoM warnings"));
-    ly += 16;
-    const warn = H.warnings.length ? H.warnings.map((w) => w.title) : ["None current for the NT"];
-    warn.slice(0, 8).forEach((t) => { wrap(t, 30).forEach((line, i) => { svg.append(el("text", { x: lx, y: ly, "font-size": 10.5, fill: "#14243B" }, (i ? "  " : "• ") + line)); ly += 13; }); ly += 3; });
-    const src = "Sources: Geoscience Australia DEA Hotspots; NT Government Road Report; Bureau of Meteorology. Fire points are grouped into cells of about 5 km. Check the source before travelling.";
-    wrap(src, 120).forEach((line, i) => svg.append(el("text", { x: 14, y: Hh - 20 + i * 12, "font-size": 9.5, fill: "#4F5E70" }, line)));
-    host.replaceChildren(svg);
+  // ---- map, base layers ----------------------------------------------------------------------
+  const map = L.map(host, { zoomSnap: 0.25, minZoom: 4, maxBounds: [[-32, 122], [-6, 144]], scrollWheelZoom: false });
+  map.fitBounds(NT);
+  map.attributionControl.setPrefix(false);
+  let base = null, tileErrors = 0, outline = null;
+  function setBase(id) {
+    const b = BASES.find((x) => x.id === id) || BASES[0];
+    if (base) map.removeLayer(base);
+    tileErrors = 0;
+    base = L.tileLayer(b.url, { attribution: b.attr, maxNativeZoom: b.max, maxZoom: 18, crossOrigin: "anonymous" });
+    base.on("tileerror", () => { if (++tileErrors === 4) showOutline(); });
+    base.on("load", () => { if (outline) { map.removeLayer(outline); outline = null; if (note) note.textContent = baseNote(); } });
+    base.addTo(map); base.bringToBack();
+    current = b;
   }
-  function wrap(text, n) { const out = []; let cur = ""; for (const w of text.split(" ")) { if ((cur + " " + w).trim().length > n) { out.push(cur.trim()); cur = w; } else cur += " " + w; } if (cur.trim()) out.push(cur.trim()); return out; }
+  function showOutline() {
+    if (!B || outline) return;
+    outline = L.layerGroup(B.outline.map((ring) => L.polygon(ring.map(([lo, la]) => [la, lo]), { color: "#16325C", weight: 1.2, fill: true, fillColor: "#EEF3F9", fillOpacity: 1, interactive: false }))).addTo(map);
+    outline.eachLayer((l) => l.bringToBack());
+    if (note) note.textContent = "The base map could not load (no internet?). Showing the NT outline instead; the hazard layers still work.";
+  }
+  const baseNote = () => Object.keys(H.errors || {}).length ? "Some feeds could not be read at the last snapshot: " + Object.keys(H.errors).join(", ") + "." : "";
+  let current = BASES[0];
+  setBase("ga");
 
-  // Layer switches
+  // ---- hazard layers -------------------------------------------------------------------------
+  const groups = {};
+  LAYERS.forEach((l) => { groups[l.id] = L.layerGroup(); });
+  H.hotspots.forEach((h) => L.circleMarker([h.lat, h.lon], { radius: Math.min(7, 3 + Math.log2(h.n + 1) / 1.6), stroke: false, fillColor: "#E4602E", fillOpacity: 0.6 })
+    .bindPopup(`<b>Fire hotspot</b><br>${h.n} satellite detection${h.n === 1 ? "" : "s"} in this 5 km cell<br>Latest: ${esc(fmtTime(h.latest + ":00Z"))}`).addTo(groups.fire));
+  H.roads.forEach((r) => {
+    const l = LAYERS.find((x) => x.id === r.kind) || LAYERS[LAYERS.length - 1];
+    const a = [r.from[1], r.from[0]], b = [r.to[1], r.to[0]];
+    const pop = `<b>${esc(r.what || l.label)}</b>${r.restriction ? "<br>" + esc(r.restriction) : ""}<br><small>Source: NT Road Report</small>`;
+    L.polyline([a, b], { color: l.color, weight: 5, opacity: 0.9, lineCap: "round" }).bindPopup(pop).addTo(groups[l.id]);
+    L.circleMarker(a, { radius: 4.5, color: "#fff", weight: 1.5, fillColor: l.color, fillOpacity: 1 }).bindPopup(pop).addTo(groups[l.id]);
+  });
+  const state = Object.fromEntries(LAYERS.map((l) => [l.id, l.on]));
+  LAYERS.forEach((l) => { if (l.on) groups[l.id].addTo(map); });
+
+  // ---- legend (inside the map, so the PDF carries it) ----------------------------------------
+  const warnings = H.warnings.length ? H.warnings.map((w) => w.title) : ["None current for the NT"];
+  const legend = L.control({ position: "bottomright" });
+  legend.onAdd = () => { const d = L.DomUtil.create("div", "hz-legend"); L.DomEvent.disableClickPropagation(d); return d; };
+  legend.addTo(map);
+  function drawLegend() {
+    const d = legend.getContainer();
+    const rows = LAYERS.filter((l) => state[l.id]).map((l) =>
+      `<li><i class="${l.id === "fire" ? "dot" : "bar"}" style="background:${l.color}"></i>${esc(l.label)} <b>${count(l.id)}</b></li>`).join("");
+    const open = d.querySelector("details") ? d.querySelector("details").open : !window.matchMedia("(max-width: 720px)").matches;
+    d.innerHTML = `<details${open ? " open" : ""}><summary class="hz-legend-t">Legend</summary><ul>${rows || "<li>No layer selected</li>"}</ul>` +
+      `<p class="hz-legend-t">BoM warnings</p><ul class="hz-warn">${warnings.slice(0, 6).map((t) => `<li>${esc(t)}</li>`).join("")}</ul></details>`;
+  }
+  drawLegend();
+
+  // ---- side panel: base map choice and layer switches ----------------------------------------
+  const baseBox = document.getElementById("hazard-base");
+  if (baseBox) BASES.forEach((b, k) => {
+    const lab = document.createElement("label");
+    lab.className = "layer-chip base-chip";
+    lab.innerHTML = `<input type="radio" name="hz-base" value="${b.id}" ${k === 0 ? "checked" : ""}><span>${esc(b.label)}</span>`;
+    lab.querySelector("input").addEventListener("change", () => setBase(b.id));
+    baseBox.append(lab);
+  });
   const ctl = document.getElementById("hazard-layers");
   LAYERS.forEach((l) => {
     const lab = document.createElement("label");
     lab.className = "layer-chip";
-    lab.innerHTML = `<input type="checkbox" ${l.on ? "checked" : ""}><i style="background:${l.color}"></i><span>${l.label}</span><b>${count(l.id)}</b>`;
-    lab.querySelector("input").addEventListener("change", (e) => { state[l.id] = e.target.checked; draw(); });
+    lab.innerHTML = `<input type="checkbox" ${l.on ? "checked" : ""}><i style="background:${l.color}"></i><span>${esc(l.label)}</span><b>${count(l.id)}</b>`;
+    lab.querySelector("input").addEventListener("change", (e) => {
+      state[l.id] = e.target.checked;
+      if (state[l.id]) groups[l.id].addTo(map); else map.removeLayer(groups[l.id]);
+      drawLegend();
+    });
     ctl.append(lab);
   });
-  const note = document.getElementById("hazard-note");
-  if (note) note.textContent = Object.keys(H.errors || {}).length ? "Some feeds could not be read at the last snapshot: " + Object.keys(H.errors).join(", ") + "." : "";
+  if (note) note.textContent = baseNote();
 
-  // Export: PNG through a canvas; PDF through the browser's print dialog (Save as PDF), map only.
+  // ---- PNG: base tiles, layers, title, legend and sources drawn onto one canvas ----------------
+  function wrapText(ctx, text, width) {
+    const out = []; let cur = "";
+    for (const w of text.split(" ")) { const t = cur ? cur + " " + w : w; if (ctx.measureText(t).width > width && cur) { out.push(cur); cur = w; } else cur = t; }
+    if (cur) out.push(cur); return out;
+  }
   document.getElementById("hazard-png").addEventListener("click", () => {
-    const svg = host.querySelector("svg");
-    let xml = new XMLSerializer().serializeToString(svg);
-    if (!/^<svg[^>]*xmlns=/.test(xml)) xml = xml.replace("<svg", `<svg xmlns="${NS}"`);   // the serializer usually adds it
-    xml = xml.replace("<svg", `<svg width="${W * 2}" height="${Hh * 2}"`);
-    const img = new Image();
-    img.onload = () => {
-      const c = document.createElement("canvas"); c.width = W * 2; c.height = Hh * 2;
-      c.getContext("2d").drawImage(img, 0, 0);
-      const a = document.createElement("a"); a.download = "nt-hazards-" + (H.generated || "").slice(0, 10) + ".png"; a.href = c.toDataURL("image/png"); a.click();
-    };
-    img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(xml);
+    const size = map.getSize(), S = 2, TOP = 52, PAD = 14;
+    const c = document.createElement("canvas"), ctx = c.getContext("2d");
+    ctx.font = "11px Arial";
+    const foot = wrapText(ctx, SOURCES + " " + current.attr + ".", size.x - 2 * PAD);
+    const BOT = 14 + foot.length * 14;
+    c.width = size.x * S; c.height = (TOP + size.y + BOT) * S;
+    ctx.scale(S, S);
+    ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, size.x, TOP + size.y + BOT);
+    ctx.fillStyle = "#16325C"; ctx.font = "bold 17px Arial"; ctx.fillText("Northern Territory hazards now", PAD, 24);
+    ctx.fillStyle = "#4F5E70"; ctx.font = "11px Arial"; ctx.fillText("Snapshot: " + fmtTime(H.generated), PAD, 42);
+    ctx.save(); ctx.translate(0, TOP);
+    ctx.beginPath(); ctx.rect(0, 0, size.x, size.y); ctx.clip();
+    ctx.fillStyle = "#EEF3F9"; ctx.fillRect(0, 0, size.x, size.y);
+    const box = host.getBoundingClientRect();
+    host.querySelectorAll(".leaflet-tile-pane img.leaflet-tile-loaded").forEach((img) => {
+      const r = img.getBoundingClientRect();
+      try { ctx.drawImage(img, r.left - box.left, r.top - box.top, r.width, r.height); } catch (e) { /* skip a tile that cannot be drawn */ }
+    });
+    const pt = (ll) => map.latLngToContainerPoint(ll);
+    LAYERS.filter((l) => state[l.id] && l.id !== "fire").forEach((l) => groups[l.id].eachLayer((g) => {
+      if (g instanceof L.Polyline) {
+        const p = g.getLatLngs().map(pt);
+        ctx.strokeStyle = l.color; ctx.lineWidth = 5; ctx.lineCap = "round"; ctx.globalAlpha = 0.9;
+        ctx.beginPath(); p.forEach((q, i) => (i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y))); ctx.stroke(); ctx.globalAlpha = 1;
+      } else {
+        const q = pt(g.getLatLng());
+        ctx.fillStyle = l.color; ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(q.x, q.y, 4.5, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+      }
+    }));
+    if (state.fire) groups.fire.eachLayer((g) => {
+      const q = pt(g.getLatLng());
+      ctx.fillStyle = "rgba(228,96,46,0.6)"; ctx.beginPath(); ctx.arc(q.x, q.y, g.getRadius(), 0, 2 * Math.PI); ctx.fill();
+    });
+    // legend, bottom right, as on screen
+    const items = LAYERS.filter((l) => state[l.id]);
+    ctx.font = "11px Arial";
+    const lw = Math.max(190, ...items.map((l) => ctx.measureText(`${l.label} (${count(l.id)})`).width + 40), ...warnings.slice(0, 6).map((t) => Math.min(260, ctx.measureText(t).width + 24)));
+    const wl = warnings.slice(0, 6).flatMap((t) => wrapText(ctx, t, lw - 24));
+    const lh = 26 + items.length * 18 + 22 + wl.length * 14 + 8;
+    const lx = size.x - lw - 10, ly = size.y - lh - 22;
+    ctx.fillStyle = "rgba(255,255,255,0.94)"; ctx.strokeStyle = "#D6DEE8"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.roundRect ? ctx.roundRect(lx, ly, lw, lh, 8) : ctx.rect(lx, ly, lw, lh); ctx.fill(); ctx.stroke();
+    let y = ly + 18;
+    ctx.fillStyle = "#16325C"; ctx.font = "bold 12px Arial"; ctx.fillText("Legend", lx + 10, y); y += 16;
+    ctx.font = "11px Arial";
+    items.forEach((l) => {
+      ctx.fillStyle = l.color;
+      if (l.id === "fire") { ctx.beginPath(); ctx.arc(lx + 16, y - 4, 5, 0, 2 * Math.PI); ctx.fill(); } else ctx.fillRect(lx + 10, y - 6, 14, 4);
+      ctx.fillStyle = "#14243B"; ctx.fillText(`${l.label} (${count(l.id)})`, lx + 32, y); y += 18;
+    });
+    y += 4; ctx.fillStyle = "#16325C"; ctx.font = "bold 12px Arial"; ctx.fillText("BoM warnings", lx + 10, y); y += 15;
+    ctx.fillStyle = "#14243B"; ctx.font = "11px Arial";
+    wl.forEach((t) => { ctx.fillText(t, lx + 12, y); y += 14; });
+    ctx.restore();
+    ctx.fillStyle = "#4F5E70"; ctx.font = "11px Arial";
+    foot.forEach((t, i) => ctx.fillText(t, PAD, TOP + size.y + 18 + i * 14));
+    try {
+      c.toBlob((blob) => {
+        const a = document.createElement("a");
+        a.download = "nt-hazards-" + (H.generated || "").slice(0, 10) + ".png";
+        a.href = URL.createObjectURL(blob); a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      }, "image/png");
+    } catch (e) { if (note) note.textContent = "This browser blocked the picture because of the base map. Try another base map, or use Save as PDF."; }
   });
-  document.getElementById("hazard-pdf").addEventListener("click", () => { document.body.dataset.print = "map"; window.print(); });
-  window.addEventListener("afterprint", () => { delete document.body.dataset.print; });
-  draw();
+
+  // ---- PDF: the browser's print dialog, map only (see the print rules in styles.css) -----------
+  document.getElementById("hazard-pdf").addEventListener("click", () => {
+    document.body.dataset.print = "map";
+    const det = legend.getContainer().querySelector("details"); if (det) det.open = true;   // the PDF always carries the legend
+    map.invalidateSize(); map.fitBounds(NT);
+    setTimeout(() => window.print(), 400);                      // let the resized map fetch its tiles
+  });
+  window.addEventListener("afterprint", () => { if (document.body.dataset.print === "map") { delete document.body.dataset.print; map.invalidateSize(); } });
 })();

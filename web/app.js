@@ -466,8 +466,9 @@
     const box = $("og-facts");
     if (!box) return;
     box.append(
-      fact(`${c.with_ge1_spof} of ${c.radio_chain_places}`, "radio-chain places lose service when one weak link fails: the places a community mesh would help most", "orange"),
-      fact(`${fb.radio_chain_with_independent_fallback} of ${rep.radio_chain_places}`, "already have a satellite Wi-Fi phone or a Sky Muster service within 3 km, where a bridge node could start", "blue"),
+      fact(`${c.with_ge1_spof} of ${c.radio_chain_places}`, "radio-chain places lose service when one weak link fails. A satellite second path at their tower (layer 1) keeps them on air", "orange"),
+      fact(`${rep.jan_bands[">14 d"]} of ${rep.radio_chain_places}`, "wait more than two weeks for a wet-season repair. There, layer 1 saves the most days without service", "orange"),
+      fact(`${fb.radio_chain_with_independent_fallback} of ${rep.radio_chain_places}`, "already have a satellite Wi-Fi phone or a Sky Muster service within 3 km, where a layer 3 pilot could start", "blue"),
       fact(`${fb.radio_chain_with_other_carrier} of ${rep.radio_chain_places}`, "has another company's mobile site within 10 km, so 000 by mobile mostly depends on the one chain"),
     );
   })();
