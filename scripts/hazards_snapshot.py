@@ -119,8 +119,22 @@ def base() -> None:
     for g in hw.geometry.simplify(0.01):
         for part in (getattr(g, "geoms", None) or [g]):
             lines.append([[round(x, 3), round(y, 3)] for x, y in part.coords])
-    BASE.write_text("// NT outline (NTLIS land council boundaries) and highways (Geoscape National Roads), simplified.\n"
-                    "window.NT_BASE = " + json.dumps({"outline": rings, "highways": lines}, separators=(",", ":")) + ";\n")
+    # Published 1% AEP flood study areas (NT Planning Scheme overlay, NTLIS), simplified for display only;
+    # study names are left out because several name a community.
+    fl = gpd.read_file(raw / "ntlis_wfs" / "NTPS_SUBJECT_TO_FLOODING.geojson").to_crs("EPSG:4326")
+    flood = []
+    for g in fl.geometry.simplify(0.002):
+        for part in (getattr(g, "geoms", None) or [g]):
+            if part.area > 2e-6:
+                flood.append([[round(x, 3), round(y, 3)] for x, y in part.exterior.coords])
+    # STAND satellite sites (evacuation centres, fire depots): positions only, rounded to 0.01 degrees, no names.
+    import pandas as pd
+    st = pd.read_csv(ROOT / "data_probe" / "au-telecom-infra" / "stand" / "stand_skymuster_nt.csv").dropna(subset=["lat", "lon"])
+    stand = sorted({(round(r.lon, 2), round(r.lat, 2)) for r in st.itertuples()})
+    BASE.write_text("// NT outline (NTLIS land council boundaries), highways (Geoscape National Roads), 1% AEP flood study areas\n"
+                    "// (NT Planning Scheme overlay, NTLIS) and STAND satellite sites (DITRDCSA), simplified, no names.\n"
+                    "window.NT_BASE = " + json.dumps({"outline": rings, "highways": lines, "flood": flood, "stand": [list(p) for p in stand]},
+                                                     separators=(",", ":")) + ";\n")
     print(f"wrote {BASE.relative_to(ROOT)} ({BASE.stat().st_size / 1024:.0f} KB)")
 
 

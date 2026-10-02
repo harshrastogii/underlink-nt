@@ -14,6 +14,8 @@ Every number comes from `outputs/public/numbers.json`, which `python run_all.py`
 | BoM tropical cyclone best track | after each season | each May |
 | Mobile Network Hardening Program, STAND, MBSP layers | a few times a year | quarterly |
 | Carrier outage registers (ACMA rule from 30 June 2026) | continuously | monthly, into `fact_outage_event` |
+| NT Planning Scheme flood overlay (1% AEP studies, NTLIS) | when a new flood study is adopted | quarterly |
+| Hazard feeds: DEA Hotspots, NT Road Report, BoM warnings | minutes to hours | every three hours (GitHub Action) |
 
 ## Steps
 
@@ -28,6 +30,9 @@ Every number comes from `outputs/public/numbers.json`, which `python run_all.py`
    values in `tests/test_integrity.py` in the same change.
 5. `python -m underlink.schema` writes the star schema; load it with `docs/schema.sql`
    (DuckDB or PostgreSQL).
+6. `python scripts/hazards_snapshot.py --base` rebuilds the web map's NT outline, highways, flood study areas and
+   STAND sites (`web/data/nt_base.js`); `python scripts/layers_map.py` redraws Figure I1 on the Geoscience
+   Australia National Base Map (needs internet).
 
 ## Keys and the salt
 

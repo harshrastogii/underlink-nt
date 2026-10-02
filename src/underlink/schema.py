@@ -45,7 +45,7 @@ def dim_place(c: pd.DataFrame) -> pd.DataFrame:
 
 def dim_site(net: nw.Network) -> pd.DataFrame:
     power = ro.power_classes(net)
-    s = net.sites.reset_index(drop=True)[["site_key", "dist_sealed_km"]].copy()
+    s = net.sites.reset_index(drop=True)[["site_key", "dist_sealed_km", "flood_1pc_km"]].copy()
     s["power_class"] = s.site_key.map(power)
     s["is_fibre_connected"] = s.site_key.isin(net.roots)
     return s.assign(valid_from=SNAPSHOT, valid_to=None)

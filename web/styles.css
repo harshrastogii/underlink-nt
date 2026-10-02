@@ -502,6 +502,9 @@ html { overflow-anchor: none; }
 .hz-legend li b { font-family: var(--font-num); color: var(--muted); margin-left: auto; padding-left: 6px; }
 .hz-legend i.dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
 .hz-legend i.bar { width: 14px; height: 4px; border-radius: 2px; flex: none; }
+.hz-legend i.area { width: 14px; height: 10px; border-radius: 2px; flex: none; opacity: 0.45; }
+.hz-legend i.sq { width: 9px; height: 9px; flex: none; margin: 0 2.5px; }
+.hz-sq { background: #0E8FA8; border: 1.5px solid #fff; box-shadow: 0 0 0 1px rgba(14,143,168,0.4); }
 .hz-warn li { display: list-item; margin-left: 12px; list-style: disc; }
 .hz-legend summary { cursor: pointer; list-style: none; }
 .hz-legend summary::-webkit-details-marker { display: none; }

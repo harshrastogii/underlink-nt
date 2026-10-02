@@ -31,12 +31,16 @@
     { id: "works", label: "Roadworks", color: "#7B61D9", on: false },
     { id: "smoke", label: "Smoke on a road", color: "#5B6878", on: false },
     { id: "other", label: "Other road restrictions", color: "#8A96A3", on: false },
+    { id: "floodarea", label: "Mapped 1% AEP flood areas (NT Planning Scheme)", color: "#2F6DB5", on: true, area: true },
+    { id: "stand", label: "STAND satellite sites (evacuation centres, fire depots)", color: "#0E8FA8", on: true, square: true },
   ];
   const NT = [[-26.1, 128.9], [-10.8, 138.1]];
-  const SOURCES = "Hazards: Geoscience Australia DEA Hotspots; NT Government Road Report; Bureau of Meteorology. Fire points are grouped into cells of about 5 km and can include planned burns. Check the source before travelling.";
+  const SOURCES = "Hazards: Geoscience Australia DEA Hotspots; NT Government Road Report; Bureau of Meteorology. Planning layers: NT Planning Scheme flood overlay (NTLIS); STAND sites (DITRDCSA). Fire points are grouped into cells of about 5 km and can include planned burns. Check the source before travelling.";
   const fmtTime = (iso) => { try { return new Date(iso).toLocaleString("en-AU", { timeZone: "Australia/Darwin", day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" }) + " (Darwin time)"; } catch (e) { return iso; } };
   const roadCount = (k) => H.roads.filter((r) => r.kind === k).length;
-  const count = (id) => (id === "fire" ? H.hotspots.length : roadCount(id));
+  const standCount = ((window.UNDERLINK || {}).layers || {}).stand_sites_nt || (B && B.stand ? B.stand.length : 0);
+  const count = (id) => (id === "fire" ? H.hotspots.length : id === "floodarea" ? "" : id === "stand" ? standCount : roadCount(id));
+  const swatch = (l) => (l.id === "fire" ? "dot" : l.area ? "area" : l.square ? "sq" : "bar");
   const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const timeEl = document.getElementById("hazard-time");
   if (timeEl) timeEl.textContent = "Snapshot: " + fmtTime(H.generated);
@@ -78,6 +82,11 @@
     L.polyline([a, b], { color: l.color, weight: 5, opacity: 0.9, lineCap: "round" }).bindPopup(pop).addTo(groups[l.id]);
     L.circleMarker(a, { radius: 4.5, color: "#fff", weight: 1.5, fillColor: l.color, fillOpacity: 1 }).bindPopup(pop).addTo(groups[l.id]);
   });
+  // Planning layers: published 1% AEP flood study areas and STAND satellite sites (positions only, no names)
+  if (B && B.flood) B.flood.forEach((ring) => L.polygon(ring.map(([lo, la]) => [la, lo]), { color: "#2F6DB5", weight: 1, fillColor: "#2F6DB5", fillOpacity: 0.3 })
+    .bindPopup("<b>Mapped 1% AEP flood area</b><br>A published flood study in the NT Planning Scheme.<br><small>Source: NTLIS, NT Government</small>").addTo(groups.floodarea));
+  if (B && B.stand) B.stand.forEach(([lo, la]) => L.marker([la, lo], { icon: L.divIcon({ className: "hz-sq", iconSize: [10, 10] }), keyboard: false })
+    .bindPopup("<b>STAND satellite site</b><br>NBN satellite service at an evacuation centre or fire depot (layer 2).<br><small>Source: DITRDCSA</small>").addTo(groups.stand));
   const state = Object.fromEntries(LAYERS.map((l) => [l.id, l.on]));
   LAYERS.forEach((l) => { if (l.on) groups[l.id].addTo(map); });
 
@@ -89,7 +98,7 @@
   function drawLegend() {
     const d = legend.getContainer();
     const rows = LAYERS.filter((l) => state[l.id]).map((l) =>
-      `<li><i class="${l.id === "fire" ? "dot" : "bar"}" style="background:${l.color}"></i>${esc(l.label)} <b>${count(l.id)}</b></li>`).join("");
+      `<li><i class="${swatch(l)}" style="background:${l.color}"></i>${esc(l.label)} <b>${count(l.id)}</b></li>`).join("");
     const open = d.querySelector("details") ? d.querySelector("details").open : !window.matchMedia("(max-width: 720px)").matches;
     d.innerHTML = `<details${open ? " open" : ""}><summary class="hz-legend-t">Legend</summary><ul>${rows || "<li>No layer selected</li>"}</ul>` +
       `<p class="hz-legend-t">BoM warnings</p><ul class="hz-warn">${warnings.slice(0, 6).map((t) => `<li>${esc(t)}</li>`).join("")}</ul></details>`;
@@ -145,7 +154,16 @@
       try { ctx.drawImage(img, r.left - box.left, r.top - box.top, r.width, r.height); } catch (e) { /* skip a tile that cannot be drawn */ }
     });
     const pt = (ll) => map.latLngToContainerPoint(ll);
-    LAYERS.filter((l) => state[l.id] && l.id !== "fire").forEach((l) => groups[l.id].eachLayer((g) => {
+    LAYERS.filter((l) => state[l.id] && l.area).forEach((l) => groups[l.id].eachLayer((g) => {
+      const p = g.getLatLngs()[0].map(pt);
+      ctx.fillStyle = "rgba(47,109,181,0.3)"; ctx.strokeStyle = l.color; ctx.lineWidth = 1;
+      ctx.beginPath(); p.forEach((q, i) => (i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y))); ctx.closePath(); ctx.fill(); ctx.stroke();
+    }));
+    LAYERS.filter((l) => state[l.id] && l.square).forEach((l) => groups[l.id].eachLayer((g) => {
+      const q = pt(g.getLatLng());
+      ctx.fillStyle = l.color; ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5; ctx.fillRect(q.x - 4.5, q.y - 4.5, 9, 9); ctx.strokeRect(q.x - 4.5, q.y - 4.5, 9, 9);
+    }));
+    LAYERS.filter((l) => state[l.id] && l.id !== "fire" && !l.area && !l.square).forEach((l) => groups[l.id].eachLayer((g) => {
       if (g instanceof L.Polyline) {
         const p = g.getLatLngs().map(pt);
         ctx.strokeStyle = l.color; ctx.lineWidth = 5; ctx.lineCap = "round"; ctx.globalAlpha = 0.9;
@@ -174,8 +192,11 @@
     ctx.font = "11px Arial";
     items.forEach((l) => {
       ctx.fillStyle = l.color;
-      if (l.id === "fire") { ctx.beginPath(); ctx.arc(lx + 16, y - 4, 5, 0, 2 * Math.PI); ctx.fill(); } else ctx.fillRect(lx + 10, y - 6, 14, 4);
-      ctx.fillStyle = "#14243B"; ctx.fillText(`${l.label} (${count(l.id)})`, lx + 32, y); y += 18;
+      if (l.id === "fire") { ctx.beginPath(); ctx.arc(lx + 16, y - 4, 5, 0, 2 * Math.PI); ctx.fill(); }
+      else if (l.area) { ctx.globalAlpha = 0.45; ctx.fillRect(lx + 10, y - 9, 14, 10); ctx.globalAlpha = 1; }
+      else if (l.square) ctx.fillRect(lx + 12, y - 8, 9, 9);
+      else ctx.fillRect(lx + 10, y - 6, 14, 4);
+      ctx.fillStyle = "#14243B"; ctx.fillText(count(l.id) === "" ? l.label : `${l.label} (${count(l.id)})`, lx + 32, y); y += 18;
     });
     y += 4; ctx.fillStyle = "#16325C"; ctx.font = "bold 12px Arial"; ctx.fillText("BoM warnings", lx + 10, y); y += 15;
     ctx.fillStyle = "#14243B"; ctx.font = "11px Arial";

@@ -336,6 +336,21 @@
     "spof_relays_total": 68,
     "spof_relays_on_cofunded_chains": 12
   },
+  "layers": {
+    "flagged_places": 18,
+    "radio_chain_places": 23,
+    "flagged_and_wet_slow": 16,
+    "people_flagged_and_wet_slow": 6770,
+    "stand_sites_nt": 88,
+    "radio_chain_with_stand_3km": 8,
+    "flagged_with_stand_3km": 7,
+    "radio_sites": 358,
+    "radio_sites_in_mapped_flood": 9,
+    "spof_relays": 68,
+    "spof_relays_in_mapped_flood": 1,
+    "radio_chain_with_flood_study": 0,
+    "flagged_with_flood_study": 0
+  },
   "namc": {
     "tiles": 595,
     "feedback": {
@@ -457,11 +472,11 @@
     "ntg_backhaul_2019.csv": "96a0fc473c99418cb7fc7041a5a672ce",
     "other_carriers.csv": "02c99388053137758fad00b503985660",
     "outage_ledger.csv": "2d35ca57294edd268af739fcab61acdb",
-    "places.csv": "97718a5477a056f1b741fc3e19a21830",
+    "places.csv": "471e3416fe90890c7b08639da36093cf",
     "power.csv": "85d56c2c625d0c45651f6a3ff7f4d3dc",
-    "sites.csv": "7d8dd3d2be1724cb1e017293be6c69c5",
+    "sites.csv": "8b38105c7f7ada4628dee92dedd83404",
     "telstra_mobile_sites.csv": "9ce2bd61792c6feca1ea8dc8935042c2",
     "tracks.csv": "28574ade2c5f722a7bc7a944efe91ba3",
-    "params.yaml": "0e21974e81c0f25475030bf3050e6a43"
+    "params.yaml": "01fc19b0a9bfa26928a0be930779ef3e"
   }
 }

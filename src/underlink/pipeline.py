@@ -235,6 +235,28 @@ def run() -> dict:
         "spof_relays_total": int(len(all_spof)), "spof_relays_on_cofunded_chains": int(len(relays_reached & all_spof)),
     }
 
+    # --- 5e. Where the three layers stand (Appendix I) ------------------------------
+    # Layer 1 helps most where a flagged place also waits weeks for a wet-season repair. Layer 2 exists where a
+    # STAND satellite site (evacuation centre or fire depot) is within walking distance. And the proposal's flood
+    # rule can only be applied where a published 1% AEP flood study exists.
+    in_flood = net.sites.flood_1pc_km <= P["checks"]["flood_site_km"]
+    relays["in_mapped_1pc_flood"] = relays.site_key.map(in_flood).fillna(False).astype(bool)
+    has_study = rc.flood_study_km.values <= P["checks"]["flood_study_place_km"]
+    flagged_mask = rc.n_spof.values >= 1
+    wet_slow = rc.place_key.isin(rj[rj.total > 14].place_key).values
+    stand = fb.set_index("place_key").get("stand_sky_muster", pd.Series(dtype=float))
+    stand_near = rc.place_key.map(stand).fillna(0).values > 0
+    N["layers"] = {
+        "flagged_places": int(flagged_mask.sum()), "radio_chain_places": int(len(rc)),
+        "flagged_and_wet_slow": int((flagged_mask & wet_slow).sum()),
+        "people_flagged_and_wet_slow": int(rc[flagged_mask & wet_slow].population_2020.sum()),
+        "stand_sites_nt": int((pd.read_csv(PROCESSED / "fallbacks.csv").kind == "stand_sky_muster").sum()),
+        "radio_chain_with_stand_3km": int(stand_near.sum()), "flagged_with_stand_3km": int((flagged_mask & stand_near).sum()),
+        "radio_sites": int(len(net.sites)), "radio_sites_in_mapped_flood": int(in_flood.sum()),
+        "spof_relays": int(len(relays)), "spof_relays_in_mapped_flood": int(relays.in_mapped_1pc_flood.sum()),
+        "radio_chain_with_flood_study": int(has_study.sum()), "flagged_with_flood_study": int((flagged_mask & has_study).sum()),
+    }
+
     namc = pd.read_csv(PROCESSED / "namc_tiles.csv")
     N["namc"] = {"tiles": int(len(namc)), "feedback": namc.feedback.value_counts().to_dict()}
     led = pd.read_csv(PROCESSED / "outage_ledger.csv")

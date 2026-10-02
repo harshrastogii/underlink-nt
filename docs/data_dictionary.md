@@ -62,6 +62,7 @@ Primary key: `site_key`.
 |---|---|---|
 | site_key | text | Salted hash of the ACMA site id |
 | dist_sealed_km | double | Straight-line km to the nearest sealed road (Geoscape National Roads) |
+| flood_1pc_km | double | Km to the nearest published 1% AEP flood study area (NT Planning Scheme overlay, NTLIS). 1 km or less counts as in a mapped flood area (Appendix I). A large value means no study nearby, not no flood risk. |
 | power_class | text | `P0_unknown`: no published backup power. `P1`-`P3`: a Mobile Network Hardening Program item within 3 km. `P4_depot_within_150km`: within 150 km of a Telstra portable generator depot. P0 means the battery hours are not published. It does not mean there is no battery. |
 | is_fibre_connected | boolean | Within 10 km of a fibre town, so treated as a root of the graph |
 | valid_from, valid_to | date | As in dim_place |
@@ -173,6 +174,7 @@ WHERE p.larger AND s.chain_class = 'radio-chain';
 
 ## Other files
 
-- `data/processed/*.csv`: the shippable inputs. Coordinates are rounded to 0.01 degrees (about 1 km) and site ids are hashed. See `src/underlink/prepare.py`.
+- `data/processed/*.csv`: the shippable inputs. Coordinates are rounded to 0.01 degrees (about 1 km) and site ids are hashed. `sites.flood_1pc_km` and `places.flood_study_km` are distances to the published 1% AEP flood studies, computed in `src/underlink/prepare.py` on full coordinates; no flood polygon or study name is shipped there.
+- `outputs/public/figures/layers_map.png`: Figure I1, STAND satellite sites and the 1% AEP flood studies on the Geoscience Australia National Base Map (`scripts/layers_map.py`, needs internet for the base map).
 - `data/manifest.csv`: source, publisher, URL, licence, retrieval date, raw path, md5 and processed row count for every raw file.
 - `outputs/public/numbers.json`: every number quoted in the report, deck and app.

@@ -31,6 +31,7 @@ COMMENT ON TABLE dim_place IS 'One row per place in the NTG 2021 remote communit
 CREATE TABLE dim_site (
     site_key            VARCHAR PRIMARY KEY,  -- R + 8 hex chars, salted hash of the ACMA site id
     dist_sealed_km      DOUBLE PRECISION NOT NULL,      -- straight-line km to nearest sealed road (Geoscape)
+    flood_1pc_km        DOUBLE PRECISION NOT NULL,      -- km to the nearest published 1% AEP flood study area (NT Planning Scheme, NTLIS)
     power_class         VARCHAR NOT NULL,     -- P0_unknown, P1..P3 (MNHP item within 3 km), P4_depot_within_150km
     is_fibre_connected  BOOLEAN NOT NULL,     -- within 10 km of a fibre town (a graph root)
     valid_from          DATE NOT NULL,

@@ -31,7 +31,7 @@ def datasets() -> list[dict]:
         for r in csv.DictReader(fh):
             name = r["source"].split(" public layers")[0] if "Mapping Tool" in r["source"] else r["source"]
             if name.startswith("NTLIS"):
-                name = "NTLIS land council boundaries and counter disaster areas"
+                name = "NTLIS land council boundaries, counter disaster areas and flood studies"
             if name in seen:
                 continue
             seen.add(name)
@@ -89,6 +89,7 @@ def build() -> dict:
         "accc_check": n["accc_check"],
         "wide_links": n["wide_links"],
         "co_investment_reach": n["co_investment_reach"],
+        "layers": n["layers"],
         "single_score": {"places": probe["candidate_places"], "spent_aud": probe["base"]["spent_aud"],
                          "mix": probe["base"]["mix"]},
         "datasets": datasets(),

@@ -109,3 +109,13 @@ def test_numbers_json_matches_its_inputs(numbers):
     for name, digest in numbers["_inputs"].items():
         f = (PROCESSED.parents[1] / "config" / name) if name == "params.yaml" else PROCESSED / name
         assert hashlib.md5(f.read_bytes()).hexdigest() == digest, f"{name} changed since numbers.json was built: rerun run_all.py"
+
+
+def test_where_the_three_layers_stand(numbers):
+    # Appendix I: 16 of the 18 flagged places also wait over 14 days in the wet (layer 1 matters most there);
+    # 7 have a STAND satellite site within 3 km (layer 2); none of the 23 radio-chain places has a published
+    # 1% AEP flood study, and 9 radio sites (1 single-path relay) sit in a mapped flood area.
+    L = numbers["layers"]
+    assert (L["flagged_and_wet_slow"], L["flagged_places"]) == (16, 18)
+    assert (L["flagged_with_stand_3km"], L["radio_chain_with_stand_3km"], L["stand_sites_nt"]) == (7, 8, 88)
+    assert (L["radio_chain_with_flood_study"], L["radio_sites_in_mapped_flood"], L["spof_relays_in_mapped_flood"]) == (0, 9, 1)

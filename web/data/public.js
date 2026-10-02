@@ -492,6 +492,21 @@ window.UNDERLINK = {
   "spof_relays_total": 68,
   "spof_relays_on_cofunded_chains": 12
  },
+ "layers": {
+  "flagged_places": 18,
+  "radio_chain_places": 23,
+  "flagged_and_wet_slow": 16,
+  "people_flagged_and_wet_slow": 6770,
+  "stand_sites_nt": 88,
+  "radio_chain_with_stand_3km": 8,
+  "flagged_with_stand_3km": 7,
+  "radio_sites": 358,
+  "radio_sites_in_mapped_flood": 9,
+  "spof_relays": 68,
+  "spof_relays_in_mapped_flood": 1,
+  "radio_chain_with_flood_study": 0,
+  "flagged_with_flood_study": 0
+ },
  "single_score": {
   "places": 394,
   "spent_aud": 9818928,
@@ -585,7 +600,7 @@ window.UNDERLINK = {
    "organiser": false
   },
   {
-   "name": "NTLIS land council boundaries and counter disaster areas",
+   "name": "NTLIS land council boundaries, counter disaster areas and flood studies",
    "publisher": "Northern Territory Government (NTLIS)",
    "url": "https://ogc.ntlis.nt.gov.au/gs/ntlis/wfs",
    "licence": "CC BY 4.0 (to confirm)",

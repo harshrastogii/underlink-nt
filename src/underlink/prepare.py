@@ -260,6 +260,17 @@ def build_telstra_sites() -> pd.DataFrame:
     return pd.DataFrame({"lat": _r(A.Latitude), "lon": _r(A.Longitude), "co_funded": cof.values, "nt_program": nt.values})
 
 
+def flood_1pc_km(lat, lon) -> "pd.Series":
+    """Distance (km) from each point to the nearest published 1% AEP flood study area: the NT Planning Scheme
+    'subject to flooding' overlay (NTLIS). Computed here on full coordinates and full polygons; only the
+    distances are shipped, so no flood polygon or study name (several name a community) is in data/processed."""
+    import geopandas as gpd
+    g = gpd.read_file(RAW / "nt-context-data/ntlis_wfs/NTPS_SUBJECT_TO_FLOODING.geojson").to_crs(3577)
+    flood = g.union_all()
+    pts = gpd.GeoSeries(gpd.points_from_xy(lon, lat), crs=4326).to_crs(3577)
+    return (pts.distance(flood) / 1000).round(1).values
+
+
 def build_funded() -> pd.DataFrame:
     rows = []
     # Mobile Black Spot Program: coordinates come from the KML extract, keyed by MBSP_ID.
@@ -305,9 +316,11 @@ def main() -> dict:
     places = build_places()
     sites, links, meta = build_network(salt)
     anchors = build_anchors()
+    places["flood_study_km"] = flood_1pc_km(places.lat_full, places.lon_full)
+    sites["flood_1pc_km"] = flood_1pc_km(sites.lat_full, sites.lon_full)
     out = {
         "places": places.drop(columns=["lat_full", "lon_full"]),
-        "sites": sites[["site_key", "lat", "lon", "dist_sealed_km", "on_alra_land"]],
+        "sites": sites[["site_key", "lat", "lon", "dist_sealed_km", "on_alra_land", "flood_1pc_km"]],
         "links": links,
         "anchors": anchors,
         "tracks": build_tracks(),
@@ -322,6 +335,7 @@ def main() -> dict:
     }
     for name, df in out.items():
         df.to_csv(PROCESSED / f"{name}.csv", index=False)
+
     meta.update({name: int(len(df)) for name, df in out.items()})
     meta["population_match"] = places.population_match.value_counts().to_dict()
     (PROCESSED / "prepare_meta.json").write_text(json.dumps(meta, indent=2, default=str))
