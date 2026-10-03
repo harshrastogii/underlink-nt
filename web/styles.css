@@ -566,31 +566,17 @@ html { overflow-anchor: none; }
   @keyframes pl-glow { 0%, 12% { transform: scale(1.18); fill: #FFF5EA; } 22%, 100% { transform: scale(1); fill: #fff; } }
 }
 
-/* ==== Hero map ============================================================================
-   Content layer (no glass on the map itself); the three small labels float over it, so they get
-   the thin glass material. */
+/* ==== Hero map: content layer, no overlays ================================================== */
 .hero-top { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.85fr); gap: 48px; align-items: stretch; }
 .hero-text { align-self: center; }
 .hero-art { position: relative; margin: 0; border-radius: 28px; overflow: hidden; isolation: isolate;
   background: linear-gradient(160deg, rgba(234, 243, 252, 0.95), rgba(255, 255, 255, 0.85) 50%, rgba(255, 245, 234, 0.9));
   border: 1px solid rgba(22, 50, 92, 0.08); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 1px 2px rgba(22, 50, 92, 0.05), 0 16px 40px -16px rgba(22, 50, 92, 0.2); }
-.hero-art svg { position: absolute; left: 12px; top: 62px; width: calc(100% - 24px); height: calc(100% - 118px); display: block; }
-.hm-hud { position: absolute; z-index: 1; color: var(--ink); font-size: 0.78rem; border-radius: 14px; padding: 7px 12px;
+.hero-art svg { position: absolute; inset: 20px; width: calc(100% - 40px); height: calc(100% - 40px); display: block; }
+.hero-text > :first-child { margin-top: 0; }
+.hero-text > :last-child { margin-bottom: 0; }
   background: rgba(255, 255, 255, 0.62); -webkit-backdrop-filter: blur(16px) saturate(140%); backdrop-filter: blur(16px) saturate(140%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 0 0 1px rgba(22, 50, 92, 0.08), 0 4px 14px -6px rgba(22, 50, 92, 0.18); }
-.hm-title { top: 12px; left: 12px; display: grid; gap: 1px; }
-.hm-title b { font-size: 0.85rem; color: var(--navy); }
-.hm-title span { color: var(--muted); font-size: 0.72rem; }
-.hm-status { top: 12px; right: 12px; display: flex; align-items: center; gap: 8px; font-weight: 600; border-radius: 999px; color: var(--navy); }
-.hm-status i { width: 8px; height: 8px; border-radius: 50%; background: #22A55E; box-shadow: 0 0 0 3px rgba(34, 165, 94, 0.18); flex: none; transition: background-color 300ms ease, box-shadow 300ms ease; }
-.hm-status.is-down i { background: #E4602E; box-shadow: 0 0 0 3px rgba(228, 96, 46, 0.2); }
-.hm-legend { left: 12px; right: 12px; bottom: 12px; display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 14px; border-radius: 999px; color: var(--muted); }
-.hm-legend span { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
-.hm-legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; }
-.hm-legend .k-fibre { width: 16px; height: 3px; border-radius: 2px; background: #1E6FD9; }
-.hm-legend .k-relay { background: #16325C; width: 7px; height: 7px; }
-.hm-legend .k-weak { background: #fff; box-shadow: inset 0 0 0 2px #E4602E; }
-.hm-legend .k-comm { background: #6FAEF5; box-shadow: 0 0 0 3px rgba(30, 111, 217, 0.2), inset 0 0 0 1.5px #1E6FD9; }
 .hero-art .hm-label { fill: var(--navy); font: 700 12px var(--font); paint-order: stroke; stroke: #fff; stroke-width: 3px; }
 .hero-art .hm-hop { transition: stroke-opacity 400ms ease; }
 .hero-art .hm-hop.hm-off { stroke-opacity: 0.1; }
@@ -607,8 +593,6 @@ html { overflow-anchor: none; }
 @media (prefers-reduced-motion: no-preference) { .hero-art .hm-flow { animation: hm-flow 2.4s linear infinite; } }
 @keyframes hm-flow { to { stroke-dashoffset: -52; } }
 @media (max-width: 980px) { .hero-top { grid-template-columns: 1fr; gap: 20px; } .hero-art { aspect-ratio: 4 / 5; max-width: 480px; width: 100%; } }
-@media (max-width: 560px) { .hm-status { top: auto; bottom: 58px; right: auto; left: 14px; max-width: none; font-size: 0.75rem; } .hero-art svg { top: 60px; height: calc(100% - 160px); } .hm-legend { gap: 2px 10px; font-size: 0.72rem; } }
-@media (forced-colors: active) { .hm-hud { background: Canvas; color: CanvasText; border: 1px solid CanvasText; } }
 
 /* ==== Findings: one square per place ========================================================== */
 .waffle-wrap { margin: 18px 0 14px; }
