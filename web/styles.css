@@ -674,3 +674,11 @@ input[type="checkbox"] { accent-color: var(--primary); }
 .chain-card { border-radius: 28px; background: linear-gradient(135deg, #16325C, #1E5FBF 60%, #2B6FD6); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 20px 40px -12px rgba(22, 50, 92, 0.35); }
 @media (forced-colors: active) { .topbar, .panel, .btn, .btn-ghost { background: Canvas; border: 1px solid CanvasText; backdrop-filter: none; -webkit-backdrop-filter: none; } }
 @media (prefers-reduced-motion: reduce) { .btn:active, .btn-ghost:active { transform: none; } }
+
+/* Printing the page (Cmd/Ctrl+P): drop the costly blur, glass and animation layers, which made
+   some browsers crash while preparing the print. */
+@media print {
+  body::before, body::after { display: none !important; }
+  * { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; animation: none !important; }
+  .hero-art { display: none !important; }
+}

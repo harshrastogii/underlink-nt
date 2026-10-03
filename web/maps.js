@@ -145,7 +145,7 @@
     for (const w of text.split(" ")) { const t = cur ? cur + " " + w : w; if (ctx.measureText(t).width > width && cur) { out.push(cur); cur = w; } else cur = t; }
     if (cur) out.push(cur); return out;
   }
-  document.getElementById("hazard-png").addEventListener("click", () => {
+  function drawMap() {
     const size = map.getSize(), S = 2, TOP = 52, PAD = 14;
     const c = document.createElement("canvas"), ctx = c.getContext("2d");
     ctx.font = "11px Arial";
@@ -215,22 +215,51 @@
     ctx.restore();
     ctx.fillStyle = "#4F5E70"; ctx.font = "11px Arial";
     foot.forEach((t, i) => ctx.fillText(t, PAD, TOP + size.y + 18 + i * 14));
-    try {
-      c.toBlob((blob) => {
-        const a = document.createElement("a");
-        a.download = "nt-hazards-" + (H.generated || "").slice(0, 10) + ".png";
-        a.href = URL.createObjectURL(blob); a.click();
-        setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-      }, "image/png");
-    } catch (e) { if (note) note.textContent = "This browser blocked the picture because of the base map. Try another base map, or use Save as PDF."; }
+    return c;
+  }
+  const fileName = (ext) => "nt-hazards-" + (H.generated || "").slice(0, 10) + "." + ext;
+  function download(blob, name) {
+    const a = document.createElement("a");
+    a.download = name; a.href = URL.createObjectURL(blob); a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  }
+  const blocked = () => { if (note) note.textContent = "This browser blocked the export because of the base map's tiles. Switch to another base map and try again."; };
+
+  document.getElementById("hazard-png").addEventListener("click", () => {
+    try { drawMap().toBlob((blob) => (blob ? download(blob, fileName("png")) : blocked()), "image/png"); } catch (e) { blocked(); }
   });
 
-  // ---- PDF: the browser's print dialog, map only (see the print rules in styles.css) -----------
+  // ---- PDF: the same picture on one A4 page, written here, so no print dialog is involved -----
+  // (Printing the whole page, with its blur effects and animations, crashed some browsers.)
+  function pdfFromJpeg(jpeg, w, h) {
+    const portrait = h >= w, PW = portrait ? 595.28 : 841.89, PH = portrait ? 841.89 : 595.28, M = 28;
+    const k = Math.min((PW - 2 * M) / w, (PH - 2 * M) / h), dw = w * k, dh = h * k;
+    const x = (PW - dw) / 2, y = PH - M - dh;                   // top-aligned on the page
+    const enc = new TextEncoder(), parts = [], offs = [];
+    let len = 0;
+    const put = (b) => { const u = typeof b === "string" ? enc.encode(b) : b; parts.push(u); len += u.length; };
+    const obj = (n, body) => { offs[n] = len; put(`${n} 0 obj\n`); body(); put("\nendobj\n"); };
+    const draw = `q ${dw.toFixed(2)} 0 0 ${dh.toFixed(2)} ${x.toFixed(2)} ${y.toFixed(2)} cm /Im0 Do Q`;
+    put("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n");
+    obj(1, () => put("<< /Type /Catalog /Pages 2 0 R >>"));
+    obj(2, () => put("<< /Type /Pages /Kids [3 0 R] /Count 1 >>"));
+    obj(3, () => put(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PW} ${PH}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`));
+    obj(4, () => { put(`<< /Type /XObject /Subtype /Image /Width ${w} /Height ${h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>\nstream\n`); put(jpeg); put("\nendstream"); });
+    obj(5, () => put(`<< /Length ${draw.length} >>\nstream\n${draw}\nendstream`));
+    const xref = len;
+    put(`xref\n0 6\n0000000000 65535 f \n` + offs.slice(1).map((o) => String(o).padStart(10, "0") + " 00000 n \n").join(""));
+    put(`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`);
+    return new Blob(parts, { type: "application/pdf" });
+  }
   document.getElementById("hazard-pdf").addEventListener("click", () => {
-    document.body.dataset.print = "map";
-    const det = legend.getContainer().querySelector("details"); if (det) det.open = true;   // the PDF always carries the legend
-    map.invalidateSize(); map.fitBounds(NT);
-    setTimeout(() => window.print(), 400);                      // let the resized map fetch its tiles
+    let c;
+    try { c = drawMap(); } catch (e) { blocked(); return; }
+    try {
+      c.toBlob(async (blob) => {
+        if (!blob) { blocked(); return; }
+        const jpeg = new Uint8Array(await blob.arrayBuffer());
+        download(pdfFromJpeg(jpeg, c.width, c.height), fileName("pdf"));
+      }, "image/jpeg", 0.92);
+    } catch (e) { blocked(); }
   });
-  window.addEventListener("afterprint", () => { if (document.body.dataset.print === "map") { delete document.body.dataset.print; map.invalidateSize(); } });
 })();
