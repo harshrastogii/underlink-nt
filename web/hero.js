@@ -21,32 +21,32 @@
   const svg = mk("svg", { viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: "xMidYMid meet", "aria-hidden": "true", focusable: "false" });
   const defs = mk("defs", {}, svg);
   defs.innerHTML = `
-    <linearGradient id="hm-land" x1="0" y1="0" x2="0.6" y2="1"><stop offset="0" stop-color="#2E5A97"/><stop offset="1" stop-color="#1F4377"/></linearGradient>
-    <pattern id="hm-dots" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.8" fill="#9CC3F5" fill-opacity="0.16"/></pattern>
-    <filter id="hm-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <linearGradient id="hm-land" x1="0" y1="0" x2="0.6" y2="1"><stop offset="0" stop-color="#E3EFFC"/><stop offset="1" stop-color="#CFE2F8"/></linearGradient>
+    <pattern id="hm-dots" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.8" fill="#16325C" fill-opacity="0.08"/></pattern>
+    <filter id="hm-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     <filter id="hm-soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
     <clipPath id="hm-clip"></clipPath>`;
 
   // graticule
-  const grat = mk("g", { stroke: "#FFFFFF", "stroke-opacity": "0.05", "stroke-width": "1" }, svg);
+  const grat = mk("g", { stroke: "#16325C", "stroke-opacity": "0.06", "stroke-width": "1" }, svg);
   for (let lon = 129; lon <= 138; lon += 3) mk("path", { d: d([[lon, -10.5], [lon, -26.6]]) }, grat);
   for (let lat = -12; lat >= -26; lat -= 3) mk("path", { d: d([[128.4, lat], [138.6, lat]]) }, grat);
 
   // land: soft shadow, fill, dot texture, coastline
   const land = (window.NT_COAST || NT_BASE.outline).map((ring) => d(ring) + "Z").join("");
   defs.querySelector("#hm-clip").appendChild(mk("path", { d: land }));
-  mk("path", { d: land, fill: "#000814", "fill-opacity": "0.45", filter: "url(#hm-soft)", transform: "translate(0 8)" }, svg);
+  mk("path", { d: land, fill: "#16325C", "fill-opacity": "0.14", filter: "url(#hm-soft)", transform: "translate(0 6)" }, svg);
   mk("path", { d: land, fill: "url(#hm-land)" }, svg);
   mk("rect", { width: W, height: H, fill: "url(#hm-dots)", "clip-path": "url(#hm-clip)" }, svg);
-  mk("path", { d: NT_BASE.highways.map(d).join(""), fill: "none", stroke: "#BFD6F5", "stroke-opacity": "0.14", "stroke-width": "0.8", "clip-path": "url(#hm-clip)" }, svg);
-  mk("path", { d: land, fill: "none", stroke: "#CFE1F8", "stroke-opacity": "0.55", "stroke-width": "1", "stroke-linejoin": "round" }, svg);
+  mk("path", { d: NT_BASE.highways.map(d).join(""), fill: "none", stroke: "#2B4F80", "stroke-opacity": "0.16", "stroke-width": "0.8", "clip-path": "url(#hm-clip)" }, svg);
+  mk("path", { d: land, fill: "none", stroke: "#6F93C2", "stroke-opacity": "0.8", "stroke-width": "1", "stroke-linejoin": "round" }, svg);
 
   // fibre backbone along the Stuart Highway (public route; fibre towns are not named except Darwin)
   const DARWIN = [130.84, -12.46], KATH = [132.27, -14.47], TENN = [134.19, -19.65], ALICE = [133.88, -23.7];
   const spine = [DARWIN, [131.35, -13.2], KATH, [133.05, -15.95], [133.4, -17.6], TENN, [134.05, -21.4], ALICE, [133.6, -24.9], [133.2, -26.0]];
-  mk("path", { d: d(spine), fill: "none", stroke: "#6FAEF5", "stroke-opacity": "0.35", "stroke-width": "6", "stroke-linecap": "round", filter: "url(#hm-soft)" }, svg);
-  mk("path", { d: d(spine), fill: "none", stroke: "#8EC0FA", "stroke-width": "2.2", "stroke-linecap": "round", "stroke-linejoin": "round" }, svg);
-  mk("path", { class: "hm-flow", d: d(spine), fill: "none", stroke: "#FFFFFF", "stroke-width": "2.2", "stroke-linecap": "round", "stroke-dasharray": "3 26" }, svg);
+  mk("path", { d: d(spine), fill: "none", stroke: "#1E6FD9", "stroke-opacity": "0.25", "stroke-width": "6", "stroke-linecap": "round", filter: "url(#hm-soft)" }, svg);
+  mk("path", { d: d(spine), fill: "none", stroke: "#1E6FD9", "stroke-width": "2.4", "stroke-linecap": "round", "stroke-linejoin": "round" }, svg);
+  mk("path", { class: "hm-flow", d: d(spine), fill: "none", stroke: "#FFFFFF", "stroke-opacity": "0.85", "stroke-width": "1", "stroke-linecap": "round", "stroke-dasharray": "12 40" }, svg);
 
   // illustrative radio chains: fibre town, relays, community. `weak` is the index of the relay that fails.
   const CHAINS = [
@@ -67,12 +67,12 @@
     for (let i = 1; i < c.xy.length; i++) {
       const [x0, y0] = c.xy[i - 1], [x1, y1] = c.xy[i];
       const mx = (x0 + x1) / 2, my = (y0 + y1) / 2 - Math.hypot(x1 - x0, y1 - y0) * 0.18;   // a slight arc per hop
-      c.seg.push(mk("path", { class: "hm-hop", d: `M${x0} ${y0}Q${mx} ${my} ${x1} ${y1}`, stroke: "#DCEBFF", "stroke-opacity": "0.5", "stroke-width": "1.3" }, links));
+      c.seg.push(mk("path", { class: "hm-hop", d: `M${x0} ${y0}Q${mx} ${my} ${x1} ${y1}`, stroke: "#2B4F80", "stroke-opacity": "0.45", "stroke-width": "1.3" }, links));
     }
     c.seg.forEach((s) => { c.len.push(c.len[c.len.length - 1] + s.getTotalLength()); });
     c.relays = c.xy.slice(1, -1).map(([x, y], i) => {
       const g = mk("g", { class: "hm-relay" + (i + 1 === c.weak ? " hm-weak" : ""), transform: `translate(${x} ${y})` }, nodes);
-      if (i + 1 === c.weak) mk("circle", { class: "hm-ripple", r: "4", fill: "none", stroke: "#F28B5B", "stroke-width": "1.5" }, g);
+      if (i + 1 === c.weak) mk("circle", { class: "hm-ripple", r: "4", fill: "none", stroke: "#E4602E", "stroke-width": "1.5" }, g);
       mk("circle", { class: "hm-dot", r: i + 1 === c.weak ? "3.6" : "2.6" }, g);
       return g;
     });
@@ -80,13 +80,13 @@
     c.comm = mk("g", { class: "hm-comm", transform: `translate(${cx} ${cy})` }, nodes);
     mk("circle", { class: "hm-halo", r: "9" }, c.comm);
     mk("circle", { class: "hm-core", r: "4.2" }, c.comm);
-    c.dots = Array.from({ length: 3 }, () => mk("circle", { r: "1.9", fill: "#FFFFFF" }, parts));
+    c.dots = Array.from({ length: 3 }, () => mk("circle", { r: "2.1", fill: "#1E6FD9" }, parts));
   });
   // fibre towns on the chains: rings on the backbone
   [DARWIN, KATH, TENN, ALICE].forEach((t) => {
     const [x, y] = P(t);
-    mk("circle", { cx: x, cy: y, r: "6", fill: "#0E1E38", stroke: "#8EC0FA", "stroke-width": "2" }, nodes);
-    mk("circle", { cx: x, cy: y, r: "2.2", fill: "#FFFFFF" }, nodes);
+    mk("circle", { cx: x, cy: y, r: "6", fill: "#FFFFFF", stroke: "#1E6FD9", "stroke-width": "2.2" }, nodes);
+    mk("circle", { cx: x, cy: y, r: "2.2", fill: "#16325C" }, nodes);
   });
   const [dx, dy] = P(DARWIN);
   mk("text", { x: dx + 10, y: dy - 8, class: "hm-label" }, nodes).textContent = "Darwin";
