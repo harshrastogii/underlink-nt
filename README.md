@@ -7,6 +7,21 @@ Entry for the CDU IT Code Fair 2026 Data Innovation Challenge (remote connectivi
 - **Web app (public numbers only):** https://underlink-nt.vercel.app
 - **Code:** https://github.com/harshrastogii/underlink-nt
 
+## What Underlink is
+
+Underlink is a resilience monitor for remote mobile service in the Northern Territory. A coverage map answers one question: is there signal? Underlink answers the next three: what that signal depends on, which single failure would cut it, and how long a repair could take. One engine, rebuilt from public data with one command, gives four outputs:
+
+| For | Output | Where |
+|---|---|---|
+| DCDD | Government dashboard: six measures with a starting point, regional counts, a star schema for the NTG data warehouse | `app/app.py` (Government tab), web app "For government", `docs/schema.sql` |
+| Carriers and emergency planners | Relay register with hashed IDs, repair windows by month and a correction file (restricted, never published) | `app/app.py` (Explorer tab), `outputs/restricted/` (not shipped) |
+| Communities | "When the phone goes down" card, a draft for co-design | `outputs/community_samples/sample_card.pdf` |
+| Everyone | Public web app: break a link, hazards now, the three fallback layers | https://underlink-nt.vercel.app, `web/` |
+
+Because every number rebuilds in seconds from public registers, DCDD could rerun it each month as the ACMA register and the carrier outage registers update (see `docs/REFRESH.md`).
+
+## How it works
+
 A coverage map shows whether a remote community has a mobile signal. It does not show what that signal depends on. Many NT community towers reach the wider network over a chain of licensed radio relays, up to six links long. If one relay in the chain fails and there is no other path, the community loses mobile service even when its own tower is fine. Underlink builds that relay network from the public ACMA licence register, finds each community's chain back to fibre, and marks the relays that have no alternative path (single-path relays). It then asks four more questions of those relays and keeps each answer separate: which past cyclones would have cut them, what backup power is published for them, how long a repair crew might take to reach them in January and in July, and what still works in the community when the mobile network is down.
 
 ## Quick start

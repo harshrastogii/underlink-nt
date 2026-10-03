@@ -23,6 +23,7 @@
   <div class="wrap topbar-inner">
     <a class="brand" href="#top" aria-label="Underlink home"><img src="logo.webp" alt="" width="40" height="28"> Underlink</a>
     <nav class="nav" aria-label="Sections">
+      <a href="#product">What it is</a>
       <a href="#try">Try it</a>
       <a href="#findings">Findings</a>
       <a href="#repair">Repair</a>
@@ -49,7 +50,7 @@
   <div class="wrap">
     <p class="eyebrow">CDU IT Code Fair 2026 · Data Innovation Challenge · Top Enders</p>
     <h1>Covered is not the same as connected.</h1>
-    <p class="lead">Coverage maps show where a phone should get signal on a normal day. They do not show what that signal depends on. Underlink reads the public radio licence register as a network and finds, for each remote Northern Territory community, the relays its service cannot route around.</p>
+    <p class="lead"><strong>Underlink is a resilience monitor for remote mobile service in the Northern Territory.</strong> Coverage maps show where a phone should get signal on a normal day. They do not show what that signal depends on. Underlink reads the public radio licence register as a network and finds, for each remote Northern Territory community, the relays its service cannot route around.</p>
     <p class="plain"><strong>In plain words:</strong> many remote communities get phone service through a line of radio towers on hills. If one tower in that line breaks and there is no way around it, the whole community can lose service, even when the map says it is covered.</p>
 
 
@@ -74,6 +75,38 @@
         <div><dt>Radio chain</dt><dd>The line of relays that carries a community's signal to a fibre town.</dd></div>
       </dl>
     </div>
+  </div>
+</section>
+
+<!-- PRODUCT ----------------------------------------------------------------->
+<section id="product" class="band">
+  <div class="wrap">
+    <h2>What Underlink is</h2>
+    <p class="section-lead">A coverage map answers one question: is there signal? Underlink answers the next three. What does that signal depend on? Which single failure would cut it? How long could a repair take? It rebuilds every number from public data with one command, so the NT Government can rerun it each month and watch the answers change.</p>
+
+    <div class="compare" role="table" aria-label="What a coverage map shows and what Underlink adds">
+      <div class="compare-row compare-head" role="row"><span role="columnheader">A coverage map shows</span><span role="columnheader">Underlink adds</span></div>
+      <div class="compare-row" role="row"><span role="cell">Signal on a normal day</span><span role="cell">The radio chain behind that signal, traced back to fibre</span></div>
+      <div class="compare-row" role="row"><span role="cell">Covered or not covered</span><span role="cell">The relays with no way around them, and how many places hang on each</span></div>
+      <div class="compare-row" role="row"><span role="cell">Nothing about failure</span><span role="cell">Backup power, repair time in the wet season, and what still works when the tower is down</span></div>
+    </div>
+
+    <h3 class="product-h">One engine, four outputs</h3>
+    <div class="products">
+      <article class="product"><p class="product-who">For DCDD</p><p class="product-name">Government dashboard</p><p>Six measures with a starting point, counts by land council region, and a star schema for the NTG data warehouse (tested in DuckDB).</p><a href="#government">See the measures</a></article>
+      <article class="product"><p class="product-who">For carriers and emergency planners</p><p class="product-name">Relay register (restricted)</p><p>Each single-path relay with a hashed ID, its repair window by month, and a correction file the carrier fills in. Never published.</p><a href="#ethics">Why it is restricted</a></article>
+      <article class="product"><p class="product-who">For communities</p><p class="product-name">&ldquo;When the phone goes down&rdquo; card</p><p>What still works nearby when the tower is down. A draft that a community would redesign with paid interpreters.</p><a href="#card">See the draft card</a></article>
+      <article class="product"><p class="product-who">For everyone</p><p class="product-name">This web app</p><p>Break a link and watch places go dark, see today's fires, floods and closed roads, and the three fallback layers.</p><a href="#try">Try it</a></article>
+    </div>
+
+    <h3 class="product-h">How it would run each month</h3>
+    <ol class="cycle">
+      <li><strong>Registers update.</strong> ACMA licences (daily), carrier outage registers and ACCC site lists.</li>
+      <li><strong>Underlink rebuilds.</strong> One command, a few seconds. A test fails if any number is stale.</li>
+      <li><strong>The measures move.</strong> Six measures by region, loaded into the NTG warehouse.</li>
+      <li><strong>DCDD acts.</strong> Co-investment conditions, a letter to carriers before each wet season, and follow-up on outages.</li>
+    </ol>
+    <p class="note"><strong>What is new:</strong> Underlink reads the radio licence register as a network and finds, with a dominator tree, every relay a place cannot route around. A coverage map cannot show this. The Python prototype, this web app and an offline single-file version all run from the same code.</p>
   </div>
 </section>
 
