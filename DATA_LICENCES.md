@@ -43,6 +43,8 @@ terms with the publisher before any wider release.
 
 **Leaflet 1.9.4** (web map library, bundled in web/vendor/leaflet). BSD-2-Clause, (c) Volodymyr Agafonkin and contributors. https://leafletjs.com/
 
+**ABS Remoteness Areas 2021** (ASGS Edition 3), used only for the NT coastline on the web app's opening map (web/data/nt_coast.js, built by scripts/hero_outline.py). CC BY 4.0, (c) Australian Bureau of Statistics. https://www.abs.gov.au/statistics/standards/australian-statistical-geography-standard-asgs-edition-3
+
 ## What we changed
 
 - Radio site ids are replaced by salted hashes.
