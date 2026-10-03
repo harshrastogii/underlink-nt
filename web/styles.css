@@ -39,7 +39,7 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 88px; }
-body { margin: 0; background: linear-gradient(180deg, #F3F7FD 0%, #FBF8F4 60%, #FFF5EA 100%) fixed; color: var(--ink); font: 400 15px/1.6 var(--font); -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; overflow-x: hidden; }
+body { margin: 0; background: linear-gradient(180deg, #F3F7FD 0%, #FBF8F4 60%, #FFF5EA 100%) fixed; color: var(--ink); font: 400 15px/1.6 var(--font); -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; overflow-x: hidden; overflow-x: clip; }  /* clip: no scroll box of its own */
 /* soft colour blobs behind the glass */
 body::before, body::after { content: ""; position: fixed; z-index: -1; border-radius: 50%; filter: blur(90px); pointer-events: none; }
 body::before { width: 620px; height: 620px; top: -160px; right: -120px; background: radial-gradient(circle, var(--blob-a), transparent 70%), radial-gradient(circle at 20% 80%, var(--blob-b), transparent 60%); }

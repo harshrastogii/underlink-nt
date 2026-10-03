@@ -407,6 +407,13 @@
   // ---- Sources ---------------------------------------------------------------------------
   $("sources").append(...D.datasets.map((s) => el("li", {}, s.organiser ? "★ " : "",
     el("a", { href: s.url, rel: "noopener" }, s.name), el("br"), el("span", { class: "pub" }, `${s.publisher} · ${s.licence}`))));
+  // ---- Logo: back to the top without leaving "#top" in the address bar ----------------------
+  document.querySelector(".brand").addEventListener("click", (e) => {
+    e.preventDefault();
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: still ? "auto" : "smooth" });
+    if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+  });
   // ---- Top navigation: highlight the section in view ------------------------------------
   (function navSpy() {
     const links = [...document.querySelectorAll(".nav a")];
