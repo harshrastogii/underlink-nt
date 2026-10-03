@@ -53,6 +53,11 @@
   const map = L.map(host, { zoomSnap: 0.25, minZoom: 4, maxBounds: [[-32, 122], [-6, 144]], scrollWheelZoom: false });
   map.fitBounds(NT);
   map.attributionControl.setPrefix(false);
+  // the map stretches to the height of the layer panel beside it; refit when that changes
+  if ("ResizeObserver" in window) {
+    let h = host.clientHeight;
+    new ResizeObserver(() => { if (Math.abs(host.clientHeight - h) > 4) { h = host.clientHeight; map.invalidateSize(); map.fitBounds(NT); } }).observe(host);
+  }
   let base = null, tileErrors = 0, outline = null;
   function setBase(id) {
     const b = BASES.find((x) => x.id === id) || BASES[0];

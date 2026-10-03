@@ -259,6 +259,14 @@
     const max = Math.max(...rows.map((x) => x[1]));
     $("classes-chart").append(...rows.map(([t, v, hl]) => el("div", { class: "row" }, el("span", {}, t),
       el("div", { class: "bar" + (hl ? " hl" : ""), style: `width:${(100 * v) / max}%` }), el("span", { class: "val" }, v))));
+    // the same 116 places, one square each, weak-link places first
+    const spof = c.with_ge1_spof, chain = k["radio-chain"];
+    const cells = [["w-spof", spof], ["w-chain", chain - spof], ["w-fibre", k["at-anchor"]],
+      ["w-island", k["radio-island"]], ["w-none", k["no-radio-site"]]];
+    const w = $("classes-waffle");
+    w.setAttribute("aria-label", `${spof} of the ${rows.reduce((a, r) => a + r[1], 0)} larger places are on a radio chain with a weak link; ` +
+      `${chain - spof} more are on a radio chain without one.`);
+    w.append(...cells.flatMap(([cls, n]) => Array.from({ length: n }, () => el("i", { class: cls }))));
   })();
 
   $("chain-facts").append(
