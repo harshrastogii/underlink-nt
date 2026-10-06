@@ -181,6 +181,6 @@ WHERE p.larger AND s.chain_class = 'radio-chain';
 ## Other files
 
 - `data/processed/*.csv`: the shippable inputs. Coordinates are rounded to 0.01 degrees (about 1 km) and site ids are hashed. `sites.flood_1pc_km` and `places.flood_study_km` are distances to the published 1% AEP flood studies, computed in `src/underlink/prepare.py` on full coordinates; no flood polygon or study name is shipped there.
-- `outputs/public/figures/layers_map.png`: Figure I1, STAND satellite sites and the 1% AEP flood studies on the Geoscience Australia National Base Map (`scripts/layers_map.py`, needs internet for the base map).
+- `outputs/public/figures/layers_map.jpg`: Figure I1, STAND satellite sites and the 1% AEP flood studies on the Geoscience Australia National Base Map (`scripts/layers_map.py`, needs internet for the base map).
 - `data/manifest.csv`: source, publisher, URL, licence, retrieval date, raw path, md5 and processed row count for every raw file.
 - `outputs/public/numbers.json`: every number quoted in the report, deck and app.

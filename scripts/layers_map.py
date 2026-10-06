@@ -1,7 +1,7 @@
 """Figure I1 (report Appendix I; the caption there carries the source credits): STAND satellite sites and published 1% AEP flood studies on the
 Geoscience Australia National Base Map, with an inset of the Katherine River flood study.
 
-    python scripts/layers_map.py        # writes outputs/public/figures/layers_map.png
+    python scripts/layers_map.py        # writes outputs/public/figures/layers_map.jpg
 
 Layers come from web/data/nt_base.js (written by scripts/hazards_snapshot.py --base), so the figure
 needs no restricted data and shows no relay, site key or community result. The base map is fetched
@@ -25,7 +25,7 @@ from matplotlib.patches import Patch, Rectangle
 from shapely.geometry import Point, Polygon
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "outputs" / "public" / "figures" / "layers_map.png"
+OUT = ROOT / "outputs" / "public" / "figures" / "layers_map.jpg"   # JPEG keeps the submission ZIP under the 10 MB upload limit
 GA = "https://services.ga.gov.au/gis/rest/services/NationalBaseMap/MapServer/export"
 NAVY, FLOOD, STAND = "#16325C", "#2F6DB5", "#0E8FA8"
 NT_BOX = (128.8, -26.2, 138.2, -10.7)
@@ -93,7 +93,7 @@ def main() -> None:
                       label="STAND satellite site")]
     ax.legend(handles=handles, loc="upper left", bbox_to_anchor=(0.625, 0.43), bbox_transform=fig.transFigure, fontsize=11, frameon=True, facecolor="white", edgecolor="#D6DEE8")
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(OUT, dpi=200, bbox_inches="tight", pad_inches=0.04)
+    fig.savefig(OUT, dpi=200, bbox_inches="tight", pad_inches=0.04, pil_kwargs={"quality": 90, "subsampling": 0})
     print(f"wrote {OUT.relative_to(ROOT)}")
 
 
